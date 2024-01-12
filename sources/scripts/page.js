@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import { SBPLUS } from "./sbplus-dev";
 import { Quiz } from "./quiz";
 

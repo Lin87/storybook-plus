@@ -2,6 +2,7 @@
     Menu Bar Accessibility Friendly
     https://www.w3.org/TR/wai-aria-practices-1.1/#menu
 ****************************************/
+import $ from "jquery";
 
 export function MenuBar( domID, isVerticalMenu ) {
         
