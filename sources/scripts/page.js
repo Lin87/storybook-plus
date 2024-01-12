@@ -114,25 +114,38 @@ Page.prototype.getPageMedia = function() {
         
         case 'kaltura':
 
-            self.addMarkers();
 
-            if ( SBPLUS.kalturaLoaded === false ) {
+            if ( !isNaN( self.kaltura.id ) && self.kaltura.id !== 0 ) {
 
-                $.getScript( self.root + 'scripts/libs/kaltura/mwembedloader.js', function() {
+                self.addMarkers();
 
-                    $.getScript( self.root +  'scripts/libs/kaltura/kwidgetgetsources.js', function() {
+                if ( SBPLUS.kalturaLoaded === false ) {
 
-                        SBPLUS.kalturaLoaded = true;
-                        self.loadKalturaVideoData();
-
+                    $.getScript( self.root + 'scripts/libs/kaltura/mwembedloader.js', function() {
+    
+                        $.getScript( self.root +  'scripts/libs/kaltura/kwidgetgetsources.js', function() {
+    
+                            SBPLUS.kalturaLoaded = true;
+                            self.loadKalturaVideoData();
+    
+                        });
+    
                     });
+    
+                } else {
 
-                });
+                    self.loadKalturaVideoData();
+
+                }
 
             } else {
-                self.loadKalturaVideoData();
+
+                self.showPageError( 'KAL_NOT_AVAILABLE' );
+
             }
 
+            self.setWidgets();
+            
             // self.gaEventCate = 'Video';
             // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':kaltura:page' + SBPLUS.targetPage.data('count');
             // self.gaEventAction = 'start';
@@ -685,8 +698,6 @@ Page.prototype.loadKalturaVideoData = function () {
                 } else {
                     self.showPageError( 'KAL_ENTRY_NOT_READY' );
                 }
-
-                self.setWidgets();
 
             }
 
@@ -1280,6 +1291,12 @@ Page.prototype.showPageError = function( type, src ) {
         case 'NO_IMG':
         
             msg = '<p><strong>The content for this Storybook Page could not be loaded.</strong></p><p><strong>Expected image:</strong> ' + src + '</p><p>Please try refreshing your browser, or coming back later.</p><p>If this problem continues, please <a href="javascript:void(0);" onclick="SBPLUS.openMenuItem(\'sbplus_help\');">contact tech support</a>.</p>';
+
+        break;
+
+        case 'KAL_NOT_AVAILABLE':
+
+            msg = '<p>The manifest file does not specify the Kaltura organization or partner ID. Consequently, Kaltura is unavailable for use throughout the presentation.</p><p><strong>Expected Kaltura video source</strong>: ' + self.src + '</p>';
 
         break;
         
