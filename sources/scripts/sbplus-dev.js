@@ -2303,8 +2303,7 @@ var SBPLUS = SBPLUS || {
     
     checkForSupport: function() {
         
-        if ( Modernizr.video && Modernizr.eventlistener && Modernizr.json && 
-             Modernizr.flexbox && Modernizr.flexwrap && Modernizr.csscalc ) {
+        if ( Modernizr.video && Modernizr.eventlistener && Modernizr.json && Modernizr.flexbox && Modernizr.csscalc ) {
             return 1;
         }
         
