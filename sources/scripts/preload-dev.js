@@ -1,8 +1,8 @@
 onmessage = function( e ) {
 
-    var url = e.data.php + "?uri=" + encodeURIComponent(e.data.pages),
-          fileUrl = e.data.url,
-          request = new XMLHttpRequest();
+    let url = e.data.php + "?uri=" + encodeURIComponent(e.data.pages),
+        fileUrl = e.data.url,
+        request = new XMLHttpRequest();
       
       request.open( "GET", url, true );
       request.send();
@@ -13,8 +13,8 @@ onmessage = function( e ) {
 
             try {
                 
-                var files = JSON.parse(request.responseText);
-                var images = [];
+                let files = JSON.parse(request.responseText);
+                let images = [];
                 
                 files.forEach( function( name ) {
                     
@@ -22,7 +22,7 @@ onmessage = function( e ) {
                         images.push( name );
                     }
                     
-                    var imgXhr = new XMLHttpRequest();
+                    const imgXhr = new XMLHttpRequest();
                         
                         imgXhr.open( "GET", fileUrl + name, true );
                         imgXhr.setRequestHeader( "Cache-Control", "public, max-age=604800, stale-while-revalidate=86400, must-revalidate" );
