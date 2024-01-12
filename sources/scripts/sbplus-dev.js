@@ -2,15 +2,14 @@
  * Storybook Plus
  *
  * @author: Ethan Lin
- * @url: https://github.com/uwex-learning-tech/sbplus-v3
- * @version: 3.4.2
- * Released 09/05/2023
+ * @url: https://github.com/lin87/excelsior-sbplus-v3
+ * @version: 3.5.0
+ * Released xx/xx/xx
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
     Storybook Plus is an web application that serves multimedia contents.
-    Copyright (C) 2013-2023  Ethan Lin, Learning Technology & Media, University
-    of Wisconsin Extended Campus
+    Copyright (C) 2013-2024 Ethan Lin and Excelsior University
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -332,55 +331,35 @@ var SBPLUS = SBPLUS || {
     }, // end loadTemplate function
     
     /**
-     * Set the program theme
+     * Set the copyright info
      *
-     * @since 3.2.0
-     * @updated 12/01/2021
+     * @since 3.5.0
      * @author Ethan Lin
      *
      * @param none
      * @return none
      **/
-     setTheme: function() {
+     setCopyright: function() {
          
         var self = this;
         
         if ( self.manifestLoaded ) {
-                
-            var program = self.xml.setup.program;
-            
-            // if program is empty
-            if ( self.isEmpty( program ) ) {
-                
-                program = SBPLUS.getProgramDirectory();
-                
-                if ( self.isEmpty( program ) ) {
-                    
-                    program = self.manifest.sbplus_program_default;
-                    
-                }
-                
-            }
             
             // set copyright date
             let date = new Date();
             $( '#copyright-footer .copyright-year' ).html( date.getFullYear() + "." );
-            
-            $.getJSON( self.manifest.sbplus_program_themes, function( data ) {
-                
-                $( '#copyright-footer .notice' ).html( data.copyright );
-                
-            } );
+            $( '#copyright-footer .notice' ).html( self.manifest.sbplus_copyright_notice );
             
         }
          
-     }, // end set theme function
+     }, // end set copyright function
 
     /**
-     * Set the program logo
+     * get the program logo
      *
      * @since 3.3.0
      * @author Ethan Lin
+     * @updated on 1/22/2024
      *
      * @param none
      * @return none
@@ -391,59 +370,85 @@ var SBPLUS = SBPLUS || {
 
         if ( self.isEmpty( self.logo ) ) {
                 
-            var program = this.xml.setup.program;
-            
-            if ( SBPLUS.isEmpty( program ) ) {
+            var program = "";
+
+            if ( !self.isEmpty( this.xml.setup.program ) ) {
+
+                program = this.xml.setup.program;
+
+            } else {
+
+                program = self.getProgramDirectory();
                 
-                program = SBPLUS.getProgramDirectory();
-                
-                if ( SBPLUS.isEmpty( program ) ) {
+                if ( self.isEmpty( program ) ) {
                     program = this.manifest.sbplus_program_default;
                 }
+
+            }
+
+            var logoUrl =  program + '.svg';
+
+            if ( !self.isEmpty ( this.manifest.sbplus_logo_directory ) ) {
+
+                logoUrl = this.manifest.sbplus_logo_directory + program + '.svg';
+
+                $.ajax( {
                 
+                    url: logoUrl,
+                    type: 'HEAD'
+                    
+                } ).done( function() {
+                    
+                    self.logo = this.url;
+                    $( self.loadingScreen.logo ).html( '<img src="' + self.logo + '" />' );
+    
+                    // set logo on splash screen
+                    const splashLogo = document.querySelector( self.splash.logo );
+                    const logo = document.createElement( 'img' );
+    
+                    logo.src = self.logo;
+                    splashLogo.appendChild( logo );
+                    
+                } ).fail( function() {
+                    
+                    self.setDefaultLogo();
+                    
+                } );
+
+            } else {
+
+                self.setDefaultLogo();
+
             }
             
-            var logoUrl = this.manifest.sbplus_logo_directory + program + '.svg';
-            
-            $.ajax( {
-                
-                url: logoUrl,
-                type: 'HEAD'
-                
-            } ).done( function() {
-                
-                self.logo = this.url;
-                $( self.loadingScreen.logo ).html( '<img src="' + self.logo + '" />' );
-
-                // set logo on splash screen
-                const splashLogo = document.querySelector( self.splash.logo );
-                const logo = document.createElement( 'img' );
-
-                logo.src = self.logo;
-                splashLogo.appendChild(logo);
-                
-            } ).fail( function() {
-                
-                if ( self.manifest.sbplus_program_default ) {
-                    logoUrl = self.manifest.sbplus_logo_directory + self.manifest.sbplus_program_default + '.svg';
-                } else {
-                    logoUrl = self.manifest.sbplus_root_directory + 'images/default_logo.svg';
-                }
-
-                self.logo = logoUrl;
-
-                $( self.loadingScreen.logo ).html( '<img src="' + self.logo + '" />' );
-
-                // set logo on splash screen
-                const splashLogo = document.querySelector( self.splash.logo );
-                const logo = document.createElement( 'img' );
-                
-                logo.src = self.logo;
-                splashLogo.appendChild(logo);
-                
-            } );
-            
         }
+
+    },
+
+    /**
+     * get the program logo
+     *
+     * @since 3.5.0
+     * @author Ethan Lin
+     *
+     * @param none
+     * @return none
+     **/
+    setDefaultLogo: function() {
+
+        var self = this;
+        var logoUrl = self.manifest.sbplus_root_directory + 'images/default_logo.svg';
+
+        self.logo = logoUrl;
+
+        $( self.loadingScreen.logo ).html( '<img src="' + self.logo + '" />' );
+
+        // set logo on splash screen
+        const splashLogo = document.querySelector( self.splash.logo );
+        const logo = document.createElement( 'img' );
+        
+        logo.src = self.logo;
+        splashLogo.appendChild( logo );
 
     },
     
@@ -627,6 +632,7 @@ var SBPLUS = SBPLUS || {
             }
             
             // if accent is empty, set the accent to the vaule in the manifest
+
             if ( self.isEmpty( xAccent ) ) {
                 xAccent = self.manifest.sbplus_default_accent;
             }
@@ -683,7 +689,7 @@ var SBPLUS = SBPLUS || {
             self.getLogo();
 
             // set the program theme
-            self.setTheme();
+            self.setCopyright();
             
             // get/set the presenation storage id
             self.presentationLoc = self.sanitize( self.getCourseDirectory() );            
@@ -702,15 +708,7 @@ var SBPLUS = SBPLUS || {
             }
             
             // if analytics is on, get and set Google analtyics tracking
-            if ( self.xml.settings.analytics === 'on' || self.xml.settings.analytics === 'true' ) {
-                
-                // (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-                // (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-                // m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-                // })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-                
-                // ga( 'create', self.manifest.sbplus_google_tracking_id, 'auto' );
-                // ga( 'set', { 'appName': 'SBPLUS', 'appVersion': self.xml.settings.version } );
+            if ( !self.isEmpty( self.manifest.sbplus_google_tracking_id ) && ( self.xml.settings.analytics === 'on' || self.xml.settings.analytics === 'true' ) ) {
 
                 /* Google Analytics gtag.js */
                 let head = document.getElementsByTagName( 'head' )[0];
@@ -748,7 +746,6 @@ var SBPLUS = SBPLUS || {
 
                 gtag('js', new Date());
                 gtag('config', self.manifest.sbplus_google_tracking_id);
-                
             }
             
             if ( xAuthor.length ) {
@@ -760,8 +757,8 @@ var SBPLUS = SBPLUS || {
                 
                 self.xml.setup.author = xAuthor.attr( 'name' ).trim();
                 
-                // if author name in XML is not empty
-                if ( !self.isEmpty( sanitizedAuthor ) ) {
+                // if author directory and name in XML are not empty
+                if ( !self.isEmpty( self.manifest.sbplus_author_directory ) && !self.isEmpty( sanitizedAuthor )  ) {
                     
                     // get centralized author name and profile via AJAX
                     $.ajax( {
@@ -995,29 +992,26 @@ var SBPLUS = SBPLUS || {
                 
             } );
             
-            // if accent does not match the default accent
-            if ( self.xml.settings.accent !== self.manifest.sbplus_default_accent ) {
+            // set accent color
                 
-                // set hover color hex value
-                let hover = self.colorLum( self.xml.settings.accent, 0.2 );
-                
-                // set the text color hex value
-                let textColor = self.colorContrast( self.xml.settings.accent );
+            // set hover color hex value
+            let hover = self.colorLum( self.xml.settings.accent, 0.2 );
+            
+            // set the text color hex value
+            let textColor = self.colorContrast( self.xml.settings.accent );
 
-                // video marker color
-                let markerColor = self.colorLum(self.xml.settings.accent, 0.4);
-                
-                if ( textColor !== "#000" ) {
-                    markerColor = self.colorLum(self.xml.settings.accent, 0.8);
-                }
-                
-                // construct the CSS
-                var style = '.sbplus_wrapper button:hover{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button{color:' + textColor  + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button:hover{background-color:' + hover + '}.sbplus_wrapper #sbplus #sbplus_banner_bar{background-color:' + self.xml.settings.accent + ';color:' + textColor + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .item:hover{color:' + textColor + ';background-color:' + hover + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .sb_selected{color:' + textColor + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col #sbplus_table_of_contents_wrapper .section .current{border-left-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:hover,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:hover{background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:hover a,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:hover a{color:' + textColor + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .active, .sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .active{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:focus,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:focus{background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:focus a,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:focus a{color:' + textColor + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent:hover,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent:hover{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper #copyToCbBtn{color:' + textColor  + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper #copyToCbBtn:hover{background-color:' + hover + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar{background-color:'+ self.xml.settings.accent +'}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar .vjs-control,.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin button:hover{color:' + textColor  + '}.video-js .vjs-volume-level,.video-js .vjs-play-progress{background-color:' + textColor  + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_quiz_wrapper .sbplus_quiz_submit_btn, .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_quiz_wrapper .sbplus_quiz_tryagain_btn{color:' + textColor  + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .sbplus_secondary_controls{background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .sbplus_secondary_controls #expand_contract_btn{color:' + textColor  + '}.sbplus_wrapper.toc_displayed #sbplus #sbplus_control_bar #mobile_toc_toggle_btn{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar .vjs-progress-control .vjs-marker{background-color:' + markerColor + '}';
-                
-                // append the style/css to the HTML head
-                $( 'head' ).append( '<style type="text/css">' + style + '</style>' );
-                
+            // video marker color
+            let markerColor = self.colorLum(self.xml.settings.accent, 0.4);
+            
+            if ( textColor !== "#000" ) {
+                markerColor = self.colorLum(self.xml.settings.accent, 0.8);
             }
+            
+            // construct the CSS
+            var style = '.sbplus_wrapper button:hover{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button{color:' + textColor  + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button:hover{background-color:' + hover + '}.sbplus_wrapper #sbplus #sbplus_banner_bar{background-color:' + self.xml.settings.accent + ';color:' + textColor + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .item:hover{color:' + textColor + ';background-color:' + hover + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .sb_selected{color:' + textColor + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col #sbplus_table_of_contents_wrapper .section .current{border-left-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:hover,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:hover{background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:hover a,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:hover a{color:' + textColor + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .active, .sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .active{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:focus,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:focus{background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:focus a,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:focus a{color:' + textColor + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent:hover,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent:hover{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper #copyToCbBtn{color:' + textColor  + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper #copyToCbBtn:hover{background-color:' + hover + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar{background-color:'+ self.xml.settings.accent +'}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar .vjs-control,.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin button:hover{color:' + textColor  + '}.video-js .vjs-volume-level,.video-js .vjs-play-progress{background-color:' + textColor  + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_quiz_wrapper .sbplus_quiz_submit_btn, .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_quiz_wrapper .sbplus_quiz_tryagain_btn{color:' + textColor  + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .sbplus_secondary_controls{background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .sbplus_secondary_controls #expand_contract_btn{color:' + textColor  + '}.sbplus_wrapper.toc_displayed #sbplus #sbplus_control_bar #mobile_toc_toggle_btn{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar .vjs-progress-control .vjs-marker{background-color:' + markerColor + '}';
+            
+            // append the style/css to the HTML head
+            $( 'head' ).append( '<style type="text/css">' + style + '</style>' );
             
             // if mathjax if turned on
             if ( self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true' ) {
@@ -2023,7 +2017,6 @@ var SBPLUS = SBPLUS || {
                     
                     var author = self.xml.setup.author;
                     var sanitizedAuthor = self.sanitize( author );
-                    var profileUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.jpg';
                     
                     $.ajax( {
             
@@ -2041,21 +2034,27 @@ var SBPLUS = SBPLUS || {
                         
                     } ).fail( function() {
                         
-                        $.ajax( {
+                        if ( !self.isEmpty( self.manifest.sbplus_author_directory ) ) {
+
+                            var profileUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.jpg';
+
+                            $.ajax( {
                             
-                            type: 'HEAD',
-                            url: profileUrl
-                        
-                        } ).done( function() {
+                                type: 'HEAD',
+                                url: profileUrl
                             
-                            self.xml.setup.authorPhoto = this.url;
+                            } ).done( function() {
+                                
+                                self.xml.setup.authorPhoto = this.url;
+                                
+                                var img = '<img src="';
+                                img += this.url +'" alt="Photo of ' + author + '" crossorigin="Anonymous" />';
+                                
+                                $( '.profileImg' ).html( img );
+                                
+                            } );
                             
-                            var img = '<img src="';
-                            img += this.url +'" alt="Photo of ' + author + '" crossorigin="Anonymous" />';
-                            
-                            $( '.profileImg' ).html( img );
-                            
-                        } );
+                        }
                         
                     } );
                     
@@ -2080,10 +2079,10 @@ var SBPLUS = SBPLUS || {
 
                 content += self.noScript( self.xml.setup.profile );
                 
-                
-                
             } else {
+
                 content = 'No author profile available.';
+
             }
             
             break;
