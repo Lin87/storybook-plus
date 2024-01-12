@@ -52,9 +52,6 @@ module.exports = {
         new CopyWebpackPlugin( {
             patterns: [
                 {
-                    from: 'iframe.html',
-                },
-                {
                     from: 'default.*',
                 },
                 {
