@@ -5,8 +5,13 @@ const common = require( './webpack.common.js' );
 module.exports = merge( common, {
     mode: 'development',
     devtool: 'inline-source-map',
+    optimization: {
+        runtimeChunk: 'single',
+    },
     devServer: {
         static: path.resolve( __dirname, 'dist' ),
-        watchFiles: [ './assets/*', './sources/*' ]
+        hot: true,
+        liveReload: true,
+        watchFiles: [ 'index.html', './assets/*', './sources/*' ]
     }
 } );

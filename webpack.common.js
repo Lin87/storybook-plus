@@ -48,6 +48,13 @@ module.exports = {
             template: 'index.html',
             filename: path.resolve( __dirname, 'dist', 'index.html' ),
             chunks: [ 'sbplus' ],
+            excludeChunks: ['preload'],
+            links: [
+                'sources/manifest.json',
+                'sources/scripts/libs/modernizr.js',
+                'sources/scripts/libs/videojs/video-js.min.css',
+                'sources/scripts/libs/videojs/video.js',
+            ],
         } ),
         new CopyWebpackPlugin( {
             patterns: [
@@ -98,7 +105,6 @@ module.exports = {
                     './sources/scripts/libs/videojs/plugins/resolution/silvermine-videojs-quality-selector.min.js',
                     './sources/scripts/libs/videojs/plugins/youtube/youtube.js',
                     './sources/scripts/libs/videojs/plugins/vimeo/videojs-vimeo.min.js',
-                    
                 ],
                 transforms: {
                     after: async (code) => {
