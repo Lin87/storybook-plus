@@ -733,14 +733,14 @@ Page.prototype.renderVideoJS = function( src ) {
     
     var self = this;
     
-    var ka = {
-        play: false,
-        replay: false,
-        playReached25: false,
-        playReached50: false,
-        playReached75: false,
-        playReached100: false
-    }
+    // var ka = {
+    //     play: false,
+    //     replay: false,
+    //     playReached25: false,
+    //     playReached50: false,
+    //     playReached75: false,
+    //     playReached100: false
+    // }
     
     src = typeof src !== 'undefined' ? src : self.src;
 
@@ -986,15 +986,15 @@ Page.prototype.renderVideoJS = function( src ) {
           self.isPlaying = false;
         } );
         
-        player.on( 'loadedmetadata', function() {
+        // player.on( 'loadedmetadata', function() {
             
-            if ( self.isKaltura ) {
-                sendKAnalytics(2, self.kaltura.id, self.src, player.duration());
-            }
+        //     if ( self.isKaltura ) {
+        //         sendKAnalytics(2, self.kaltura.id, self.src, player.duration());
+        //     }
             
-        } );
+        // } );
         
-        player.on('play', function() {
+        player.on( 'play', function() {
             
             if ( $(SBPLUS.layout.mediaMsg).is( ':visible' ) ) {
                 $(SBPLUS.layout.mediaMsg).addClass( 'hide' ).html('');
@@ -1006,67 +1006,67 @@ Page.prototype.renderVideoJS = function( src ) {
             
           self.isPlaying = true;
           
-          if ( self.isKaltura && ka.play === false && ka.replay === false ) {
+        //   if ( self.isKaltura && ka.play === false && ka.replay === false ) {
               
-              ka.play = true;
-              sendKAnalytics(3, self.kaltura.id, self.src, player.duration());
+        //       ka.play = true;
+        //       sendKAnalytics(3, self.kaltura.id, self.src, player.duration());
               
-          }
+        //   }
           
-          if ( self.isKaltura && ka.replay ) {
+        //   if ( self.isKaltura && ka.replay ) {
               
-              ka.replay = false;
-              sendKAnalytics(16, self.kaltura.id, self.src, player.duration());
+        //       ka.replay = false;
+        //       sendKAnalytics(16, self.kaltura.id, self.src, player.duration());
               
-          }
+        //   }
           
-        });
+        } );
         
-        player.on( 'timeupdate', function() {
+        // player.on( 'timeupdate', function() {
           
-          if ( self.isKaltura && self.isPlaying ) {
+        //   if ( self.isKaltura && self.isPlaying ) {
               
-              var progress = player.currentTime() / player.duration()
+        //       var progress = player.currentTime() / player.duration()
               
-              if ( progress > 0.25 && ka.playReached25 === false ) {
+        //       if ( progress > 0.25 && ka.playReached25 === false ) {
                   
-                  ka.playReached25 = true;
-                  sendKAnalytics(4, self.kaltura.id, self.src, player.duration());
+        //           ka.playReached25 = true;
+        //           sendKAnalytics(4, self.kaltura.id, self.src, player.duration());
                   
-              }
+        //       }
               
-              if ( progress > 0.50 && ka.playReached50 === false ) {
+        //       if ( progress > 0.50 && ka.playReached50 === false ) {
                   
-                  ka.playReached50 = true;
-                  sendKAnalytics(5, self.kaltura.id, self.src, player.duration());
+        //           ka.playReached50 = true;
+        //           sendKAnalytics(5, self.kaltura.id, self.src, player.duration());
                   
-              }
+        //       }
               
-              if ( progress > 0.75 && ka.playReached75 === false ) {
+        //       if ( progress > 0.75 && ka.playReached75 === false ) {
                   
-                  ka.playReached75 = true;
-                  sendKAnalytics(6, self.kaltura.id, self.src, player.duration());
+        //           ka.playReached75 = true;
+        //           sendKAnalytics(6, self.kaltura.id, self.src, player.duration());
                   
-              }
+        //       }
               
-          }
+        //   }
           
-        });
+        // } );
         
         player.on( 'ended', function() {
             
             self.isPlaying = false;
             
-            if ( self.isKaltura && ka.playReached100 === false ) {
+            // if ( self.isKaltura && ka.playReached100 === false ) {
                 
-                ka.playReached100 = true;
-                sendKAnalytics(7, self.kaltura.id, self.src, player.duration());
+            //     ka.playReached100 = true;
+            //     sendKAnalytics(7, self.kaltura.id, self.src, player.duration());
             
-            }
+            // }
             
-            if ( self.isKaltura && ka.replay === false ) {
-                ka.replay = true;
-            }
+            // if ( self.isKaltura && ka.replay === false ) {
+            //     ka.replay = true;
+            // }
 
             // send event to Google Analytics
             // if ( self.gaEventCate !== '' ) {
@@ -1076,7 +1076,7 @@ Page.prototype.renderVideoJS = function( src ) {
                 
             // }
           
-        });
+        } );
         
         // if ( SBPLUS.xml.settings.analytics === 'on' ) {
             
@@ -1591,31 +1591,31 @@ function setupMarkers ( player, markers ) {
 
 }
 
-function sendKAnalytics(type, id, source, duration) {
+// function sendKAnalytics(type, id, source, duration) {
     
-    var settings = {
-      "url": "https://www.kaltura.com/api_v3/service/stats/action/collect",
-      "method": "POST",
-      "timeout": 0,
-      "headers": {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      "data": {
-        "event[entryId]": source,
-        "event[partnerId]": id,
-        "event[duration]": duration,
-        "event[eventType]": type,
-        "event[referrer]": "https://media.uwex.edu",
-        "event[seek]": "false",
-        "event[sessionId]": guid(),
-        "event[eventTimestamp]": +new Date(),
-        "event[objectType]": "KalturaStatsEvent"
-      }
-    };
+//     var settings = {
+//       "url": "https://www.kaltura.com/api_v3/service/stats/action/collect",
+//       "method": "POST",
+//       "timeout": 0,
+//       "headers": {
+//         "Content-Type": "application/x-www-form-urlencoded"
+//       },
+//       "data": {
+//         "event[entryId]": source,
+//         "event[partnerId]": id,
+//         "event[duration]": duration,
+//         "event[eventType]": type,
+//         "event[referrer]": "https://media.uwex.edu",
+//         "event[seek]": "false",
+//         "event[sessionId]": guid(),
+//         "event[eventTimestamp]": +new Date(),
+//         "event[objectType]": "KalturaStatsEvent"
+//       }
+//     };
     
-    $.ajax(settings);
+//     $.ajax(settings);
     
-}
+// }
 
 function displayWidgetContent( str ) {
     

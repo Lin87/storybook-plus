@@ -1033,13 +1033,7 @@ var SBPLUS = SBPLUS || {
             
             // flag the splash screen as rendered
             self.splashScreenRendered = true;
-            
-            if ( self.xml.settings.analytics === 'on' || self.xml.settings.analytics === 'true' ) {
-                
-                self.sendToGA( 'splash_screen_view', self.getCourseDirectory() +  ' - splash' );
-                
-            }
-            
+            self.sendToGA( 'splash_screen_view', self.getCourseDirectory() +  ' - splash' );
             self.resize();
             
         }
@@ -1206,14 +1200,8 @@ var SBPLUS = SBPLUS || {
                 
                 // select the first page
                 self.selectPage( '0,0' );
-
                 self.presentationStarted = true;
-                
-                if ( self.xml.settings.analytics === 'on' || self.xml.settings.analytics === 'true' ) {
-                    
-                    self.sendToGA( 'presentation_screen_view', self.getCourseDirectory() );
-                    
-                }
+                self.sendToGA( 'presentation_screen_view', self.getCourseDirectory() );
                 
             } );
             
@@ -1251,12 +1239,7 @@ var SBPLUS = SBPLUS || {
             } );
             
             self.presentationStarted = true;
-            
-            if ( self.xml.settings.analytics === 'on' || self.xml.settings.analytics === 'true' ) {
-                    
-                self.sendToGA( 'presentation_screen_view', self.getCourseDirectory() );
-                
-            }
+            self.sendToGA( 'presentation_screen_view', self.getCourseDirectory() );
             
         }
         
@@ -2886,7 +2869,7 @@ var SBPLUS = SBPLUS || {
     
     sendToGA: function( event, context ) {
         
-        if ( this.xml.settings.analytics === 'on' || this.xml.settings.analytics === 'true' ) {
+        if ( !this.isEmpty( this.manifest.sbplus_google_tracking_id ) && ( this.xml.settings.analytics === 'on' || this.xml.settings.analytics === 'true' ) ) {
 
             window.dataLayer = window.dataLayer || [];
 
