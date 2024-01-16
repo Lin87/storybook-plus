@@ -1,5 +1,8 @@
 ### Version Change Logs
 
+#### 3.5.0 (xx/xx/2024)
+* Pending
+
 #### 3.4.2 (09/05/2023)
 * Fixed an issue with table of content height
 

@@ -1,5 +1,5 @@
 # Storybook Plus (SB+)  
-**version 3.4.2**
+**version 3.5.0**
 
 ---
 
@@ -28,8 +28,8 @@ Please visit the [Storybook Plus documentation](https://media.uwex.edu/staff-doc
 ---
 ### Version Change Log
 
-See [CHANGELOG](https://github.com/uwex-learning-tech/sbplus-v3/blob/master/CHANGELOG.md) for details.
+See [CHANGELOG](https://github.com/Lin87/excelsior-sbplus-v3/blob/master/CHANGELOG.md) for details.
 
 ---
 ### License & Copyright
-Storybook Plus (SB+) is licensed under [GNU v3](https://github.com/uwex-learning-tech/sbplus-v3/blob/master/LICENSE) license. (c) 2013 - 2023. Ethan Lin, [Learning Technology & Media Services](https://media.uwex.edu), and [University of Wisconsin Extended Campus](https://uwex.wisconsin.edu). All rights reserved.
+Storybook Plus (SB+) is licensed under [GNU v3](https://github.com/Lin87/excelsior-sbplus-v3/blob/master/LICENSE) license. (c) 2013 - 2024. Ethan Lin and [Excelsior University](https://excelsior.edu). All rights reserved.
