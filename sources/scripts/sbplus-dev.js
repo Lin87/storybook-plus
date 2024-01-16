@@ -347,7 +347,7 @@ var SBPLUS = SBPLUS || {
             
             // set copyright date
             let date = new Date();
-            $( '#copyright-footer .copyright-year' ).html( date.getFullYear() + "." );
+            $( '#copyright-footer .copyright-year' ).html( date.getFullYear() );
             $( '#copyright-footer .notice' ).html( self.manifest.sbplus_copyright_notice );
             
         }
