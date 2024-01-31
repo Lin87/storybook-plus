@@ -995,7 +995,7 @@ var SBPLUS = SBPLUS || {
                     accentCssModified = accentCssModified.replace( /--var-markerColor/gi, markerColor );
 
                     // append the style/css to the HTML head
-                    $("head").append('<style type="text/css">' + accentCssModified + "</style>");
+                    $( "head" ).append('<style type="text/css">' + accentCssModified + "</style>");
 
                 } );
 
@@ -2406,10 +2406,12 @@ var SBPLUS = SBPLUS || {
         // convert to decimal and change luminosity
         var rgb = "#", c, i;
         for (i = 0; i < 3; i++) {
-        	c = parseInt(hex.substr(i*2,2), 16);
+        	c = parseInt(hex.substring(i * 2, i * 2 + 2), 16);
         	c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-        	rgb += ("00"+c).substr(c.length);
+        	rgb += ("00" + c).substring(c.length);
         }
+
+        console.log( hex, lum, rgb );
         
         return rgb;
         
@@ -2419,9 +2421,9 @@ var SBPLUS = SBPLUS || {
 
         hex = hex.replace("#", "");
 
-        let r = parseInt(hex.substr(0,2),16);
-        let g = parseInt(hex.substr(2,2),16);
-        let b = parseInt(hex.substr(4,2),16);
+        let r = parseInt(hex.substring(0,2),16);
+        let g = parseInt(hex.substring(2,2),16);
+        let b = parseInt(hex.substring(4,2),16);
         let yiq = ((r*299)+(g*587)+(b*114))/1000;
 
         return yiq >= 128 ? '#000' : '#fff';
