@@ -36,8 +36,8 @@ import "../sass/sbplus.scss";
 import { MenuBar } from "./menubar";
 import { Page } from "./page";
 
-var worker;
-var SBPLUS = SBPLUS || {
+let worker;
+let SBPLUS = {
     
     /***************************************************************************
         VARIABLE / CONSTANT / OBJECT DECLARATIONS
@@ -211,7 +211,7 @@ var SBPLUS = SBPLUS || {
         // get manifest data if not set
         if ( this.manifest === null ) {
             
-            var self = this;
+            let self = this;
             
             // use AJAX load the manifest JSON data using the
             // url returned by the getManifestURL function
@@ -238,7 +238,7 @@ var SBPLUS = SBPLUS || {
             } ).fail( function() { // when manifest fail to load...
                 
                 // set an error message
-                var msg = '<div class="error">';
+                let msg = '<div class="error">';
                 msg += '<p><strong>Storybook Plus Error:</strong> ';
                 msg += 'failed to load the manifest file.<br>'
                 msg += 'Expecting: <code>' + this.url + '</code></p>';
@@ -255,10 +255,11 @@ var SBPLUS = SBPLUS || {
         setInterval( async () => {
 
             const online = await checkOnlineStatus();
+
             if ( online ) {
-                self.hideConnectionMessage();
+                SBPLUS.hideConnectionMessage();
             } else {
-                self.showConnectionMessage();
+                SBPLUS.showConnectionMessage();
             }
 
         }, 60000 );
@@ -277,7 +278,7 @@ var SBPLUS = SBPLUS || {
      **/
     loadTemplate: function() {
         
-        var self = this;
+        const self = this;
 
         // add loaded-in-iframe class if loaded in an iframe
         if ( window.self !== window.top ) {
@@ -287,7 +288,7 @@ var SBPLUS = SBPLUS || {
         if ( self.manifestLoaded ) {
             
             // set the template URL for the sbplus.tpl file
-            var templateUrl = self.manifest.sbplus_root_directory;
+            let templateUrl = self.manifest.sbplus_root_directory;
             templateUrl += 'scripts/templates/sbplus.tpl';
             
             // AJAX call and load the sbplus.tpl template
@@ -315,7 +316,7 @@ var SBPLUS = SBPLUS || {
             } ).fail( function() { // when fail to load the template
                 
                 // set an error message
-                var msg = '<div class="error">';
+                let msg = '<div class="error">';
                 msg += '<p><strong>Storybook Plus Error:</strong> ';
                 msg += 'failed to load template.<br>';
                 msg += 'Expecting: <code>' + this.url + '</code></p>';
@@ -341,12 +342,12 @@ var SBPLUS = SBPLUS || {
      **/
      setCopyright: function() {
          
-        var self = this;
+        const self = this;
         
         if ( self.manifestLoaded ) {
             
             // set copyright date
-            let date = new Date();
+            const date = new Date();
             $( '#copyright-footer .copyright-year' ).html( date.getFullYear() );
             $( '#copyright-footer .notice' ).html( self.manifest.sbplus_copyright_notice );
             
@@ -366,11 +367,11 @@ var SBPLUS = SBPLUS || {
      **/
     getLogo: function() {
 
-        var self = this;
+        const self = this;
 
         if ( self.isEmpty( self.logo ) ) {
                 
-            var program = "";
+            let program = "";
 
             if ( !self.isEmpty( this.xml.setup.program ) ) {
 
@@ -386,7 +387,7 @@ var SBPLUS = SBPLUS || {
 
             }
 
-            var logoUrl =  program + '.svg';
+            let logoUrl =  program + '.svg';
 
             if ( !self.isEmpty ( this.manifest.sbplus_logo_directory ) ) {
 
@@ -436,8 +437,8 @@ var SBPLUS = SBPLUS || {
      **/
     setDefaultLogo: function() {
 
-        var self = this;
-        var logoUrl = self.manifest.sbplus_root_directory + 'images/default_logo.svg';
+        const self = this;
+        const logoUrl = self.manifest.sbplus_root_directory + 'images/default_logo.svg';
 
         self.logo = logoUrl;
 
@@ -492,22 +493,22 @@ var SBPLUS = SBPLUS || {
         if ( this.manifestLoaded ) {
             
             // set the menu item(s) data from the manifest
-            var customMenuItems = this.manifest.sbplus_custom_menu_items;
+            const customMenuItems = this.manifest.sbplus_custom_menu_items;
             
             // if data is exists...
             if ( customMenuItems.length ) {
                 
                 // loop through the data
-                for ( var key in customMenuItems ) {
+                for ( let key in customMenuItems ) {
                     
                     // set the menu item name
-                    var name = customMenuItems[key].name;
+                    const name = customMenuItems[key].name;
                     
                     // clean and reformat the name
-                    var sanitizedName = this.sanitize( name );
+                    const sanitizedName = this.sanitize( name );
                     
                     // set the HTML LI tag
-                    var item = '<li tabindex="-1" role="menuitem" aria-live="polite" class="menu-item sbplus_' + sanitizedName + '"><a href="javascript:void(0);" onclick="SBPLUS.openMenuItem(\'sbplus_' + sanitizedName + '\');"><span class="icon-' + sanitizedName + '"></span> ' + name + '</a></li>';
+                    const item = '<li tabindex="-1" role="menuitem" aria-live="polite" class="menu-item sbplus_' + sanitizedName + '"><a href="javascript:void(0);" onclick="SBPLUS.openMenuItem(\'sbplus_' + sanitizedName + '\');"><span class="icon-' + sanitizedName + '"></span> ' + name + '</a></li>';
                     
                     // append the HTML LI tag to the menu list
                     $( this.menu.menuList ).append( item );
@@ -537,10 +538,10 @@ var SBPLUS = SBPLUS || {
         
         if ( this.beforeXMLLoadingDone ) {
             
-            var self = this;
+            const self = this;
             
             // set the path to the XML file
-            var xmlUrl = 'assets/sbplus.xml?_=' + new Date().getTime();
+            const xmlUrl = 'assets/sbplus.xml?_=' + new Date().getTime();
             
             // AJAX call to the XML file
             $.get( xmlUrl, function( data ) {
@@ -581,34 +582,34 @@ var SBPLUS = SBPLUS || {
      **/
     parseXMLData: function( d ) {
         
-        var self = this;
+        const self = this;
             
         if ( self.xmlLoaded ) {
             
             // set the parameter as jQuery set
-            var data = $( d );
+            const data = $( d );
             
             // set data from the XML to respective variables
-            var xSb = data.find( 'storybook' );
-            var xSetup = data.find( 'setup' );
-            var xAccent = self.trimAndLower( xSb.attr( 'accent' ) );
-            var xImgType = self.trimAndLower( xSb.attr( 'pageImgFormat' ) );
-            var xSplashImgType = 'svg';
-            var xAnalytics = self.trimAndLower( xSb.attr( 'analytics' ) );
-            var xMathjax = '';
-            var xVersion = xSb.attr( 'xmlVersion' );
-            var xProgram = '';
-            var xCourse = self.trimAndLower( xSetup.attr( 'course' ) );
-            var xTitle = self.noScript( xSetup.find( 'title' ).text().trim() );
-            var xSubtitle = self.noScript( xSetup.find( 'subtitle' ).text().trim() );
-            var xLength = xSetup.find( 'length' ).text().trim();
-            var xAuthor = xSetup.find( 'author' );
-            var xGeneralInfo = self.getTextContent( xSetup.find( 'generalInfo' ) );
-            var xSections = data.find( 'section' );
+            let xSb = data.find( 'storybook' );
+            let xSetup = data.find( 'setup' );
+            let xAccent = self.trimAndLower( xSb.attr( 'accent' ) );
+            let xImgType = self.trimAndLower( xSb.attr( 'pageImgFormat' ) );
+            let xSplashImgType = 'svg';
+            let xAnalytics = self.trimAndLower( xSb.attr( 'analytics' ) );
+            let xMathjax = '';
+            let xVersion = xSb.attr( 'xmlVersion' );
+            let xProgram = '';
+            let xCourse = self.trimAndLower( xSetup.attr( 'course' ) );
+            let xTitle = self.noScript( xSetup.find( 'title' ).text().trim() );
+            let xSubtitle = self.noScript( xSetup.find( 'subtitle' ).text().trim() );
+            let xLength = xSetup.find( 'length' ).text().trim();
+            let xAuthor = xSetup.find( 'author' );
+            let xGeneralInfo = self.getTextContent( xSetup.find( 'generalInfo' ) );
+            let xSections = data.find( 'section' );
             
             // variable to hold temporary XML value for further evaluation
-            var splashImgType_temp = xSb.attr( 'splashImgFormat' );
-            var program_temp = xSetup.attr( 'program' );
+            let splashImgType_temp = xSb.attr( 'splashImgFormat' );
+            let program_temp = xSetup.attr( 'program' );
             
             // if temporary splash image type is defined...
             if ( splashImgType_temp ) {
@@ -697,7 +698,7 @@ var SBPLUS = SBPLUS || {
             // if HotJar site id is set in manifest, get and set HotJar tracking code
             if ( self.manifest.sbplus_hotjar_site_id != "" ) {
 
-                let id = Number( self.manifest.sbplus_hotjar_site_id );
+                const id = Number( self.manifest.sbplus_hotjar_site_id );
 
                 ( function( h, o, t, j, a, r ) {
                     h.hj=h.hj||function(){ (h.hj.q=h.hj.q||[]).push( arguments ) };
@@ -713,8 +714,8 @@ var SBPLUS = SBPLUS || {
             if ( !self.isEmpty( self.manifest.sbplus_google_tracking_id ) && ( self.xml.settings.analytics === 'on' || self.xml.settings.analytics === 'true' ) ) {
 
                 /* Google Analytics gtag.js */
-                let head = document.getElementsByTagName( 'head' )[0];
-                let gtagScript = document.createElement( 'script' );
+                const head = document.getElementsByTagName( 'head' )[0];
+                const gtagScript = document.createElement( 'script' );
 
                 gtagScript.type = "text/javascript";
                 gtagScript.setAttribute( 'async', true );
@@ -729,8 +730,8 @@ var SBPLUS = SBPLUS || {
                 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
                 })(window,document,'script','dataLayer','GTM-NT3HHS5');
                 
-                let noscript = document.getElementsByTagName( 'noscript' )[0];
-                let gtagIframe = document.createElement( 'iframe' );
+                const noscript = document.getElementsByTagName( 'noscript' )[0];
+                const gtagIframe = document.createElement( 'iframe' );
 
                 gtagIframe.src = 'https://www.googletagmanager.com/ns.html?id=GTM-NT3HHS5';
                 gtagIframe.width = 0;
@@ -753,9 +754,9 @@ var SBPLUS = SBPLUS || {
             if ( xAuthor.length ) {
                 
                 // set author name and path to the profile to respective variable
-                var sanitizedAuthor = self.sanitize( xAuthor.attr( 'name' ).trim() );
-                var profileUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.json';
-                var profileInXml = self.getTextContent( xAuthor );
+                const sanitizedAuthor = self.sanitize( xAuthor.attr( 'name' ).trim() );
+                const profileUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.json';
+                const profileInXml = self.getTextContent( xAuthor );
                 
                 self.xml.setup.author = xAuthor.attr( 'name' ).trim();
                 
@@ -823,7 +824,7 @@ var SBPLUS = SBPLUS || {
      **/
     renderSplashscreen: function() {
         
-        let self = this;
+        const self = this;
         
         if ( self.xmlParsed === true && self.splashScreenRendered === false ) {
             if (self.hasStorageItem("sbplus-autoplay") === false) {
@@ -881,8 +882,8 @@ var SBPLUS = SBPLUS || {
                     // when failed, get from the server
 
                     // get the program and course value
-                    var program = self.xml.setup.program;
-                    var course = self.xml.setup.course;
+                    let program = self.xml.setup.program;
+                    let course = self.xml.setup.course;
 
                     // if program is empty
                     if (self.isEmpty(program)) {
@@ -909,7 +910,7 @@ var SBPLUS = SBPLUS || {
                     // get the image from the server
                     if (!self.isEmpty(program) && !self.isEmpty(course)) {
                         // set the path to the image
-                        var ss_url = self.manifest.sbplus_splash_directory + program + "/" + course;
+                        const ss_url = self.manifest.sbplus_splash_directory + program + "/" + course;
 
                         // load the image via AJAX
                         $.ajax({
@@ -945,7 +946,7 @@ var SBPLUS = SBPLUS || {
             }
 
             // set downloadable file name from the course directory name in URL
-            var fileName = SBPLUS.getCourseDirectory().replace(".sbproj", "");
+            let fileName = SBPLUS.getCourseDirectory().replace(".sbproj", "");
 
             // if file name is empty, default to 'default'
             if (self.isEmpty(fileName)) {
@@ -959,7 +960,7 @@ var SBPLUS = SBPLUS || {
                     type: "HEAD",
                 })
                     .done(function () {
-                        let fileLabel = file.label.toLowerCase();
+                        const fileLabel = file.label.toLowerCase();
 
                         self.downloads[fileLabel] = { fileName: fileName, fileFormat: file.format, url: this.url };
 
@@ -1036,9 +1037,8 @@ var SBPLUS = SBPLUS || {
         // if parameter is not empty, set the background image
         if ( str ) {
 
-            var self = this;
-
-            var img = new Image();
+            const self = this;
+            const img = new Image();
             img.src = str;
 
             img.addEventListener('load', function() {
@@ -1110,11 +1110,9 @@ var SBPLUS = SBPLUS || {
 
     preloadPresentationImages: function() {
 
-        var self = this;
+        const self = this;
 
-        // start a worker service thread to preload page images
-        worker = new Worker( self.manifest.sbplus_root_directory + 'scripts/preload.js' );
-        var path = window.location.pathname,
+        let path = window.location.pathname,
             location = window.location.href,
             index = location.indexOf( '?' );
         
@@ -1131,11 +1129,14 @@ var SBPLUS = SBPLUS || {
         path = path.replace( 'index.html', '' );
         location = location.replace( 'index.html', '' );
         
-        var paths = {
+        const paths = {
             "php": 'php/preload.php',
             "pages": path + "assets/pages/",
             "url": location + "assets/pages/"
         }
+
+        // start a worker service thread to preload page images
+        worker = new Worker( self.manifest.sbplus_root_directory + 'scripts/preload.js' );
 
         worker.postMessage( paths );
         
@@ -1143,7 +1144,7 @@ var SBPLUS = SBPLUS || {
 
             e.data.forEach( function( image ) {
 
-                let linkObj = document.createElement( 'link' );
+                const linkObj = document.createElement( 'link' );
                 linkObj.rel = "prefetch";
                 linkObj.href = paths.pages + image;
                 linkObj.setAttribute( 'aria-hidden', true );
@@ -1168,10 +1169,10 @@ var SBPLUS = SBPLUS || {
      **/
     startPresentation: function() {
         
-        var self = this;
+        const self = this;
         
         // if presentation has not started, hide splash and render presentation
-        if ( this.presentationStarted === false ) {
+        if ( self.presentationStarted === false ) {
             
             // render presentation
             self.renderPresentation().promise().done( function() {
@@ -1202,10 +1203,10 @@ var SBPLUS = SBPLUS || {
      **/
     resumePresentation: function() {
         
-        var self = this;
+        const self = this;
         
         // if presentation has not started, hide splash, set resuming flag
-        // to true and render presenation
+        // to true and render presentation
         if ( self.presentationStarted === false ) {
             
             // render presentation
@@ -1237,15 +1238,10 @@ var SBPLUS = SBPLUS || {
      * @return none
      **/
     renderPresentation: function() {
+
+        const self = this;
         
-        if ( this.presentationRendered === false ) {
-            
-            var self = this;
-        
-            // before presenting; apply local storage settings
-            // if ( self.getStorageItem( 'sbplus-hide-widget' ) === '1' ) {
-            //     self.hideWidget();
-            // }
+        if ( self.presentationRendered === false ) {
             
             if ( self.getStorageItem( 'sbplus-hide-sidebar' ) === '1' ) {
                 self.hideSidebar();
@@ -1267,13 +1263,13 @@ var SBPLUS = SBPLUS || {
             $( self.xml.sections ).each( function( i ) {
                 
                 // set section head title
-                var sectionHead = $( this ).attr( 'title' );
+                let sectionHead = $( this ).attr( 'title' );
                 
                 // set page array data
-                var pages = $( this ).find( 'page' );
+                const pages = $( this ).find( 'page' );
                 
                 // set section HTML DOM
-                var sectionHTML = '<div class="section">';
+                let sectionHTML = '<div class="section">';
                 
                 // if there is more than 2 sections...
                 if ( $( self.xml.sections ).length >= 2 ) {
@@ -1300,7 +1296,7 @@ var SBPLUS = SBPLUS || {
                     // increment total page
                     ++self.totalPages;
                     
-                    let pageType = $( this ).attr( 'type' );
+                    const pageType = $( this ).attr( 'type' );
 
                     // append opening list item tag to DOM
                     sectionHTML += '<li class="item" data-count="';
@@ -1376,7 +1372,7 @@ var SBPLUS = SBPLUS || {
                 self.layout.dwnldMenu = new MenuBar( $( self.button.download )[0].id, false );
                 
                 // set download items
-                for ( var key in self.downloads ) {
+                for ( let key in self.downloads ) {
                     
                     if ( self.downloads[key] != undefined ) {
                         $( self.button.downloadMenu ).append(
@@ -1435,19 +1431,19 @@ var SBPLUS = SBPLUS || {
     goToNextPage: function() {
         
         // get/set current page array
-        var currentPage = $( '.sb_selected' ).data( 'page' ).split(',');
+        const currentPage = $( '.sb_selected' ).data( 'page' ).split(',');
         
         // set section number
-        var tSection = Number( currentPage[0] );
+        let tSection = Number( currentPage[0] );
         
         // set page number
-        var tPage = Number( currentPage[1] );
+        let tPage = Number( currentPage[1] );
         
         // set total section
-        var totalSections = this.xml.sections.length;
+        const totalSections = this.xml.sections.length;
         
         // set total page in current section
-        var totalPagesInSection = $( this.xml.sections[tSection] ).find( 'page' ).length;
+        const totalPagesInSection = $( this.xml.sections[tSection] ).find( 'page' ).length;
         
         // increment current page number
         tPage++;
@@ -1472,7 +1468,7 @@ var SBPLUS = SBPLUS || {
         }
         
         // call selectPage function to get the page with current section and
-        // and current page number as the arugments
+        // and current page number as the arguments
         this.selectPage( tSection + ',' + tPage );
         
     }, // end goToNextPage function
@@ -1490,13 +1486,13 @@ var SBPLUS = SBPLUS || {
     goToPreviousPage: function() {
         
         // get/set current page array
-        var currentPage = $( '.sb_selected' ).data( 'page' ).split(',');
+        const currentPage = $( '.sb_selected' ).data( 'page' ).split(',');
         
         // set section number
-        var tSection = Number( currentPage[0] );
+        let tSection = Number( currentPage[0] );
         
         // set page number
-        var tPage = Number( currentPage[1] );
+        let tPage = Number( currentPage[1] );
         
         // decrement current page number
         tPage--;
@@ -1521,7 +1517,7 @@ var SBPLUS = SBPLUS || {
         }
         
         // call selectPage function to get the page with current section and
-        // and current page number as the arugments
+        // and current page number as the arguments
         this.selectPage( tSection + ',' + tPage );
         
     }, // end goToPreviousPage function
@@ -1593,13 +1589,13 @@ var SBPLUS = SBPLUS || {
     toggleSection: function( e ) {
         
         // get total number of 
-        var totalHeaderCount = $( this.tableOfContents.header ).length;
+        const totalHeaderCount = $( this.tableOfContents.header ).length;
         
         // if total number of section is greater than 1...
         if ( totalHeaderCount > 1 ) {
             
-            // declare a varible to hold current targeted section
-            var targetSectionHeader;
+            // declare a variable to hold current targeted section
+            let targetSectionHeader;
             
             // if the object is an click event object
             if ( e instanceof Object ) {
@@ -1609,7 +1605,7 @@ var SBPLUS = SBPLUS || {
                 
             } else {
                 
-                // if argument is greather than total number of sections
+                // if argument is greater than total number of sections
                 if ( Number( e ) > totalHeaderCount - 1 ) {
                     
                     // exit function
@@ -1651,10 +1647,10 @@ var SBPLUS = SBPLUS || {
      closeSection: function( obj ) {
         
         // set the target to the list element under the section
-        var target = $( obj.siblings( '.list' ) );
+        const target = $( obj.siblings( '.list' ) );
         
         // the open/collapse icon on the section title bar
-        var icon = obj.find( '.icon' );
+        const icon = obj.find( '.icon' );
         
         // slide up (hide) the list
         target.slideUp();
@@ -1678,10 +1674,10 @@ var SBPLUS = SBPLUS || {
      openSection: function( obj ) {
         
         // set the target to the list element under the section
-        var target = $( obj.siblings( '.list' ) );
+        const target = $( obj.siblings( '.list' ) );
         
         // the open/collapse icon on the section title bar
-        var icon = obj.find( '.icon' );
+        const icon = obj.find( '.icon' );
         
         // slide down (show) the list
         target.slideDown();
@@ -1727,24 +1723,24 @@ var SBPLUS = SBPLUS || {
         if ( !this.targetPage.hasClass( 'sb_selected' ) ) {
             
             // get jQuery set that contain pages
-            var allPages = $( this.tableOfContents.page );
+            const allPages = $( this.tableOfContents.page );
             
             // get jQuery set that contain section headers
-            var sectionHeaders = $( this.tableOfContents.header );
+            const sectionHeaders = $( this.tableOfContents.header );
             
             // if more than one section headers...
             if ( sectionHeaders.length > 1 ) {
                 
-                // set the target header to targetted page's header
-                var targetHeader = this.targetPage.parent().siblings( '.header' );
+                // set the target header to targeted page's header
+                const targetHeader = this.targetPage.parent().siblings( '.header' );
                 
-                // if targetted header does not have the current class
+                // if targeted header does not have the current class
                 if ( !targetHeader.hasClass( 'current' ) ) {
                     
                     // remove current class from all section headers
                     sectionHeaders.removeClass( 'current' );
                     
-                    // add current class to targetted header
+                    // add current class to targeted header
                     targetHeader.addClass( 'current' );
                     
                 }
@@ -1756,13 +1752,13 @@ var SBPLUS = SBPLUS || {
             // remove sb_selected class from all pages
             allPages.removeClass( 'sb_selected' );
             
-            // add sb_selected class to targetted page
+            // add sb_selected class to targeted page
             this.targetPage.addClass( 'sb_selected' );
             
-            // call the getPage function with targetted page data as parameter
+            // call the getPage function with targeted page data as parameter
             this.getPage( this.targetPage.data('page') );
             
-            // update the page status with the targetted page count data
+            // update the page status with the targeted page count data
             this.updatePageStatus( this.targetPage.data( 'count' ) );
             
             // update screen reader status
@@ -1800,16 +1796,16 @@ var SBPLUS = SBPLUS || {
         page = page.split( ',' );
         
         // set section to page array index 0
-        var section = page[0];
+        const section = page[0];
         
         // set item to page array index 1
-        var item = page[1];
+        const item = page[1];
         
-        // get and set target based on the section and item varible
-        var target = $( $( this.xml.sections[section] ).find( 'page' )[item] );
+        // get and set target based on the section and item variable
+        const target = $( $( this.xml.sections[section] ).find( 'page' )[item] );
         
         // create a pageData object to hold page title and type
-        var pageData = {
+        const pageData = {
             xml: target,
             title: target.attr( 'title' ).trim(),
             type: target.attr( 'type' ).trim().toLowerCase()
@@ -1892,7 +1888,7 @@ var SBPLUS = SBPLUS || {
     updateScroll: function( obj ) {
         
         // set the obj from the parameter
-        var target = obj;
+        let target = obj;
         
         // if the target is not visible
         if ( !$( target ).is( ':visible' ) ) {
@@ -1918,10 +1914,10 @@ var SBPLUS = SBPLUS || {
         }
         
         // get/set the scrollable height
-        var scrollHeight = $( this.tableOfContents.container ).height();
-        var targetHeight = $( target ).outerHeight();
-        var sectionHeaders = $( this.tableOfContents.header );
-        var targetTop = $( target ).offset().top - targetHeight;
+        const scrollHeight = $( this.tableOfContents.container ).height();
+        const targetHeight = $( target ).outerHeight();
+        const sectionHeaders = $( this.tableOfContents.header );
+        let targetTop = $( target ).offset().top - targetHeight;
         
         if ( sectionHeaders.length <= 0 ) {
             targetTop += 40;
@@ -1937,8 +1933,6 @@ var SBPLUS = SBPLUS || {
             
         }
         
-        
-        
     }, // end updateScroll function
     
     /**************************************************************************
@@ -1947,20 +1941,21 @@ var SBPLUS = SBPLUS || {
         
     openMenuItem: function( id ) {
         
-        if (this.currentPage.mediaPlayer != null) {
+        const self = this;
+
+        if (self.currentPage.mediaPlayer != null) {
             
-            if (!this.currentPage.mediaPlayer.paused()) {
-                this.currentPage.mediaPlayer.pause();
+            if (!self.currentPage.mediaPlayer.paused()) {
+                self.currentPage.mediaPlayer.pause();
             }
             
         }
         
-        var self = this;
-        var itemId = id;
-        var content = "";
-        var menuContentWrapper = $( this.menu.menuContentWrapper );
-        var menuContent = $( this.menu.menuContent );
-        var menuTitle = $( this.menu.menuBarTitle );
+        const itemId = id;
+        let content = "";
+        const menuContentWrapper = $( this.menu.menuContentWrapper );
+        const menuContent = $( this.menu.menuContent );
+        const menuTitle = $( this.menu.menuBarTitle );
         
         menuContent.empty();
         
@@ -1979,8 +1974,8 @@ var SBPLUS = SBPLUS || {
                 
                 if ( self.xml.setup.authorPhoto.length === 0 ) {
                     
-                    var author = self.xml.setup.author;
-                    var sanitizedAuthor = self.sanitize( author );
+                    const author = self.xml.setup.author;
+                    const sanitizedAuthor = self.sanitize( author );
                     
                     $.ajax( {
             
@@ -1991,7 +1986,7 @@ var SBPLUS = SBPLUS || {
                         
                         self.xml.setup.authorPhoto = this.url;
                         
-                        var img = '<img src="';
+                        let img = '<img src="';
                         img += this.url +'" alt="Photo of ' + author + '" crossorigin="Anonymous" />';
                         
                         $( '.profileImg' ).html( img );
@@ -2000,7 +1995,7 @@ var SBPLUS = SBPLUS || {
                         
                         if ( !self.isEmpty( self.manifest.sbplus_author_directory ) ) {
 
-                            var profileUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.jpg';
+                            const profileUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.jpg';
 
                             $.ajax( {
                             
@@ -2011,7 +2006,7 @@ var SBPLUS = SBPLUS || {
                                 
                                 self.xml.setup.authorPhoto = this.url;
                                 
-                                var img = '<img src="';
+                                let img = '<img src="';
                                 img += this.url +'" alt="Photo of ' + author + '" crossorigin="Anonymous" />';
                                 
                                 $( '.profileImg' ).html( img );
@@ -2024,7 +2019,7 @@ var SBPLUS = SBPLUS || {
                     
                 } else {
                     
-                    var img = '<img src="';
+                    let img = '<img src="';
                     img += self.xml.setup.authorPhoto +'" alt="Photo of ' + author + '" crossorigin="Anonymous" />';
                     
                     $( '.profileImg' ).prepend( img );
@@ -2096,14 +2091,19 @@ var SBPLUS = SBPLUS || {
             break;
             
             default:
-                var customMenuItems = self.manifest.sbplus_custom_menu_items;
-                for ( var key in customMenuItems ) {
-                    var menuId = 'sbplus_' + self.sanitize( customMenuItems[key].name );
+
+                const customMenuItems = self.manifest.sbplus_custom_menu_items;
+
+                for ( let key in customMenuItems ) {
+
+                    const menuId = 'sbplus_' + self.sanitize( customMenuItems[key].name );
+
                     if ( itemId === menuId ) {
                         menuTitle.html( customMenuItems[key].name );
                         content = customMenuItems[key].content;
                         break;
                     }
+
                 }
             break;
             
@@ -2114,12 +2114,6 @@ var SBPLUS = SBPLUS || {
         
         $( self.button.menuClose ).on( 'click', self.closeMenuContent.bind( self ) );
         
-        // if ( self.xml.settings.analytics === 'on' || self.xml.settings.analytics === 'true' ) {
-            
-        //     ga( 'send', 'screenview', { screenName: menuTitle.html() } );
-            
-        // }
-        
         if ( self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true' ) {
             MathJax.Hub.Queue( ['Typeset', MathJax.Hub] );
         }
@@ -2128,8 +2122,8 @@ var SBPLUS = SBPLUS || {
     
     closeMenuContent: function() {
         
-        var menuContentWrapper = $( this.menu.menuContentWrapper );
-        var menuContent = $( this.menu.menuContent );
+        const menuContentWrapper = $( this.menu.menuContentWrapper );
+        const menuContent = $( this.menu.menuContent );
         
         menuContent.empty();
         menuContentWrapper.hide();
@@ -2140,7 +2134,7 @@ var SBPLUS = SBPLUS || {
     
     burgerBurger: function() {
         
-        var menuIcon = $( 'span.menu-icon' );
+        const menuIcon = $( 'span.menu-icon' );
             
         this.clickCount++;
         
@@ -2170,8 +2164,8 @@ var SBPLUS = SBPLUS || {
     
     selectSegment: function( e ) {
         
-        var self = this;
-        var button = $( this.widget.segment ).find( 'button' );
+        const self = this;
+        const button = $( this.widget.segment ).find( 'button' );
         
         if ( self.hasWidgetContent() ) {
             
@@ -2191,8 +2185,8 @@ var SBPLUS = SBPLUS || {
         
             } );
             
-            var target = '';
-            var targetId = '';
+            let target = '';
+            let targetId = '';
             
             if ( typeof e === 'string' ) {
                 target = $( '#' + e );
@@ -2233,8 +2227,8 @@ var SBPLUS = SBPLUS || {
     
     selectFirstSegment: function() {
         
-        var button = $( this.widget.segment ).find( 'button' )[0];
-        var target = $( button ).attr( 'id' );
+        const button = $( this.widget.segment ).find( 'button' )[0];
+        const target = $( button ).attr( 'id' );
         
         this.selectSegment( target );
         
@@ -2242,7 +2236,7 @@ var SBPLUS = SBPLUS || {
     
     addSegment: function( str ) {
         
-        var btn = '<button id="sbplus_' + this.sanitize( str ) + '">' + str + '</button>';
+        const btn = '<button id="sbplus_' + this.sanitize( str ) + '">' + str + '</button>';
         
         this.widget.segments.push( str );
         
@@ -2279,7 +2273,7 @@ var SBPLUS = SBPLUS || {
         
         if ( this.hasError && type.length ) {
             
-            var errorTemplateUrl = this.manifest.sbplus_root_directory;
+            let errorTemplateUrl = this.manifest.sbplus_root_directory;
         
             $( this.layout.sbplus ).hide();
             
@@ -2305,7 +2299,7 @@ var SBPLUS = SBPLUS || {
             
             if ( errorTemplateUrl.length ) {
                 
-                var self = this;
+                const self = this;
                 
                 $.get( errorTemplateUrl, function( data ) {
                     
@@ -2349,7 +2343,7 @@ var SBPLUS = SBPLUS || {
     
     getUrlParam: function( name ) {
         
-        var results = new RegExp('[\?&]' + name + '=([^&#]*)')
+        const results = new RegExp('[\?&]' + name + '=([^&#]*)')
                         .exec(window.location.href);
         
     	if ( results === null ) {
@@ -2362,7 +2356,7 @@ var SBPLUS = SBPLUS || {
     
     getManifestUrl: function() {
         
-        var manifest = $( '#sbplus_configs' );
+        const manifest = $( '#sbplus_configs' );
         
         if ( manifest.length ) {
             return manifest[0].href;
@@ -2404,14 +2398,12 @@ var SBPLUS = SBPLUS || {
         lum = lum || 0;
         
         // convert to decimal and change luminosity
-        var rgb = "#", c, i;
+        let rgb = "#", c, i;
         for (i = 0; i < 3; i++) {
         	c = parseInt(hex.substring(i * 2, i * 2 + 2), 16);
         	c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
         	rgb += ("00" + c).substring(c.length);
         }
-
-        console.log( hex, lum, rgb );
         
         return rgb;
         
@@ -2421,10 +2413,10 @@ var SBPLUS = SBPLUS || {
 
         hex = hex.replace("#", "");
 
-        let r = parseInt(hex.substring(0,2),16);
-        let g = parseInt(hex.substring(2,2),16);
-        let b = parseInt(hex.substring(4,2),16);
-        let yiq = ((r*299)+(g*587)+(b*114))/1000;
+        const r = parseInt(hex.substring(0,2),16);
+        const g = parseInt(hex.substring(2,2),16);
+        const b = parseInt(hex.substring(4,2),16);
+        const yiq = ((r*299)+(g*587)+(b*114))/1000;
 
         return yiq >= 128 ? '#000' : '#fff';
         
@@ -2434,7 +2426,7 @@ var SBPLUS = SBPLUS || {
         
         if ( str !== "" || str !== undefined ) {
 
-           var results = $( "<span>" +  $.trim( str ) + "</span>" );
+           const results = $( "<span>" +  $.trim( str ) + "</span>" );
     
            results.find( "script,noscript,style" ).remove().end();
            
@@ -2458,20 +2450,20 @@ var SBPLUS = SBPLUS || {
     
     hexToRgb: function( hex ) {
         
-        var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+        const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
         
         hex = hex.replace( shorthandRegex, function( m, r, g, b ) {
             return r + r + g + g + b + b;
         } );
     
-        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec( hex );
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec( hex );
         
         return result ? parseInt(result[1], 16) + ',' + parseInt(result[2], 16) + ',' + parseInt(result[3], 16) : null;
     },
     
     getProgramDirectory: function() {
         
-        var urlArray = this.getUrlArray();
+        const urlArray = this.getUrlArray();
         
         if ( urlArray.length >= 3 ) {
             return urlArray[urlArray.length - 3];
@@ -2485,7 +2477,7 @@ var SBPLUS = SBPLUS || {
     
     getCourseDirectory: function() {
         
-        var urlArray = this.getUrlArray();
+        const urlArray = this.getUrlArray();
         
         if ( urlArray.length >= 2 ) {
             return urlArray[urlArray.length - 1];
@@ -2497,15 +2489,15 @@ var SBPLUS = SBPLUS || {
     
     getUrlArray: function() {
         
-        var href = window.location.href;
-        var url = href;
+        let href = window.location.href;
+        let url = href;
         
         if ( href.indexOf('?') ) {
             href = href.split( '?' );
             url = href[0];
         }
         
-        var urlArray = url.split( '/' );
+        let urlArray = url.split( '/' );
         
         urlArray.splice(0, 1);
         
@@ -2521,9 +2513,9 @@ var SBPLUS = SBPLUS || {
     
     removeEmptyElements: function ( array ) {
     
-        var found = false;
+        let found = false;
     
-        for ( var i = 0; i < array.length; i++ ) {
+        for ( let i = 0; i < array.length; i++ ) {
             
             if ( SBPLUS.isEmpty( array[i] ) ) {
                 found = true;
@@ -2636,17 +2628,17 @@ var SBPLUS = SBPLUS || {
     
     getTextContent: function( obj ) {
         
-        var str = obj.html();
+        let str = obj.html();
         
         if ( str === undefined ) {
             
             if ( !this.isEmpty( obj[0].textContent ) ) {
             
-                var div = document.createElement('div');
+                const div = document.createElement('div');
                 div.appendChild(obj[0]);
                 
-                var fcNodePatternOpen = new RegExp('<' + div.firstChild.nodeName + '?\\s*([A-Za-z]*=")*[A-Za-z\\s]*"*>', 'gi');
-                var fcNodePatternClose = new RegExp('</' + div.firstChild.nodeName + '>', 'gi');
+                const fcNodePatternOpen = new RegExp('<' + div.firstChild.nodeName + '?\\s*([A-Za-z]*=")*[A-Za-z\\s]*"*>', 'gi');
+                const fcNodePatternClose = new RegExp('</' + div.firstChild.nodeName + '>', 'gi');
                 
                 str = div.innerHTML;
                 
@@ -2667,11 +2659,9 @@ var SBPLUS = SBPLUS || {
         
     },
     
-    isIOSDevice: function() {
+    isMobileDevice: function() {
         
-        if ( (/iPad|iPhone|iPod/.test(navigator.platform) ||
-        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) &&
-        !window.MSStream ) {
+        if ( ( /iOS|Android/.test( navigator.userAgentData.platform ) ) ) {
             
             return true;
             
@@ -2683,11 +2673,11 @@ var SBPLUS = SBPLUS || {
     
     afterSettingsLoaded: function() {
         
-        var self = this;
+        const self = this;
         
         if ( self.getStorageItem( 'sbplus-' + self.presentationLoc + '-settings-loaded', true ) === '1' ) {
             
-            if ( self.isIOSDevice() ) {
+            if ( self.isMobileDevice() ) {
                     
                 $( '#autoplay_label' ).after( '<p class="error">Mobile devices do not support autoplay.</p>' );
                 $( '#sbplus_va_autoplay' ).prop( 'checked', false ).attr( 'disabled', true );
@@ -2732,8 +2722,8 @@ var SBPLUS = SBPLUS || {
                 }
                 
                 // volume
-                var vol = $( '#sbplus_va_volume' ).val();
-                var volError = false;
+                let vol = $( '#sbplus_va_volume' ).val();
+                let volError = false;
                 
                 if ( vol < 0 || vol > 100 || self.isEmpty( vol ) ) {
                     
@@ -2788,12 +2778,12 @@ var SBPLUS = SBPLUS || {
     
     syncSettings: function() {
         
-        var self = this;
+        const self = this;
         
         if ( self.getStorageItem( 'sbplus-' + self.presentationLoc + '-settings-loaded', true ) === '1' ) {
             
             // widget
-            var widgetVal = self.getStorageItem( 'sbplus-hide-widget' );
+            const widgetVal = self.getStorageItem( 'sbplus-hide-widget' );
             
             if ( widgetVal === '1') {
                 $( '#sbplus_gs_widget' ).prop( 'checked', true );
@@ -2802,7 +2792,7 @@ var SBPLUS = SBPLUS || {
             }
             
             // sidebar
-            var sidebarVal = self.getStorageItem( 'sbplus-hide-sidebar' );
+            const sidebarVal = self.getStorageItem( 'sbplus-hide-sidebar' );
             
             if ( sidebarVal === '1') {
                 $( '#sbplus_gs_sidebar' ).prop( 'checked', true );
@@ -2811,9 +2801,9 @@ var SBPLUS = SBPLUS || {
             }
             
             // autoplay
-            var autoplayVal = self.getStorageItem( 'sbplus-autoplay' );
+            const autoplayVal = self.getStorageItem( 'sbplus-autoplay' );
             
-            if ( self.isIOSDevice() === false ) {
+            if ( self.isMobileDevice() === false ) {
                 
                 if ( autoplayVal === '1') {
                     
@@ -2828,17 +2818,17 @@ var SBPLUS = SBPLUS || {
             }
             
             // volume
-            var volumeVal = self.getStorageItem( 'sbplus-volume' );
+            const volumeVal = self.getStorageItem( 'sbplus-volume' );
             
             $( '#sbplus_va_volume' ).prop( 'value', volumeVal * 100 );
             
             // playback rate
-            var playbackRateVal = self.getStorageItem( 'sbplus-playbackrate' );
+            const playbackRateVal = self.getStorageItem( 'sbplus-playbackrate' );
             
             $( '#sbplus_va_playbackrate' ).val( playbackRateVal );
             
             //subtitle
-            var subtitleVal = self.getStorageItem( 'sbplus-subtitle' );
+            const subtitleVal = self.getStorageItem( 'sbplus-subtitle' );
             
             if ( subtitleVal === '1') {
                 $( '#sbplus_va_subtitle' ).prop( 'checked', true );
@@ -2877,62 +2867,15 @@ var SBPLUS = SBPLUS || {
                 break;
             }
             
-            // var self = this;
-            // var delay = 0;
-            // var isObj = false;
-            
-            // if ( typeof delayObj === 'object' ) {
-            //     delay = delayObj.start * 1000;
-            //     isObj = true;
-            // } else {
-            //     delay = delayObj * 1000;
-            // }
-            
-            // if ( window.ga && ga.loaded ) {
-                
-            //     self.gaTimeouts.start = setTimeout( function() {
-                    
-            //         ga( 'send', 'event', category, action, label, value, {screenName: self.getCourseDirectory()} );
-                    
-            //     }, delay );
-                
-            //     if ( isObj ) {
-                    
-            //         if ( delayObj.halfway > 0 
-            //              && delayObj.halfway > delayObj.start ) {
-                        
-            //             self.gaTimeouts.halfway = setTimeout( function() {
-                    
-            //                 ga( 'send', 'event', category, 'halfway', label, 2, {screenName: self.getCourseDirectory()} );
-                            
-            //             }, delayObj.halfway * 1000 );
-                        
-            //         }
-                    
-            //         if ( delayObj.completed > 0 
-            //              && delayObj.completed > delayObj.halfway ) {
-                        
-            //             self.gaTimeouts.completed = setTimeout( function() {
-                    
-            //                 ga( 'send', 'event', category, 'completed', label, 3, {screenName: self.getCourseDirectory()} );
-                            
-            //             }, delayObj.completed * 1000 );
-                        
-            //         }
-                    
-            //     }
-
-            // }
-            
         }
         
     },
     
     clearGATimeout: function() {
+
+        const self = this;
         
         if ( this.xml.settings.analytics === 'on' ) {
-            
-            var self = this;
             
             if ( self.gaTimeouts.start !== null ) {
                 clearTimeout( self.gaTimeouts.start );

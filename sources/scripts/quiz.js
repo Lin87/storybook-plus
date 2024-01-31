@@ -1,19 +1,17 @@
 import $ from 'jquery';
 import { SBPLUS } from "./sbplus-dev";
 
-var quizTracker = [];
-var Quiz = function( obj, data ) {
+let quizTracker = [];
+let Quiz = function( obj, data ) {
     
-    var self = this;
-    
-    var cntx = data;
-    var qId = Number( obj.id.join().replace( ',', '' ) );
-    var qType = cntx.children()[0].nodeName.toLowerCase();
-    
-    var question = cntx.find( 'question' );
-    var qTitle = SBPLUS.getTextContent( question );
-    var qImg = '';
-    var qAudio = '';
+    const self = this;
+    const cntx = data;
+    const qId = Number( obj.id.join().replace( ',', '' ) );
+    const qType = cntx.children()[0].nodeName.toLowerCase();
+    const question = cntx.find( 'question' );
+    const qTitle = SBPLUS.getTextContent( question );
+    let qImg = '';
+    let qAudio = '';
     
     if ( !SBPLUS.isEmpty( question.attr( 'image' ) ) ) {
         qImg = SBPLUS.noScript( question.attr( 'image' ).trim() );
@@ -40,11 +38,11 @@ var Quiz = function( obj, data ) {
         case 'multiplechoicesingle':
             
             // see if the retry attribute is set to true or false
-            var mcs = $( cntx ).find( 'multipleChoiceSingle' );
+            const mcs = $( cntx ).find( 'multipleChoiceSingle' );
 
             if ( !SBPLUS.isEmpty( mcs.attr( 'retry' ) ) ) {
 
-                var retry =  SBPLUS.noScript( mcs.attr('retry').trim().toLowerCase() );
+                const retry = SBPLUS.noScript( mcs.attr('retry').trim().toLowerCase() );
 
                 if ( retry == 'yes' || retry == 'true' ) {
                     self.quiz.retry = true;
@@ -59,11 +57,11 @@ var Quiz = function( obj, data ) {
             }
 
             // see if choices node has random set to true or false
-            var msChoices = $( cntx ).find( 'choices' ).find( 'answer' );
+            const msChoices = $( cntx ).find( 'choices' ).find( 'answer' );
             
             if ( !SBPLUS.isEmpty( $( cntx ).find( 'choices' ).attr('random') ) ) {
                 
-                var random = SBPLUS.noScript( $( cntx ).find( 'choices' ).attr('random').trim().toLowerCase() );
+                const random = SBPLUS.noScript( $( cntx ).find( 'choices' ).attr('random').trim().toLowerCase() );
                 
                 if ( random === 'yes' || random === 'true' ) {
                     self.quiz.random = true;
@@ -81,7 +79,7 @@ var Quiz = function( obj, data ) {
             
             $.each( msChoices, function() {
                 
-                var answer = {};
+                const answer = {};
                 
                 answer.value = SBPLUS.noScript( $( this ).find( 'value' ).text().trim() );
                 
@@ -103,7 +101,7 @@ var Quiz = function( obj, data ) {
                     
                 }
                 
-                var mcFB = $( this ).find( 'feedback' );
+                const mcFB = $( this ).find( 'feedback' );
                 
                 if ( mcFB.length ) {
                     answer.feedback = SBPLUS.getTextContent( mcFB );
@@ -118,11 +116,11 @@ var Quiz = function( obj, data ) {
         case 'multiplechoicemultiple':
             
             // see if the retry attribute is set to true or false
-            var mcm = $( cntx ).find( 'multipleChoiceMultiple' );
+            const mcm = $( cntx ).find( 'multipleChoiceMultiple' );
 
             if ( !SBPLUS.isEmpty( mcm.attr( 'retry' ) ) ) {
 
-                var mcmRetry =  SBPLUS.noScript( mcm.attr('retry').trim().toLowerCase() );
+                const mcmRetry = SBPLUS.noScript( mcm.attr('retry').trim().toLowerCase() );
 
                 if ( mcmRetry == 'yes' || mcmRetry == 'true' ) {
                     self.quiz.retry = true;
@@ -136,11 +134,11 @@ var Quiz = function( obj, data ) {
 
             }
 
-            var mmChoices = $( cntx ).find( 'choices' ).find( 'answer' );
+            const mmChoices = $( cntx ).find( 'choices' ).find( 'answer' );
             
             if ( !SBPLUS.isEmpty( $( cntx ).find( 'choices' ).attr('random') ) ) {
                 
-                var randomMM = SBPLUS.noScript( $( cntx ).find( 'choices' ).attr('random').trim().toLowerCase() );
+                const randomMM = SBPLUS.noScript( $( cntx ).find( 'choices' ).attr('random').trim().toLowerCase() );
                 
                 if ( randomMM === 'yes' || randomMM === 'true' ) {
                     self.quiz.random = true;
@@ -154,7 +152,7 @@ var Quiz = function( obj, data ) {
             
             $.each( mmChoices, function() {
                 
-                var answer = {};
+                const answer = {};
                 
                 answer.value = SBPLUS.noScript( $( this ).find( 'value' ).text().trim() );
                 
@@ -180,8 +178,8 @@ var Quiz = function( obj, data ) {
                 
             } );
             
-            var cFB = $( cntx ).find( 'correctFeedback' );
-            var iFB = $( cntx ).find( 'incorrectFeedback' );
+            const cFB = $( cntx ).find( 'correctFeedback' );
+            const iFB = $( cntx ).find( 'incorrectFeedback' );
             
             if ( cFB.length ) {
                 self.quiz.correctFeedback = SBPLUS.getTextContent( cFB );
@@ -195,7 +193,7 @@ var Quiz = function( obj, data ) {
         
         case 'shortanswer':
             
-            var fb = $( cntx ).find( 'feedback' );
+            const fb = $( cntx ).find( 'feedback' );
             
             if ( fb.length ) {
                 self.quiz.feedback = SBPLUS.getTextContent( fb );
@@ -205,8 +203,8 @@ var Quiz = function( obj, data ) {
         
         case 'fillintheblank':
             
-            var fitbCFB = $( cntx ).find( 'correctFeedback' );
-            var fitbIFB = $( cntx ).find( 'incorrectFeedback' );
+            const fitbCFB = $( cntx ).find( 'correctFeedback' );
+            const fitbIFB = $( cntx ).find( 'incorrectFeedback' );
             
             if ( fitbCFB.length ) {
                 self.quiz.correctFeedback = SBPLUS.getTextContent( fitbCFB );
@@ -232,8 +230,8 @@ var Quiz = function( obj, data ) {
 
 Quiz.prototype.getQuiz = function() {
     
-    var self = this;
-    var answered = false;
+    const self = this;
+    let answered = false;
     
     self.qIndex = getCurrentQuizItem( quizTracker, self.quiz.id );
     
@@ -252,7 +250,7 @@ Quiz.prototype.getQuiz = function() {
     }
     
     if ( answered ) {
-        self.renderFeeback();
+        self.renderFeedback();
     } else {
         self.renderQuiz();
     }
@@ -265,11 +263,10 @@ Quiz.prototype.getQuiz = function() {
 
 Quiz.prototype.renderQuiz = function() {
     
-    var self = this;
-    var questionImg = '';
-    var questionAudio = '';
-    
-    var html = '<div class="sbplus_quiz_header"><span class="icon-assessment"></span>';
+    const self = this;
+    let questionImg = '';
+    let questionAudio = '';
+    let html = '<div class="sbplus_quiz_header"><span class="icon-assessment"></span>';
     html += ' Self Assessment</div>';
     
     if ( !SBPLUS.isEmpty( self.quiz.questionImg ) ) {
@@ -290,7 +287,7 @@ Quiz.prototype.renderQuiz = function() {
                 
                 case 'multiplechoicesingle':
                     
-                    var msInput = '';
+                    let msInput = '';
                     
                     if ( self.quiz.random ) {
                         shuffle( self.quiz.answers );
@@ -298,7 +295,7 @@ Quiz.prototype.renderQuiz = function() {
                     
                     $.each( self.quiz.answers, function( i ) {
                         
-                        var cleanMSValue = SBPLUS.sanitize( self.quiz.answers[i].value );
+                        let cleanMSValue = SBPLUS.sanitize( self.quiz.answers[i].value );
                         
                         if ( !SBPLUS.isEmpty( self.quiz.answers[i].img ) ) {
                             cleanMSValue = SBPLUS.sanitize( self.quiz.answers[i].img );
@@ -323,7 +320,7 @@ Quiz.prototype.renderQuiz = function() {
                 
                 case 'multiplechoicemultiple':
                 
-                    var mmInput = '';
+                    let mmInput = '';
                     
                     if ( self.quiz.random ) {
                         shuffle( self.quiz.answers );
@@ -331,7 +328,7 @@ Quiz.prototype.renderQuiz = function() {
                     
                     $.each( self.quiz.answers, function( i ) {
                         
-                        var cleanMMValue = SBPLUS.sanitize( self.quiz.answers[i].value );
+                        let cleanMMValue = SBPLUS.sanitize( self.quiz.answers[i].value );
                         
                         if ( !SBPLUS.isEmpty( self.quiz.answers[i].img ) ) {
                             cleanMMValue = SBPLUS.sanitize( self.quiz.answers[i].img );
@@ -383,7 +380,7 @@ Quiz.prototype.renderQuiz = function() {
                         
                         if ( this.correct !== undefined ) {
                             
-                            var sAnswer = SBPLUS.sanitize( self.quiz.answers[Number(quizTracker[self.qIndex].stuAnswer)].value );
+                            const sAnswer = SBPLUS.sanitize( self.quiz.answers[Number(quizTracker[self.qIndex].stuAnswer)].value );
                             
                             if ( sAnswer === SBPLUS.sanitize( this.value ) ) {
                                 quizTracker[self.qIndex].correct = true;
@@ -403,8 +400,8 @@ Quiz.prototype.renderQuiz = function() {
             
             case 'multiplechoicemultiple':
                 
-                var checkboxes = $( 'input:checkbox[name="mm"]' );
-                var correctAnswers = [];
+                const checkboxes = $( 'input:checkbox[name="mm"]' );
+                const correctAnswers = [];
                 
                 quizTracker[self.qIndex].stuAnswer = [];
                 
@@ -435,10 +432,10 @@ Quiz.prototype.renderQuiz = function() {
                     
                 } else if ( quizTracker[self.qIndex].stuAnswer.length === correctAnswers.length ) {
                     
-                    for ( var i = 0; i < quizTracker[self.qIndex].stuAnswer.length; i++ ) {
+                    for ( let i = 0; i < quizTracker[self.qIndex].stuAnswer.length; i++ ) {
                         
-                        var index = Number( quizTracker[self.qIndex].stuAnswer[i] );
-                        var mAnswer = SBPLUS.sanitize( quizTracker[self.qIndex].answers[index].value);
+                        const index = Number( quizTracker[self.qIndex].stuAnswer[i] );
+                        const mAnswer = SBPLUS.sanitize( quizTracker[self.qIndex].answers[index].value);
                         
                         if ( $.inArray( mAnswer, correctAnswers ) >= 0 ) {
                             quizTracker[self.qIndex].correct = true;
@@ -473,7 +470,7 @@ Quiz.prototype.renderQuiz = function() {
             
         }
         
-        var containsAnswer = false;
+        let containsAnswer = false;
         
         if ( Array.isArray( quizTracker[self.qIndex].stuAnswer ) ) {
             
@@ -503,7 +500,7 @@ Quiz.prototype.renderQuiz = function() {
                 
             } else {
                 
-                self.renderFeeback();
+                self.renderFeedback();
                 
                 if ( SBPLUS.xml.settings.mathjax === 'on' || SBPLUS.xml.settings.mathjax === 'true' ) {
                     MathJax.Hub.Queue( ['Typeset', MathJax.Hub] );
@@ -513,18 +510,17 @@ Quiz.prototype.renderQuiz = function() {
             
         } );
         
-        var label = SBPLUS.getCourseDirectory() + ':quiz:page' + SBPLUS.targetPage.data( 'count' );
+        const label = SBPLUS.getCourseDirectory() + ':quiz:page' + SBPLUS.targetPage.data( 'count' );
         SBPLUS.sendToGA( 'Quiz', 'completed', label, 3, 0 );
     
 };
 
-Quiz.prototype.renderFeeback = function() {
+Quiz.prototype.renderFeedback = function() {
     
-    var self = this;
-    var questionImg = '';
-    var questionAudio = '';
-    
-    var html = '<div class="sbplus_quiz_header"><span class="icon-assessment"></span>';
+    const self = this;
+    let questionImg = '';
+    let questionAudio = '';
+    let html = '<div class="sbplus_quiz_header"><span class="icon-assessment"></span>';
     html += ' Self Assessment Feedback</div>';
     
     if ( self.quiz.type !== 'shortanswer' ) {
@@ -583,13 +579,13 @@ Quiz.prototype.renderFeeback = function() {
         
         case 'multiplechoicesingle':
             
-            var msAnswerIndex = Number(quizTracker[self.qIndex].stuAnswer);
-            var msAnswerNode = quizTracker[self.qIndex].answers[msAnswerIndex];
-            var msAnswer = msAnswerNode.value;
-            var msFeedback = msAnswerNode.feedback;
-            var msAnswerImg = msAnswerNode.img;
-            var msAnswerAudio = msAnswerNode.audio;
-            var msAnswerType = 'text';
+            const msAnswerIndex = Number(quizTracker[self.qIndex].stuAnswer);
+            const msAnswerNode = quizTracker[self.qIndex].answers[msAnswerIndex];
+            const msAnswer = msAnswerNode.value;
+            const msFeedback = msAnswerNode.feedback;
+            const msAnswerImg = msAnswerNode.img;
+            const msAnswerAudio = msAnswerNode.audio;
+            let msAnswerType = 'text';
             
             if ( !SBPLUS.isEmpty( msAnswerImg ) ) {
                 msAnswerType = 'img';
@@ -619,7 +615,7 @@ Quiz.prototype.renderFeeback = function() {
                 
                 if ( self.quiz.answers[i].correct !== undefined ) {
                     
-                    var output = self.quiz.answers[i].value;
+                    let output = self.quiz.answers[i].value;
                     
                     switch ( msAnswerType ) {
                         
@@ -662,14 +658,14 @@ Quiz.prototype.renderFeeback = function() {
         
         case 'multiplechoicemultiple':
 
-            var stuAnswerAry = quizTracker[self.qIndex].stuAnswer;
+            const stuAnswerAry = quizTracker[self.qIndex].stuAnswer;
             
             html += '<p><strong>Your answer:</strong><br>';
             
             $.each( stuAnswerAry, function( i ) {
                 
-                var saIndex = Number(stuAnswerAry[i]);
-                var mmAnswerType = 'text';
+                const saIndex = Number(stuAnswerAry[i]);
+                let mmAnswerType = 'text';
                 
                 if ( !SBPLUS.isEmpty( self.quiz.answers[saIndex].img ) ) {
                     mmAnswerType = 'img';
@@ -750,7 +746,7 @@ function displayCorrectMultipleAnswers( answers ) {
         
         if ( this.correct !== undefined ) {
             
-            var aType = 'text';
+            let aType = 'text';
         
             if ( !SBPLUS.isEmpty( this.img ) ) {
                 aType = 'img';
@@ -788,7 +784,7 @@ function displayCorrectMultipleAnswers( answers ) {
 
 function questionExists( id ) {
     
-    var found = false;
+    let found = false;
     
     $.each( quizTracker, function( i ) {
         
@@ -805,7 +801,7 @@ function questionExists( id ) {
 
 function shuffle( array ) {
     
-    var randomIndex, temp, index;
+    let randomIndex, temp, index;
     
     for ( index = array.length; index; index-- ) {
         
@@ -819,7 +815,7 @@ function shuffle( array ) {
 
 function getCurrentQuizItem( array, id ) {
     
-    var result = undefined;
+    let result = undefined;
     
     $.each( array, function( i ) {
         
@@ -835,6 +831,3 @@ function getCurrentQuizItem( array, id ) {
 }
 
 export { Quiz };
-
-
-

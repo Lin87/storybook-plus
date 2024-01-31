@@ -2,7 +2,7 @@ import $ from 'jquery';
 import { SBPLUS } from "./sbplus-dev";
 import { Quiz } from "./quiz";
 
-var Page = function ( obj, data ) {
+let Page = function ( obj, data ) {
     
     this.pageXML = obj.xml[0];
     this.pageData = data;
@@ -80,7 +80,7 @@ var Page = function ( obj, data ) {
 
 Page.prototype.getPageMedia = function() {
     
-    var self = this;
+    const self = this;
     
     // reset
     if ( $( SBPLUS.layout.quizContainer ).length ) {
@@ -186,7 +186,7 @@ Page.prototype.getPageMedia = function() {
                     
                 } ).always( function() {
                     
-                    var html = '<video id="mp" class="video-js vjs-default-skin"></video>';
+                    const html = '<video id="mp" class="video-js vjs-default-skin"></video>';
                     
                     $( self.mediaContent ).addClass( 'show-vjs-poster' );
                     
@@ -212,7 +212,7 @@ Page.prototype.getPageMedia = function() {
         
         case 'image':
             
-            var img = new Image();
+            const img = new Image();
             img.src = 'assets/pages/' + self.src + '.' + self.imgType;
             img.alt = self.title;
             
@@ -220,17 +220,14 @@ Page.prototype.getPageMedia = function() {
                 
                 self.hasImage = true;
                 
-                if ( ! Modernizr.objectfit ) {
-                  $('.sbplus_media_content').each(function () {
-                    var $container = $(this),
+                $('.sbplus_media_content').each(function () {
+                    const $container = $(this),
                         imgUrl = $container.find('img').prop('src');
                     if (imgUrl) {
                       $container
-                        .css('backgroundImage', 'url(' + imgUrl + ')')
-                        .addClass('compat-object-fit');
+                        .css('backgroundImage', 'url(' + imgUrl + ')');
                     }  
-                  });
-                }
+                });
                 
                 
             } );
@@ -268,7 +265,7 @@ Page.prototype.getPageMedia = function() {
                 
             } ).always( function() {
                 
-                var html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
+                const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
                 
                 $( self.mediaContent ).html( html ).promise().done( function() {
                     
@@ -305,7 +302,7 @@ Page.prototype.getPageMedia = function() {
 
             } else {
                 
-                var autoplay = 
+                const autoplay = 
                     self.preventAutoplay === "false" || self.preventAutoplay === "no" ? 1 : 0;
 
                 $( self.mediaContent ).html( '<div class="yt-native"><iframe id="youtube-ui" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/' + self.src + '?autoplay=' + autoplay + '&playsinline=1&modestbranding=1&disablekb=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe></div>' ).promise().done( function() {
@@ -348,7 +345,7 @@ Page.prototype.getPageMedia = function() {
         case 'bundle':
             
             $( self.frames ).each( function() {
-                var cue = toSeconds( $( this ).attr( 'start' ) );
+                const cue = toSeconds( $( this ).attr( 'start' ) );
                 self.cuepoints.push( cue );
             } );
             
@@ -363,7 +360,8 @@ Page.prototype.getPageMedia = function() {
                 
             } ).always( function() {
                 
-                var html = '<video id="mp" class="video-js vjs-default-skin"></video>';
+                const html = '<video id="mp" class="video-js vjs-default-skin"></video>';
+
                 $( self.mediaContent ).addClass( 'show-vjs-poster' );
                 
                 $( self.mediaContent ).html( html ).promise().done( function() {
@@ -390,11 +388,11 @@ Page.prototype.getPageMedia = function() {
             $( self.leftCol ).append( '<div id="sbplus_quiz_wrapper"></div>' )
                 .promise().done( function() {
             
-                    var qObj = {
+                    const qObj = {
                         id: self.pageNumber
                     };
                     
-                    var quizItem = new Quiz( qObj, self.pageData  );
+                    const quizItem = new Quiz( qObj, self.pageData  );
                     quizItem.getQuiz();
                     
                     if ( $( '#sbplus_widget' ).is( ':visible' ) ) {
@@ -414,9 +412,9 @@ Page.prototype.getPageMedia = function() {
         
         case 'html':
             
-            var embed = false;
-            var audioSrc = false;
-            var path = self.src;
+            let embed = false;
+            let audioSrc = false;
+            let path = self.src;
                 
             if ( !isUrl(path) ) {
                 path = 'assets/html/' + self.src;
@@ -453,7 +451,7 @@ Page.prototype.getPageMedia = function() {
                 
             } else {
                 
-               var holder = '<div class="html exLink">';
+               let holder = '<div class="html exLink">';
                holder += '<small>click the link to open it in a new tab/window</small>';
                holder += '<a href="' + path + '" target="_blank">' + path + '</a>';
                holder += '</div>'
@@ -499,9 +497,8 @@ Page.prototype.getPageMedia = function() {
     
     self.delayStorage = window.setTimeout( function() {
         
-        var presentation = SBPLUS.sanitize( SBPLUS.getCourseDirectory() );
-        
-        var pSectionNumber = self.pageNumber[0] + ',' + self.pageNumber[1];
+        const presentation = SBPLUS.sanitize( SBPLUS.getCourseDirectory() );
+        const pSectionNumber = self.pageNumber[0] + ',' + self.pageNumber[1];
         
         if ( pSectionNumber !== '0,0' ) {
             SBPLUS.setStorageItem( 'sbplus-' + presentation, pSectionNumber );
@@ -581,13 +578,16 @@ function copyToClipboard() {
     
     if ( copyBtn && copyTxtArea ) {
 
-        copyTxtArea.select();
-        document.execCommand( 'copy' );
+        const clipboard = navigator.clipboard;
 
-        copyBtn.focus();
-        copyBtnTxt.innerHTML = "Copied";
+        clipboard.writeText( copyTxtArea.innerHTML ).then( () => {
 
-        setTimeout( function() {
+            copyBtn.focus();
+            copyBtnTxt.innerHTML = "Copied";
+
+        } );
+
+        setTimeout( () => {
             copyBtnTxt.innerHTML = originalCopyBtnTxt;
         }, 3000 );
 
@@ -598,7 +598,7 @@ function copyToClipboard() {
 // kaltura api request
 Page.prototype.loadKalturaVideoData = function () {
     
-    var self = this;
+    const self = this;
 
     self.isKaltura = {
         
@@ -619,15 +619,15 @@ Page.prototype.loadKalturaVideoData = function () {
         'entryId': self.src,
         'callback': function( data ) {
 
-            var captions = data.caption;
+            const captions = data.caption;
 
             self.isKaltura.status.entry = data.status;
             self.isKaltura.duration = data.duration;
             self.isKaltura.poster = data.poster;
 
-            for( var i in data.sources ) {
+            for( let i in data.sources ) {
 
-                var source = data.sources[i];
+                const source = data.sources[i];
     
                 if ( source.flavorParamsId === self.kaltura.flavors.low ) {
                     
@@ -682,7 +682,7 @@ Page.prototype.loadKalturaVideoData = function () {
 
                         }
                         
-                        var html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
+                        const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
                     
                         $( self.mediaContent ).html( html ).promise().done( function() {
                             
@@ -731,7 +731,7 @@ Page.prototype.addMarkers = function() {
 // render videojs
 Page.prototype.renderVideoJS = function( src ) {
     
-    var self = this;
+    const self = this;
     
     // var ka = {
     //     play: false,
@@ -744,7 +744,7 @@ Page.prototype.renderVideoJS = function( src ) {
     
     src = typeof src !== 'undefined' ? src : self.src;
 
-    var isAutoplay = true;
+    let isAutoplay = true;
     
     if ( SBPLUS.getStorageItem( 'sbplus-autoplay' ) === '0' ) {
         isAutoplay = false;
@@ -759,7 +759,7 @@ Page.prototype.renderVideoJS = function( src ) {
         $( SBPLUS.layout.wrapper ).removeClass( 'preventAutoplay' ); 
     }
     
-    var options = {
+    const options = {
         
         techOrder: ['html5'],
         controls: true,
@@ -782,7 +782,7 @@ Page.prototype.renderVideoJS = function( src ) {
     };
     
     // autoplay is off for iPhone or iPod
-    if( SBPLUS.isIOSDevice() ) {
+    if( SBPLUS.isMobileDevice() ) {
         options.autoplay = false;
         options.playsinline = true;
         options.nativeControlsForTouch = false;
@@ -805,7 +805,7 @@ Page.prototype.renderVideoJS = function( src ) {
     
     self.mediaPlayer = videojs( 'mp', options, function onPlayerReady() {
         
-        var player = this;
+        const player = this;
         
         if ( self.isKaltura ) {
             
@@ -833,8 +833,8 @@ Page.prototype.renderVideoJS = function( src ) {
             
             if ( self.isBundle ) {
                 
-                var srcDuration = 0;
-                var pageImage = new Image();
+                let srcDuration = 0;
+                const pageImage = new Image();
                 
                 player.on( 'loadedmetadata', function() {
                     
@@ -864,7 +864,7 @@ Page.prototype.renderVideoJS = function( src ) {
                 
                 $.each( self.cuepoints, function( i ) {
             
-                    var endCue;
+                    let endCue;
                     
                     if ( self.cuepoints[i+1] === undefined ) {
                         endCue = srcDuration;
@@ -884,9 +884,8 @@ Page.prototype.renderVideoJS = function( src ) {
                                 self.showPageError( 'NO_IMG', pageImage.src );
                             } );
                             
-                            var imageEl = $('.vjs-poster')[0];
-                            
-                            var img = document.createElement('img');
+                            const imageEl = $('.vjs-poster')[0];
+                            const img = document.createElement('img');
                             
                             img.src = pageImage.src;
                             
@@ -1111,7 +1110,7 @@ Page.prototype.renderVideoJS = function( src ) {
         
         player.on( 'ratechange', function() {
             
-            var rate = this.playbackRate();
+            const rate = this.playbackRate();
             
             if ( SBPLUS.playbackrate !== rate ) {
                 
@@ -1162,7 +1161,7 @@ Page.prototype.renderVideoJS = function( src ) {
             
             player.textTracks().addEventListener( 'change', function() {
                 
-                var tracks = this.tracks_;
+                const tracks = this.tracks_;
                 
                 $.each( tracks, function() {
                     
@@ -1210,7 +1209,7 @@ Page.prototype.renderVideoJS = function( src ) {
     
     if ( $( '#mp_Youtube_api' ).length ) {
         
-        var parent = $( '#mp_Youtube_api' ).parent();
+        const parent = $( '#mp_Youtube_api' ).parent();
         
         parent.addClass( 'animated ' + self.transition )
             .one( 'webkitAnimationEnd mozAnimationEnd animationend', function() {
@@ -1225,7 +1224,8 @@ Page.prototype.renderVideoJS = function( src ) {
 
 Page.prototype.setWidgets = function() {
     
-    var self = this;
+    const self = this;
+
     SBPLUS.clearWidgetSegment();
     
     if ( this.type != 'quiz' ) {
@@ -1236,12 +1236,12 @@ Page.prototype.setWidgets = function() {
         
         if ( this.widget.length ) {
             
-            var segments = $( $( this.widget ).find( 'segment' ) );
+            const segments = $( $( this.widget ).find( 'segment' ) );
             
             segments.each( function() {
                 
-                var name = $( this ).attr( 'name' );
-                var key = 'sbplus_' + SBPLUS.sanitize( name );
+                const name = $( this ).attr( 'name' );
+                const key = 'sbplus_' + SBPLUS.sanitize( name );
                 
                 self.widgetSegments[key] = SBPLUS.getTextContent( $( this ) );
                 SBPLUS.addSegment( name );
@@ -1258,7 +1258,7 @@ Page.prototype.setWidgets = function() {
 
 Page.prototype.getWidgetContent = function( id ) {
     
-    var self = this;
+    const self = this;
     
     switch( id ) {
         
@@ -1283,9 +1283,9 @@ Page.prototype.showPageError = function( type, src ) {
     
     src = typeof src !== 'undefined' ? src : '';
     
-    var self = this;
+    const self = this;
     
-    var msg = '';
+    let msg = '';
     
     switch ( type ) {
                 
@@ -1343,7 +1343,7 @@ Page.prototype.showPageError = function( type, src ) {
 }
 
 function getKalturaStatus( code ) {
-    var msg = '';
+    let msg = '';
     switch( code ) {
         case -1:
         msg = 'ERROR';
@@ -1372,7 +1372,7 @@ function getKalturaStatus( code ) {
 }
 
 function getEntryKalturaStatus( code ) {
-    var msg = '';
+    let msg = '';
     switch( code ) {
         case -2:
         msg = 'ERROR IMPORTING';
@@ -1623,7 +1623,7 @@ function displayWidgetContent( str ) {
         .addClass( 'fadeIn' ).one( 'webkitAnimationEnd mozAnimationEnd animationend', 
         function() {
             
-            var region = $( this );
+            const region = $( this );
             
             region.removeClass( 'fadeIn' ).off();
             
@@ -1654,7 +1654,7 @@ function guid() {
 
 function toSeconds( str ) {
     
-    var arr = str.split( ':' );
+    const arr = str.split( ':' );
     
     if ( arr.length >= 3 ) {
         return Number( arr[0] * 60 ) * 60 + Number( arr[1] * 60 ) + Number( arr[2] );
@@ -1665,7 +1665,7 @@ function toSeconds( str ) {
 }
 
 function isUrl(s) {
-   var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+   const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
    return regexp.test(s);
 }
 

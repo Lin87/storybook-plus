@@ -112,7 +112,7 @@
             <multipleChoiceSingle retry="true">
                 
                 <question image="" audio="">
-                    <![CDATA[<p><strong>I'm not sure I was clear, should you burn the butter or not?</strong></p><p><small>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</small></p>]]>
+                    <![CDATA[<p><strong>I'm not sure I was clear, should you burn the butter or not?</strong></p>]]>
                 </question>
                 <choices>
                     
@@ -128,11 +128,7 @@
                     
                     <answer image="" audio="">
                         <value>It depends on personal taste</value>
-                        <feedback><![CDATA[Personally, I don't think you should burn the butter. But if you indeed like burnt butter in your cookies, go ahead.<ul>
-                            <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
-                            <li>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</li>
-                            <li>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</li>
-                            </ul><ol><li>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li><li>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</li><li>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</li></ol>]]></feedback>
+                        <feedback><![CDATA[Personally, I don't think you should burn the butter. But if you indeed like burnt butter in your cookies, go ahead.]]></feedback>
                     </answer>
                     
                 </choices>
@@ -145,7 +141,7 @@
             
             <shortAnswer>
                 
-                <question image="" audio=""><![CDATA[What are your main take aways from this presentation?<ol><li>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</li><li>World</li></ol>]]></question>
+                <question image="" audio=""><![CDATA[What are your main take aways from this presentation?]]></question>
                 <feedback>I was hoping you would be surprised to hear how relatively young the Chocolate Chip cookie is. I am also hoping you noticed how important getting the ingredients right is to having good results.</feedback>
                 
             </shortAnswer>
@@ -370,11 +366,6 @@
                 <question image="" audio="">Which sound does Lugia make?</question>
                 <choices>
                     
-                    <answer image="" audio="slide03.mp3">
-                        <value />
-                        <feedback>Cookies?</feedback>
-                    </answer>
-                    
                     <answer image="" audio="slide07.mp3">
                         <value />
                         <feedback>Someone is looking for you...</feedback>
@@ -456,7 +447,7 @@
     
     <section title="New Feature (Shhh!)">
         
-        <page type="html" src="https://media.uwex.edu" title="Section 160.202 - Definitions" embed="true">
+        <page type="html" src="https://media.uwex.edu" title="Media Services Website" embed="true">
             <audio src="slide02" />
             <note />
             <markers>
@@ -465,8 +456,7 @@
             </markers>
         </page>
         
-        <page type="html" src="https://media.uwex.edu/sandbox/ethan/hipaa/title45_vol1/CFR-2007-title45-vol1-sec160-203.xml
-" title="Section 160.203 - General Rules and Exceptions" embed="no">
+        <page type="html" src="https://www.ecfr.gov/current/title-45" title="Title 45 CFR" embed="no">
             <note />
         </page>
         

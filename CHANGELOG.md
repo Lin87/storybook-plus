@@ -8,6 +8,8 @@
 * Added `sbplus_copyright_notice` property to the manifest file to hold copyright information
 * Refactored code to check for manifest settings before loading resources
 * jQuery is now managed by Webpack and removed from the index.html file
+* Accent CSS rule moved to a template file instead of in the javascript file
+* Minor improvements
 
 #### 3.4.2 (09/05/2023)
 * Fixed an issue with table of content height
