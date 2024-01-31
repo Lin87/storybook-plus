@@ -134,7 +134,7 @@ var SBPLUS = SBPLUS || {
         // set HTML banner classes and IDs
         this.banner = {
             bar: '#sbplus_banner_bar',
-            title: '#sbplus_lession_title',
+            title: '#sbplus_lesson_title',
             author: '#sbplus_author_name'
         };
         
@@ -229,11 +229,11 @@ var SBPLUS = SBPLUS || {
                     self.manifest.sbplus_root_directory = 'sources/';
                 }
 
-                // called the loadTemplate functiont load Storybook Plus's
+                // called the loadTemplate function load Storybook Plus's
                 // HTML structure
                 /* !! SHOULD BE THE LAST THING TO BE CALLED IN THIS BLOCK!! */
                 self.loadTemplate();
-                self.preloadPresenationImages();
+                self.preloadPresentationImages();
                 
             } ).fail( function() { // when manifest fail to load...
                 
@@ -631,7 +631,7 @@ var SBPLUS = SBPLUS || {
                 
             }
             
-            // if accent is empty, set the accent to the vaule in the manifest
+            // if accent is empty, set the accent to the value in the manifest
 
             if ( self.isEmpty( xAccent ) ) {
                 xAccent = self.manifest.sbplus_default_accent;
@@ -691,23 +691,25 @@ var SBPLUS = SBPLUS || {
             // set the program theme
             self.setCopyright();
             
-            // get/set the presenation storage id
+            // get/set the presentation storage id
             self.presentationLoc = self.sanitize( self.getCourseDirectory() );            
             
             // if HotJar site id is set in manifest, get and set HotJar tracking code
-            if (self.manifest.sbplus_hotjar_site_id != "") {
-                var id = Number(self.manifest.sbplus_hotjar_site_id);
-                (function(h,o,t,j,a,r){
-                    h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-                    h._hjSettings={hjid:id,hjsv:6};
-                    a=o.getElementsByTagName('head')[0];
-                    r=o.createElement('script');r.async=1;
+            if ( self.manifest.sbplus_hotjar_site_id != "" ) {
+
+                let id = Number( self.manifest.sbplus_hotjar_site_id );
+
+                ( function( h, o, t, j, a, r ) {
+                    h.hj=h.hj||function(){ (h.hj.q=h.hj.q||[]).push( arguments ) };
+                    h._hjSettings={ hjid:id, hjsv:6 };
+                    a=o.getElementsByTagName( 'head' )[0];
+                    r=o.createElement( 'script' );r.async=1;
                     r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-                    a.appendChild(r);
-                })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+                    a.appendChild( r );
+                } ) ( window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=' );
             }
             
-            // if analytics is on, get and set Google analtyics tracking
+            // if analytics is on, get and set Google analytics tracking
             if ( !self.isEmpty( self.manifest.sbplus_google_tracking_id ) && ( self.xml.settings.analytics === 'on' || self.xml.settings.analytics === 'true' ) ) {
 
                 /* Google Analytics gtag.js */
@@ -821,221 +823,200 @@ var SBPLUS = SBPLUS || {
      **/
     renderSplashscreen: function() {
         
-        var self = this;
+        let self = this;
         
         if ( self.xmlParsed === true && self.splashScreenRendered === false ) {
-            
-            if ( self.hasStorageItem( 'sbplus-autoplay' ) === false ) {
-                self.setStorageItem( 'sbplus-autoplay', 1 );
+            if (self.hasStorageItem("sbplus-autoplay") === false) {
+                self.setStorageItem("sbplus-autoplay", 1);
             }
-            
-            if ( self.hasStorageItem( 'sbplus-volume' ) === false ) {
-                self.setStorageItem( 'sbplus-volume', 0.8 );
+
+            if (self.hasStorageItem("sbplus-volume") === false) {
+                self.setStorageItem("sbplus-volume", 0.8);
             }
-            
-            if ( self.hasStorageItem( 'sbplus-playbackrate' ) === false ) {
-                self.setStorageItem( 'sbplus-playbackrate', 1 );
+
+            if (self.hasStorageItem("sbplus-playbackrate") === false) {
+                self.setStorageItem("sbplus-playbackrate", 1);
             } else {
-                self.playbackrate = self.getStorageItem( 'sbplus-playbackrate' );
+                self.playbackrate = self.getStorageItem("sbplus-playbackrate");
             }
-            
-            if ( self.hasStorageItem( 'sbplus-subtitle' ) === false ) {
-                self.setStorageItem( 'sbplus-subtitle', 0 );
+
+            if (self.hasStorageItem("sbplus-subtitle") === false) {
+                self.setStorageItem("sbplus-subtitle", 0);
             }
-            
+
             // if autoplay for videoJS is on, add a class to the body tag
-            if ( self.getStorageItem( 'sbplus-autoplay') == '1' ) {
-                $( self.layout.wrapper ).addClass( 'sbplus_autoplay_on' );
+            if (self.getStorageItem("sbplus-autoplay") == "1") {
+                $(self.layout.wrapper).addClass("sbplus_autoplay_on");
             }
-            
+
             // set the HTML page title
             $( document ).attr( "title", self.xml.setup.title );
-            
-            // display data to the splash screen
-            $( self.splash.title ).html( self.xml.setup.title );
-            $( self.splash.subtitle ).html( self.xml.setup.subtitle );
 
-            if ( self.xml.setup.profileName ) {
-                $( self.splash.author ).html( self.xml.setup.profileName );
+            // display data to the splash screen
+            $(self.splash.title).html(self.xml.setup.title);
+            $(self.splash.subtitle).html(self.xml.setup.subtitle);
+
+            if (self.xml.setup.profileName) {
+                $(self.splash.author).html(self.xml.setup.profileName);
             } else {
-                $( self.splash.author ).html( self.xml.setup.author );
+                $(self.splash.author).html(self.xml.setup.author);
             }
-            
-            $( self.splash.duration ).html( self.xml.setup.duration );
+
+            $(self.splash.duration).html(self.xml.setup.duration);
 
             // get splash image background via AJAX
-            $.ajax( { // get the splash image from the local first
-                
-                url: 'assets/splash.' + self.xml.settings.splashImgType,
-                type: 'head'
-                
-            } ).done( function() { // when successful and done
-                
-                // display the image
-                self.setSplashImage( this.url );
-                
-            } ).fail( function() { // when failed, get from the server
-                
-                // get the program and course value
-                var program = self.xml.setup.program;
-                var course = self.xml.setup.course;
-                
-                // if program is empty
-                if ( self.isEmpty( program ) ) {
-                    
-                    // set program to the program directory name from the URL
-                    program = SBPLUS.getProgramDirectory();
-                    
-                }
-                
-                // if course is empty
-                if ( self.isEmpty( course ) ) {
-                    
-                    // set course to the course directory name from the URL
-                    course = SBPLUS.getCourseDirectory();
-                    
-                    // if course is still empty
-                    if ( self.isEmpty( course ) ) {
-                        
-                        // set course name to default
-                        course = 'default';
-                    
+            $.ajax({
+                // get the splash image from the local first
+
+                url: "assets/splash." + self.xml.settings.splashImgType,
+                type: "head",
+            })
+                .done(function () {
+                    // when successful and done
+
+                    // display the image
+                    self.setSplashImage(this.url);
+                })
+                .fail(function () {
+                    // when failed, get from the server
+
+                    // get the program and course value
+                    var program = self.xml.setup.program;
+                    var course = self.xml.setup.course;
+
+                    // if program is empty
+                    if (self.isEmpty(program)) {
+                        // set program to the program directory name from the URL
+                        program = SBPLUS.getProgramDirectory();
                     }
-                    
-                }
-                
-                // append image file extension to course value
-                course += '.' + self.xml.settings.splashImgType;
-                
-                // if both program and course are not empty,
-                // get the image from the server
-                if ( !self.isEmpty( program ) && !self.isEmpty( course ) ) {
-                    
-                    // set the path to the image
-                    var ss_url = self.manifest.sbplus_splash_directory + program + '/' + course;
-                    
-                    // load the image via AJAX
-                    $.ajax( {
-                        
-                        url: ss_url,
-                        type: 'HEAD'
-                        
-                    } ).done( function() { // when successful and done
-                        
-                        // display the image
-                        self.setSplashImage( this.url );
-                        
-                    } ).fail( function() {
-                        
-                        self.setSplashImage( self.manifest.sbplus_root_directory + 'images/default_splash.svg' );
-                        
-                    } );
-                    
-                } else {
-                    
-                    self.setSplashImage( self.manifest.sbplus_root_directory + 'images/default_splash.svg' );
-                    
-                }
-                
-            } );
-            
+
+                    // if course is empty
+                    if (self.isEmpty(course)) {
+                        // set course to the course directory name from the URL
+                        course = SBPLUS.getCourseDirectory();
+
+                        // if course is still empty
+                        if (self.isEmpty(course)) {
+                            // set course name to default
+                            course = "default";
+                        }
+                    }
+
+                    // append image file extension to course value
+                    course += "." + self.xml.settings.splashImgType;
+
+                    // if both program and course are not empty,
+                    // get the image from the server
+                    if (!self.isEmpty(program) && !self.isEmpty(course)) {
+                        // set the path to the image
+                        var ss_url = self.manifest.sbplus_splash_directory + program + "/" + course;
+
+                        // load the image via AJAX
+                        $.ajax({
+                            url: ss_url,
+                            type: "HEAD",
+                        })
+                            .done(function () {
+                                // when successful and done
+
+                                // display the image
+                                self.setSplashImage(this.url);
+                            })
+                            .fail(function () {
+                                self.setSplashImage(self.manifest.sbplus_root_directory + "images/default_splash.svg");
+                            });
+                    } else {
+                        self.setSplashImage(self.manifest.sbplus_root_directory + "images/default_splash.svg");
+                    }
+                });
+
             // set event listener to the start button
-            $( self.button.start ).on( 'click', self.startPresentation.bind( self ) );
-            
+            $(self.button.start).on("click", self.startPresentation.bind(self));
+
             // if local storage has a value for the matching presentation title
-            if ( self.hasStorageItem( 'sbplus-' + self.presentationLoc ) ) {
-                
+            if (self.hasStorageItem("sbplus-" + self.presentationLoc)) {
                 // set event listener to the resume button
-                $( self.button.resume ).on( 'click', self.resumePresentation.bind( self ) );
-                
+                $(self.button.resume).on("click", self.resumePresentation.bind(self));
             } else {
-                
                 // hide the resume button
-                $( self.button.resume ).hide( 0, function() {
-                    $( self ).attr( 'tabindex', '-1' );
-                } );
-                
+                $(self.button.resume).hide(0, function () {
+                    $(self).attr("tabindex", "-1");
+                });
             }
-            
+
             // set downloadable file name from the course directory name in URL
             var fileName = SBPLUS.getCourseDirectory().replace(".sbproj", "");
-            
+
             // if file name is empty, default to 'default'
-            if ( self.isEmpty( fileName ) ) {
-                fileName = 'default';
+            if (self.isEmpty(fileName)) {
+                fileName = "default";
             }
-            
+
             // load each supported downloadable files specified in the manifest
-            self.manifest.sbplus_download_files.forEach( function( file ) {
-                
-                $.ajax( {
-                    
-                    url: fileName + '.' + file.format,
-                    type: 'HEAD'
-                    
-                } ).done( function() {
-                    
-                    let fileLabel = file.label.toLowerCase();
-                    
-                    self.downloads[fileLabel] = { 'fileName': fileName, 'fileFormat': file.format, 'url': this.url };
-                    
-                    $( self.splash.downloadBar ).append(
-                        '<a href="' + this.url + '" tabindex="1" download="' + fileName + '.' + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + '</a>' );
+            self.manifest.sbplus_download_files.forEach(function (file) {
+                $.ajax({
+                    url: fileName + "." + file.format,
+                    type: "HEAD",
+                })
+                    .done(function () {
+                        let fileLabel = file.label.toLowerCase();
 
-                } ).always( function() {
+                        self.downloads[fileLabel] = { fileName: fileName, fileFormat: file.format, url: this.url };
 
-                    if ( Object.keys(self.downloads).length <= 0 ) {
-                        $( self.splash.cta ).addClass( 'no_downloads' );
-                    }  
+                        $(self.splash.downloadBar).append('<a href="' + this.url + '" tabindex="1" download="' + fileName + "." + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + "</a>");
+                    })
+                    .always(function () {
+                        if (Object.keys(self.downloads).length <= 0) {
+                            $(self.splash.cta).addClass("no_downloads");
+                        }
+                    });
+            });
+
+            // set accent color
+
+            if ( !self.isEmpty( self.xml.settings.accent ) ) {
+
+                const hover = self.colorLum( self.xml.settings.accent, 0.2 ); // set hover color hex value
+                const textColor = self.colorContrast( self.xml.settings.accent ); // set the text color hex value
+                let markerColor = self.colorLum( self.xml.settings.accent, 0.4 ); // video marker color
+                const accentUrl = self.manifest.sbplus_root_directory + "scripts/templates/accent-css.tpl";
+
+                if ( textColor !== "#000" ) {
+                    markerColor = self.colorLum( self.xml.settings.accent, 0.8 );
+                }
+
+                $.get( accentUrl, ( data ) => {
+
+                    let accentCssModified = data;
+
+                    accentCssModified = accentCssModified.replace( /--var-accent/gi, self.xml.settings.accent );
+                    accentCssModified = accentCssModified.replace( /--var-hover/gi, hover );
+                    accentCssModified = accentCssModified.replace( /--var-textColor/gi, textColor );
+                    accentCssModified = accentCssModified.replace( /--var-markerColor/gi, markerColor );
+
+                    // append the style/css to the HTML head
+                    $("head").append('<style type="text/css">' + accentCssModified + "</style>");
 
                 } );
-                
-            } );
-            
-            // set accent color
-                
-            // set hover color hex value
-            let hover = self.colorLum( self.xml.settings.accent, 0.2 );
-            
-            // set the text color hex value
-            let textColor = self.colorContrast( self.xml.settings.accent );
 
-            // video marker color
-            let markerColor = self.colorLum(self.xml.settings.accent, 0.4);
-            
-            if ( textColor !== "#000" ) {
-                markerColor = self.colorLum(self.xml.settings.accent, 0.8);
             }
-            
-            // construct the CSS
-            var style = '.sbplus_wrapper button:hover{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button{color:' + textColor  + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button:hover{background-color:' + hover + '}.sbplus_wrapper #sbplus #sbplus_banner_bar{background-color:' + self.xml.settings.accent + ';color:' + textColor + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .item:hover{color:' + textColor + ';background-color:' + hover + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .sb_selected{color:' + textColor + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col #sbplus_table_of_contents_wrapper .section .current{border-left-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:hover,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:hover{background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:hover a,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:hover a{color:' + textColor + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .active, .sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .active{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:focus,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:focus{background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:focus a,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:focus a{color:' + textColor + '}.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent:hover,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent:hover{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper #copyToCbBtn{color:' + textColor  + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper #copyToCbBtn:hover{background-color:' + hover + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar{background-color:'+ self.xml.settings.accent +'}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar .vjs-control,.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin button:hover{color:' + textColor  + '}.video-js .vjs-volume-level,.video-js .vjs-play-progress{background-color:' + textColor  + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_quiz_wrapper .sbplus_quiz_submit_btn, .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_quiz_wrapper .sbplus_quiz_tryagain_btn{color:' + textColor  + ';background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .sbplus_secondary_controls{background-color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .sbplus_secondary_controls #expand_contract_btn{color:' + textColor  + '}.sbplus_wrapper.toc_displayed #sbplus #sbplus_control_bar #mobile_toc_toggle_btn{color:' + self.xml.settings.accent + '}.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_left_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar .vjs-progress-control .vjs-marker{background-color:' + markerColor + '}';
-            
-            // append the style/css to the HTML head
-            $( 'head' ).append( '<style type="text/css">' + style + '</style>' );
             
             // if mathjax if turned on
-            if ( self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true' ) {
-                
+            if (self.xml.settings.mathjax === "on" || self.xml.settings.mathjax === "true") {
                 // load the MathJAX script from a CDN
-                $.getScript( 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML', function() {
-            
+                $.getScript("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML", function () {
                     MathJax.Hub.Config({
-                        
-                      'HTML-CSS': {
-                        matchFontHeight: true
-                      }
-                      
+                        "HTML-CSS": {
+                            matchFontHeight: true,
+                        },
                     });
-                    
                 });
-                
             }
-            
+
             // flag the splash screen as rendered
             self.splashScreenRendered = true;
-            self.sendToGA( 'splash_screen_view', self.getCourseDirectory() +  ' - splash' );
+            self.sendToGA("splash_screen_view", self.getCourseDirectory() + " - splash");
             self.resize();
-            
         }
         
     }, // end renderSplashScreen function
@@ -1127,7 +1108,7 @@ var SBPLUS = SBPLUS || {
         
     },
 
-    preloadPresenationImages: function() {
+    preloadPresentationImages: function() {
 
         var self = this;
 
@@ -1189,10 +1170,10 @@ var SBPLUS = SBPLUS || {
         
         var self = this;
         
-        // if presentation has not started, hide splash and render presenation
+        // if presentation has not started, hide splash and render presentation
         if ( this.presentationStarted === false ) {
             
-            // render presenation
+            // render presentation
             self.renderPresentation().promise().done( function() {
                 
                 // hide splash screen

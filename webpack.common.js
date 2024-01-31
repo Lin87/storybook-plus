@@ -2,7 +2,7 @@ const path = require( 'path' );
 const HtmlWebpackPlugin = require( 'html-webpack-plugin' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
-const WebpackConcatPlugin = require('webpack-concat-files-plugin');
+const WebpackConcatPlugin = require( 'webpack-concat-files-plugin' );
 const terser = require('terser');
 
 module.exports = {

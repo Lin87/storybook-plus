@@ -45,7 +45,7 @@
     <!-- Banner (black title) bar -->
     <div id="sbplus_banner_bar">
         
-        <div id="sbplus_lession_title" tabindex="-1"></div>
+        <div id="sbplus_lesson_title" tabindex="-1"></div>
         
         <div id="sbplus_menu_area">
             

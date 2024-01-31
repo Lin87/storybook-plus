@@ -1,7 +1,13 @@
 ### Version Change Logs
 
 #### 3.5.0 (xx/xx/2024)
-* Pending
+* Updated Kaltura checks before loading Kaltura API scripts
+* Notes/widget area now loads even if Kaltura is not available or errored out
+* Added a new error message for Kaltura ID not specified in the manifest file
+* Removed `sbplus_program_json`, `sbplus_author_json`, and `sbplus_program_themes` properties from the manifest file as they are no longer used
+* Added `sbplus_copyright_notice` property to the manifest file to hold copyright information
+* Refactored code to check for manifest settings before loading resources
+* jQuery is now managed by Webpack and removed from the index.html file
 
 #### 3.4.2 (09/05/2023)
 * Fixed an issue with table of content height
@@ -34,17 +40,17 @@
 * Fixed an issue where quiz engine is not displaying the correct feedback (#100).
 * Fixed an issue where presentations created with Storybook Packager are not being track by Google Analytics (#99).
 * Presentations that use SVG images will now preload all SVG images before presentation is ready (#95).
-* Kaltura video with autoplay turn off will now display the video thumbnail from Kaltura (#97).
+* Kaltura video with auto-play turn off will now display the video thumbnail from Kaltura (#97).
 * Fixed an issue where presentation is not properly rendered when in a responsive iFrame embed.
 * Added loading screen with program theme and logo
 * HTML page type embed attribute now supports `false` value (#101).
 * Reworked HTML iframe embed for HTML page type that contains an audio.
 * Has notes indicator is now a red dot with "!" instead of a triangle.
-* Added `useDefaultPlayer` attribtue to YouTube page type to revert YouTube video back to YouTube Player UI.
+* Added `useDefaultPlayer` attribute to YouTube page type to revert YouTube video back to YouTube Player UI.
 
 #### 3.2.1 (07/18/2019)
 * Updated skip forward and backward icons
-* Fixed an issue where table of content did not autoscroll back to the top (#96)
+* Fixed an issue where table of content did not auto-scroll back to the top (#96)
 
 #### 3.2.0 (07/10/2019)
 * When viewing SB+ Presentation on standalone page (i.e., not embedded inside an iframe), program specific style will be applied, include copyright information. If program style is not available, accent color will be used instead.
@@ -52,7 +58,7 @@
 * Added a new `sbplus_program_theme` property to the `manifest.json` file. This property contains the URL to the `themes.json` file.
 * SB+ will now look for downloadable file formats specified in the `manifest.json` file.
 * Added rewind and skip 10 seconds button to the media playback controls.
-* Added a new `preventAutoplay` attribute to the page tag in the SB+ XML. The attribute will force the media to stop autoplaying even when the autoplay setting is on.
+* Added a new `preventAutoplay` attribute to the page tag in the SB+ XML. The attribute will force the media to stop auto-playing even when the auto-play setting is on.
 * Updated `animated.css` (the transition animations) to version 3.7.2.
 
 #### 3.1.7 (04/08/2019)
