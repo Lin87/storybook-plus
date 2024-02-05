@@ -2660,14 +2660,8 @@ let SBPLUS = {
     },
     
     isMobileDevice: function() {
-        
-        if ( ( /iOS|Android/.test( navigator.userAgentData.platform ) ) ) {
-            
-            return true;
-            
-        }
-        
-        return false;
+
+        return navigator.userAgentData ? /iOS|Android/.test(navigator.userAgentData.platform) : /iPad|iPhone|iPod|Android/.test(navigator.platform);
         
     },
     
