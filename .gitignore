@@ -1,8 +1,8 @@
 # Project specifics
-default.mp4
-default.mp3
-default.pdf
-default.zip
+sbplus.mp4
+sbplus.mp3
+sbplus.pdf
+sbplus.zip
 iframe.html
 assets/*
 !assets/sbplus.xml

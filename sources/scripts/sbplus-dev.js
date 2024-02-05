@@ -64,6 +64,8 @@ let SBPLUS = {
     // holds external data
     manifest: null,
     xml: null,
+    xmlPath: null,
+    assetsPath: null,
     downloads: {},
     settings: null,
     
@@ -371,20 +373,10 @@ let SBPLUS = {
 
         if ( self.isEmpty( self.logo ) ) {
                 
-            let program = "";
+            let program = this.xml.setup.program;
 
-            if ( !self.isEmpty( this.xml.setup.program ) ) {
-
-                program = this.xml.setup.program;
-
-            } else {
-
-                program = self.getProgramDirectory();
-                
-                if ( self.isEmpty( program ) ) {
-                    program = this.manifest.sbplus_program_default;
-                }
-
+            if ( self.isEmpty( program ) ) {
+                program = this.manifest.sbplus_program_default;
             }
 
             let logoUrl =  program + '.svg';
@@ -470,6 +462,26 @@ let SBPLUS = {
             
             // setup custom menu items specified in the manifest file
             this.setManifestCustomMenu();
+
+            this.xmlPath = this.getXMLPath();
+
+            if ( this.xmlPath ) {
+
+                if ( !this.xmlPath.startsWith( this.manifest.sbplus_default_content_directory ) ) {
+
+                    if ( !this.xmlPath.startsWith( 'http' ) ) {
+                        this.xmlPath = this.manifest.sbplus_default_content_directory + this.xmlPath.replace(/^\/+|\/+$/g, '');
+                    }
+                    
+                }
+
+            } else {
+
+                this.xmlPath = 'assets/sbplus.xml?_=' + new Date().getTime();
+
+            }
+
+            this.assetsPath = this.extractAssetsPath( this.xmlPath );
             
             // set flag to true
             this.beforeXMLLoadingDone = true;
@@ -541,10 +553,10 @@ let SBPLUS = {
             const self = this;
             
             // set the path to the XML file
-            const xmlUrl = 'assets/sbplus.xml?_=' + new Date().getTime();
-            
+            // const xmlUrl = 'assets/sbplus.xml?_=' + new Date().getTime();
+
             // AJAX call to the XML file
-            $.get( xmlUrl, function( data ) {
+            $.get( self.xmlPath, function( data ) {
                 
                 self.xmlLoaded = true;
                 
@@ -869,7 +881,7 @@ let SBPLUS = {
             $.ajax({
                 // get the splash image from the local first
 
-                url: "assets/splash." + self.xml.settings.splashImgType,
+                url: self.assetsPath + "splash." + self.xml.settings.splashImgType,
                 type: "head",
             })
                 .done(function () {
@@ -888,7 +900,7 @@ let SBPLUS = {
                     // if program is empty
                     if (self.isEmpty(program)) {
                         // set program to the program directory name from the URL
-                        program = SBPLUS.getProgramDirectory();
+                        program = SBPLUS.manifest.sbplus_program_default;
                     }
 
                     // if course is empty
@@ -948,15 +960,15 @@ let SBPLUS = {
             // set downloadable file name from the course directory name in URL
             let fileName = SBPLUS.getCourseDirectory().replace(".sbproj", "");
 
-            // if file name is empty, default to 'default'
+            // if file name is empty, default to 'sbplus'
             if (self.isEmpty(fileName)) {
-                fileName = "default";
+                fileName = "sbplus";
             }
 
             // load each supported downloadable files specified in the manifest
             self.manifest.sbplus_download_files.forEach(function (file) {
                 $.ajax({
-                    url: fileName + "." + file.format,
+                    url: self.extractAssetsRoot( self.xmlPath ) + fileName + "." + file.format,
                     type: "HEAD",
                 })
                     .done(function () {
@@ -1980,7 +1992,7 @@ let SBPLUS = {
                     $.ajax( {
             
                         type: 'HEAD',
-                        url: 'assets/' + sanitizedAuthor + '.jpg'
+                        url: self.assetsPath + sanitizedAuthor + '.jpg'
                         
                     } ).done( function() {
                         
@@ -2341,17 +2353,73 @@ let SBPLUS = {
         this.calcLayout();
     },
     
-    getUrlParam: function( name ) {
+    getXMLPath: function() {
         
-        const results = new RegExp('[\?&]' + name + '=([^&#]*)')
-                        .exec(window.location.href);
+        const presentationParam = "p";
         
-    	if ( results === null ) {
-           return null;
+        if ( URLSearchParams ) {
+
+            const urlParams = new URLSearchParams( window.location.search );
+            const presentation = urlParams.get( presentationParam );
+
+            if ( presentation ) {
+                
+                return this.isXMLFile( presentation ) ? presentation : undefined;
+
+            }
+
+        } else {
+
+            const query = windows.location.search.substring( 1 );
+            const vars = query.split( "&" );
+            
+            for ( let i = 0; i < vars.length; i++ ) {
+
+                const pair = vars[i].split( '=' );
+
+                if ( pair[0] === presentationParam ) {
+
+                    return this.isXMLFile( decodeURIComponent( pair[1] ) ) ? decodeURIComponent( pair[1] ) : undefined;
+
+                }
+
+            }
+
         }
         
-        return results[1] || 0;
+        return undefined;
         
+    },
+
+    isXMLFile: function( path ) {
+
+        return path.endsWith( 'sbplus.xml' );
+
+    },
+
+    extractAssetsPath: function( path ) {
+
+        const parts = path.split( "/" );
+
+        parts.pop();
+
+        return parts.join( "/" ) + "/";
+
+    },
+
+    extractAssetsRoot: function( path ) {
+
+        const parts = path.split( "/" );
+
+        if ( parts.length <= 2 ) {
+            return "";
+        }
+
+        parts.pop();
+        parts.pop();
+
+        return parts.join( "/" ) + "/";
+
     },
     
     getManifestUrl: function() {
@@ -2461,53 +2529,22 @@ let SBPLUS = {
         return result ? parseInt(result[1], 16) + ',' + parseInt(result[2], 16) + ',' + parseInt(result[3], 16) : null;
     },
     
-    getProgramDirectory: function() {
-        
-        const urlArray = this.getUrlArray();
-        
-        if ( urlArray.length >= 3 ) {
-            return urlArray[urlArray.length - 3];
-        } else if ( urlArray.length === 2 ) {
-            return urlArray[0];
-        }
-        
-        return '';
-        
-    },
-    
     getCourseDirectory: function() {
-        
-        const urlArray = this.getUrlArray();
-        
-        if ( urlArray.length >= 2 ) {
-            return urlArray[urlArray.length - 1];
-        }
-        
-        return 'default';
-        
-    },
-    
-    getUrlArray: function() {
-        
-        let href = window.location.href;
-        let url = href;
-        
-        if ( href.indexOf('?') ) {
-            href = href.split( '?' );
-            url = href[0];
-        }
-        
-        let urlArray = url.split( '/' );
-        
-        urlArray.splice(0, 1);
-        
-        if ( urlArray[urlArray.length - 1].indexOf('.') >= 0 ) {
-            
-        	urlArray.splice(urlArray.length - 1, 1);
-        	
+
+        if ( !this.assetsPath.startsWith( "http" ) ) {
+            return "sbplus";
         }
 
-        return this.removeEmptyElements( urlArray );
+        const parts = this.assetsPath.split( "/" );
+
+        if ( parts.length <= 2 ) {
+            return "sbplus";
+        }
+
+        parts.pop();
+        parts.pop();
+
+        return parts[parts.length -1];
         
     },
     

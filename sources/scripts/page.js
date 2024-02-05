@@ -61,6 +61,7 @@ let Page = function ( obj, data ) {
     }
     
     this.root = SBPLUS.manifest.sbplus_root_directory;
+    this.assetsRoot = SBPLUS.assetsPath;
     this.kaltura = {
         id: SBPLUS.manifest.sbplus_kaltura.id,
         flavors: {
@@ -161,7 +162,7 @@ Page.prototype.getPageMedia = function() {
             
             $.ajax( {
                 
-                url: 'assets/pages/' + self.src + '.' + self.imgType,
+                url: SBPLUS.assetsPath + 'pages/' + self.src + '.' + self.imgType,
                 type: 'HEAD'
                 
             } ).done( function() {
@@ -177,7 +178,7 @@ Page.prototype.getPageMedia = function() {
                 
                 $.ajax( {
                     
-                    url: 'assets/audio/' + self.src + '.vtt',
+                    url: SBPLUS.assetsPath + 'audio/' + self.src + '.vtt',
                     type: 'HEAD'
                     
                 } ).done( function() {
@@ -213,7 +214,7 @@ Page.prototype.getPageMedia = function() {
         case 'image':
             
             const img = new Image();
-            img.src = 'assets/pages/' + self.src + '.' + self.imgType;
+            img.src = SBPLUS.assetsPath + 'pages/' + self.src + '.' + self.imgType;
             img.alt = self.title;
             
             $( img ).on( 'load', function() {
@@ -256,7 +257,7 @@ Page.prototype.getPageMedia = function() {
             
             $.ajax( {
                 
-                url: 'assets/video/' + self.src + '.vtt',
+                url: SBPLUS.assetsPath + 'video/' + self.src + '.vtt',
                 type: 'HEAD'
                 
             } ).done( function() {
@@ -351,7 +352,7 @@ Page.prototype.getPageMedia = function() {
             
             $.ajax( {
                 
-                url: 'assets/audio/' + self.src + '.vtt',
+                url: SBPLUS.assetsPath + 'audio/' + self.src + '.vtt',
                 type: 'HEAD'
                 
             } ).done( function() {
@@ -417,7 +418,7 @@ Page.prototype.getPageMedia = function() {
             let path = self.src;
                 
             if ( !isUrl(path) ) {
-                path = 'assets/html/' + self.src;
+                path = SBPLUS.assetsPath + 'html/' + self.src;
             }
             
             if ( $(self.pageXML).attr('embed') !== undefined ) {
@@ -828,7 +829,7 @@ Page.prototype.renderVideoJS = function( src ) {
         if ( self.isAudio || self.isBundle ) {
             
             if ( self.isAudio && self.hasImage ) {
-                player.poster( 'assets/pages/' + src + '.' + self.imgType );
+                player.poster( SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType );
             }
             
             if ( self.isBundle ) {
@@ -850,7 +851,7 @@ Page.prototype.renderVideoJS = function( src ) {
                 	end: self.cuepoints[0],
                 	onStart: function() {
                     	
-                    	pageImage.src = 'assets/pages/' + src + '-1.' + self.imgType;
+                    	pageImage.src = SBPLUS.assetsPath + 'pages/' + src + '-1.' + self.imgType;
                     	$('.vjs-poster')[0].innerHTML = "<img src=" + pageImage.src + " />";
                     	player.poster( pageImage.src );
                     	
@@ -878,7 +879,7 @@ Page.prototype.renderVideoJS = function( src ) {
                         end: endCue,
                         onStart: function() {
                             
-                            pageImage.src = 'assets/pages/' + src + '-' + ( i + 2 )  + '.' + self.imgType;
+                            pageImage.src = SBPLUS.assetsPath + 'pages/' + src + '-' + ( i + 2 )  + '.' + self.imgType;
                     	    
                             $( pageImage ).on( 'error', function() {
                                 self.showPageError( 'NO_IMG', pageImage.src );
@@ -906,7 +907,7 @@ Page.prototype.renderVideoJS = function( src ) {
                     	
                 	if ( player.currentTime() <= self.cuepoints[0] ) {
                     	
-                    	player.poster( 'assets/pages/' + src + '-1.' + self.imgType );
+                    	player.poster( SBPLUS.assetsPath + 'pages/' + src + '-1.' + self.imgType );
                     	
                 	}
                 	
@@ -914,12 +915,12 @@ Page.prototype.renderVideoJS = function( src ) {
                 
             }
             
-            player.src( { type: 'audio/mp3', src: 'assets/audio/' + src + '.mp3' } );
+            player.src( { type: 'audio/mp3', src: SBPLUS.assetsPath + 'audio/' + src + '.mp3' } );
             
         }
         
         if ( self.isVideo ) {
-            player.src( { type: 'video/mp4', src: 'assets/video/' + src + '.mp4' } );
+            player.src( { type: 'video/mp4', src: SBPLUS.assetsPath + 'video/' + src + '.mp4' } );
         }
         
         // add caption
@@ -959,7 +960,7 @@ Page.prototype.renderVideoJS = function( src ) {
 
             $.ajax( {
                     
-                url: 'assets/video/yt-' + src + '.vtt',
+                url: SBPLUS.assetsPath + 'video/yt-' + src + '.vtt',
                 type: 'HEAD'
                 
             } ).done( function() {
@@ -968,7 +969,7 @@ Page.prototype.renderVideoJS = function( src ) {
                     kind: 'captions',
                     language: 'en',
                     label: 'English',
-                    src: 'assets/video/yt-' + src + '.vtt'
+                    src: SBPLUS.assetsPath + 'video/yt-' + src + '.vtt'
                 }, true );
                 
             } )
