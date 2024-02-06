@@ -9,6 +9,8 @@
 * Refactored code to check for manifest settings before loading resources
 * jQuery is now managed by Webpack and removed from the index.html file
 * Accent CSS rule moved to a template file instead of in the javascript file
+* Added `sbplus_default_content_directory` property to hold the URL to a directory where all presentation content resides
+* The `index.html` file is now centralized and does not need to be copied for every presentation. With the index file centralized, the presentation assets are loaded by specifying the URL to the `sbplus.xml` file as a query parameter. However, the old approach (including the index file for every presentation) still works and act as a fallback.
 * Minor improvements
 
 #### 3.4.2 (09/05/2023)
