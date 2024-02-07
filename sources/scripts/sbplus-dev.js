@@ -248,19 +248,9 @@ let SBPLUS = {
             
         }
 
-        // check online status every 1 minutes
-        setInterval( async () => {
+        // schedule online connectivity status check
+        this.scheduleOnlineStatusCheck();
 
-            const online = await checkOnlineStatus();
-
-            if ( online ) {
-                SBPLUS.hideConnectionMessage();
-            } else {
-                SBPLUS.showConnectionMessage();
-            }
-
-        }, 180000 );
-             
     }, // end go function
 
     /**
@@ -3052,7 +3042,7 @@ let SBPLUS = {
         const self = this;
         const sbplusEl = document.querySelector( self.layout.sbplus );
 
-        if ( !sbplusEl.contains( document.querySelector( '#connection_error_msg' ) ) ) {
+        if ( sbplusEl && !sbplusEl.contains( document.querySelector( '#connection_error_msg' ) ) ) {
 
             const messageEl = document.createElement( 'div' );
 
@@ -3071,13 +3061,52 @@ let SBPLUS = {
      **/
     hideConnectionMessage: function() {
 
-        if ( document.querySelector( this.layout.sbplus ).contains( document.querySelector( '#connection_error_msg' ) ) ) {
+        const self = this;
+        const sbplusEl = document.querySelector( self.layout.sbplus );
 
-            document.querySelector( this.layout.sbplus ).removeChild( document.querySelector( '#connection_error_msg' ) );
+        if ( sbplusEl && sbplusEl.contains( document.querySelector( '#connection_error_msg' ) ) ) {
+
+            sbplusEl.removeChild( document.querySelector( '#connection_error_msg' ) );
 
         }
 
-    }
+    },
+
+    /**
+     * hold the network/Internet connectivity status by pinging the index file
+     * @param none
+     * @return none
+     **/
+    checkOnlineStatus: async () => {
+
+        try {
+            const online = await fetch( "index.html" + "?_=" + new Date().getTime(), { method: "HEAD" } );
+            return online.status >= 200 && online.status < 300;
+        } catch ( err ) {
+            return false;
+        }
+
+    },
+
+    /**
+     * schedule network/Internet connectivity status check by pinging
+     * the index.html HEAD every 3 minutes
+     * @param none
+     * @return none
+     **/
+    scheduleOnlineStatusCheck: async function() {
+
+        const online = await SBPLUS.checkOnlineStatus();
+
+        if ( online ) {
+            SBPLUS.hideConnectionMessage();
+        } else {
+            SBPLUS.showConnectionMessage();
+        }
+
+        setTimeout( SBPLUS.scheduleOnlineStatusCheck, 3 * 60 * 1000 );
+
+    },
         
 };
 
@@ -3092,19 +3121,3 @@ $( function() {
     SBPLUS.go();
 
 } );
-
-/**
- * hold the network/Internet connectivity status by pinging the index file
- * @param none
- * @return none
- **/
-const checkOnlineStatus = async () => {
-
-    try {
-        const online = await fetch( 'index.html' );
-        return online.status >= 200 && online.status < 300;
-    } catch ( err ) {
-        return false;
-    }
-
-};
