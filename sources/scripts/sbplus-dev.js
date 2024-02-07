@@ -208,16 +208,23 @@ let SBPLUS = {
         // get manifest data if not set
         if ( this.manifest === null ) {
             
-            let self = this;
+            const self = this;
+            const manifestUrl = "./sources/manifest.json";
             
-            // use AJAX load the manifest JSON data using the
-            // url returned by the getManifestURL function
-            $.getJSON( self.getManifestUrl(), function( data ) {
+            self.requestFile( manifestUrl, response => {
+
+                if ( !response ) {
+
+                    // display the error message to the HTML page
+                    $( self.layout.wrapper ).html( "<div class=\"sbplus-core-error\"><h1><strong>Storybook Plus Error</strong></h1><p>The manifest.json file may be missing in the app\'s source directory, or it may contains errors.</P></div>" );
+                    return;
+
+                }
                 
                 // set the JSON data to the class manifest object
-                self.manifest = data;
+                self.manifest = JSON.parse( response.responseText );
                 self.manifestLoaded = true;
-                
+
                 // set an event listener to unload all session storage on HTML
                 // page refresh/reload or closing
                 $( window ).on( 'unload', self.removeAllSessionStorage.bind( self ) );
@@ -226,30 +233,14 @@ let SBPLUS = {
                     self.manifest.sbplus_root_directory = 'sources/';
                 }
 
-                // called the loadTemplate function load Storybook Plus's
-                // HTML structure
+                // call the loadTemplate function to load Storybook Plus's HTML structures
                 /* !! SHOULD BE THE LAST THING TO BE CALLED IN THIS BLOCK!! */
                 self.loadTemplate();
                 self.preloadPresentationImages();
                 
-            } ).fail( function() { // when manifest fail to load...
-                
-                // set an error message
-                let msg = '<div class="error">';
-                msg += '<p><strong>Storybook Plus Error:</strong> ';
-                msg += 'failed to load the manifest file.<br>'
-                msg += 'Expecting: <code>' + this.url + '</code></p>';
-                msg += '</div>';
-                
-                // display the error message to the HTML page
-                $( self.layout.wrapper ).html( msg );
-                
             } );
             
         }
-
-        // schedule online connectivity status check
-        this.scheduleOnlineStatusCheck();
 
     }, // end go function
 
@@ -714,7 +705,6 @@ let SBPLUS = {
                 gtag('config', self.manifest.sbplus_google_tracking_id);
             }
             
-
             if ( xAuthor.length ) {
                 
                 // set author name and path to the profile to respective variable
@@ -727,37 +717,21 @@ let SBPLUS = {
 
                 if ( self.isEmpty( profileInXml ) && !self.isEmpty( self.manifest.sbplus_author_directory ) && !self.isEmpty( sanitizedAuthor ) ) {
 
-                    self.requestFile( profileUrl, xhr => {
+                    self.requestFile( profileUrl, response => {
 
-                        const data = JSON.parse( xhr.responseText );
+                        if ( response ) {
 
-                        self.xml.setup.author = data.name;
-                        self.xml.setup.profile = self.noScript( data.profile );
+                            const data = JSON.parse( response.responseText );
+
+                            self.xml.setup.author = data.name;
+                            self.xml.setup.profile = self.noScript( data.profile );
+
+                        }
+                        
                         self.xmlParsed = true;
                         self.renderSplashscreen();
 
                     } );
-
-                    // const xhr = new XMLHttpRequest();
-
-                    // xhr.open( "GET", profileUrl + "?_=" + new Date().getTime(), true );
-                    // xhr.onload = function() {
-
-                    //     if ( xhr.status >= 200 && xhr.status < 300 ) {
-
-                    //         const data = JSON.parse( xhr.responseText );
-
-                    //         self.xml.setup.author = data.name;
-                    //         self.xml.setup.profile = self.noScript( data.profile );
-
-                    //     }
-
-                    //     self.xmlParsed = true;
-                    //     self.renderSplashscreen();
-
-                    // };
-
-                    // xhr.send();
 
                 } else {
 
@@ -975,6 +949,9 @@ let SBPLUS = {
             self.splashScreenRendered = true;
             self.sendToGA("splash_screen_view", self.getCourseDirectory() + " - splash");
             self.resize();
+
+            // schedule online connectivity status check
+            self.scheduleOnlineStatusCheck();
         }
         
     }, // end renderSplashScreen function
@@ -2428,24 +2405,6 @@ let SBPLUS = {
         parts.pop();
 
         return parts[parts.length -1];
-        
-    },
-    
-    /**
-     * parse the manifest URL from the index.html file
-     * @param none
-     * @return none
-     **/
-    //TODO: revisit getManifestUrl now that index.html file is centralized
-    getManifestUrl: function() {
-        
-        const manifest = $( '#sbplus_configs' );
-        
-        if ( manifest.length ) {
-            return manifest[0].href;
-        }
-        
-        return '';
         
     },
     

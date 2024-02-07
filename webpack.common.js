@@ -50,7 +50,6 @@ module.exports = {
             chunks: [ 'sbplus' ],
             excludeChunks: ['preload'],
             links: [
-                'sources/manifest.json',
                 'sources/scripts/libs/modernizr.js',
                 'sources/scripts/libs/videojs/video-js.min.css',
                 'sources/scripts/libs/videojs/video.js',
@@ -64,6 +63,10 @@ module.exports = {
                 {
                     from: 'assets',
                     to: 'assets',
+                },
+                {
+                    from: 'sources/manifest.json',
+                    to: 'sources/manifest.json',
                 },
                 {
                     from: 'sources/images',

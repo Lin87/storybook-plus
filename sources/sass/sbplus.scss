@@ -230,18 +230,11 @@ body {
         
     }
     
-    .error {
-        
+    .sbplus-core-error {
+        padding-top: 20px;
+        text-align: center;
+        align-items: center;
         color: #f00;
-        
-        strong {
-            font-weight: bold;
-        }
-        
-        code {
-            font-family: monospace;
-        }
-        
     }
     
     #sbplus {
