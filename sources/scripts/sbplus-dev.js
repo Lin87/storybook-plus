@@ -53,7 +53,7 @@ let SBPLUS = {
     button: null,
     menu : null,
     screenReader: null,
-    presentationLoc: '',
+    presentationId: '',
     logo: '',
     
     // holds current and total pages in the presentation
@@ -402,6 +402,46 @@ let SBPLUS = {
         splashLogo.appendChild( logo );
 
     },
+
+    /**
+     * set the custom accent colors and contrast for UIs
+     * @param none
+     * @return none
+     **/
+    setAccent: function() {
+
+        const self = this;
+
+        if ( !self.isEmpty( self.xml.settings.accent ) ) {
+
+            const hover = self.colorLum( self.xml.settings.accent, 0.2 ); // set hover color hex value
+            const textColor = self.colorContrast( self.xml.settings.accent ); // set the text color hex value
+            let markerColor = self.colorLum( self.xml.settings.accent, 0.4 ); // video marker color
+            const accentUrl = self.manifest.sbplus_root_directory + "scripts/templates/accent-css.tpl";
+
+            if ( textColor !== "#000" ) {
+                markerColor = self.colorLum( self.xml.settings.accent, 0.8 );
+            }
+
+            $.get( accentUrl, ( data ) => {
+
+                let accentCssModified = data;
+
+                accentCssModified = accentCssModified.replace( /--var-accent/gi, self.xml.settings.accent );
+                accentCssModified = accentCssModified.replace( /--var-hover/gi, hover );
+                accentCssModified = accentCssModified.replace( /--var-textColor/gi, textColor );
+                accentCssModified = accentCssModified.replace( /--var-markerColor/gi, markerColor );
+
+                // append the style/css to the HTML head
+                $( "head" ).append('<style type="text/css">' + accentCssModified + "</style>");
+
+            } );
+
+        }
+
+        
+
+    },
     
     /**
      * Execute tasks before loading the external XML data
@@ -418,6 +458,7 @@ let SBPLUS = {
             // setup custom menu items specified in the manifest file
             self.setManifestCustomMenu();
 
+            // parse and set the XML and asset path
             self.xmlPath = self.getXMLPath();
 
             if ( self.xmlPath ) {
@@ -437,6 +478,7 @@ let SBPLUS = {
             }
 
             self.assetsPath = self.extractAssetsPath( self.xmlPath );
+            self.presentationId = self.sanitize( self.getCourseDirectory() ); // set the presentation id
             
             // set flag to true
             self.beforeXMLLoadingDone = true;
@@ -640,14 +682,27 @@ let SBPLUS = {
                 sections: xSections
             };
 
-            // get program logo
-            self.getLogo();
+            self.xmlParsed = true;
 
-            // set the copyright info
-            self.setCopyright();
+            /* finished parsing XML; do additional setup based on parsed XML values */
             
-            // get/set the presentation storage id
-            self.presentationLoc = self.sanitize( self.getCourseDirectory() );            
+            self.getAuthorProfile(); // get author profile
+            self.setAccent(); // set accent color
+            self.getLogo(); // get program logo
+            self.setCopyright(); // set the copyright info
+            self.applyStorageItems(); // set player initial settings to the local storage
+            
+            // if mathjax if turned on
+            if (self.xml.settings.mathjax === "on" || self.xml.settings.mathjax === "true") {
+                // load the MathJAX script from a CDN
+                $.getScript("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                    MathJax.Hub.Config({
+                        "HTML-CSS": {
+                            matchFontHeight: true,
+                        },
+                    });
+                });
+            }
             
             // if HotJar site id is set in manifest, get and set HotJar tracking code
             if ( self.manifest.sbplus_hotjar_site_id != "" ) {
@@ -703,53 +758,70 @@ let SBPLUS = {
 
                 gtag('js', new Date());
                 gtag('config', self.manifest.sbplus_google_tracking_id);
-            }
-            
-            if ( xAuthor.length ) {
-                
-                // set author name and path to the profile to respective variable
-                const sanitizedAuthor = self.sanitize( xAuthor.attr( 'name' ).trim() );
-                const profileUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.json';
-                const profileInXml = self.getTextContent( xAuthor );
-                
-                self.xml.setup.author = xAuthor.attr( 'name' ).trim();
-                self.xml.setup.profile = profileInXml;
-
-                if ( self.isEmpty( profileInXml ) && !self.isEmpty( self.manifest.sbplus_author_directory ) && !self.isEmpty( sanitizedAuthor ) ) {
-
-                    self.requestFile( profileUrl, response => {
-
-                        if ( response ) {
-
-                            const data = JSON.parse( response.responseText );
-
-                            self.xml.setup.author = data.name;
-                            self.xml.setup.profile = self.noScript( data.profile );
-
-                        }
-                        
-                        self.xmlParsed = true;
-                        self.renderSplashscreen();
-
-                    } );
-
-                } else {
-
-                    self.xmlParsed = true;
-                    self.renderSplashscreen();
-
-                }
 
             }
+
+            /* finished setup; ready to render the splash screen */
+
+            self.renderSplashscreen();
             
         }
         
     }, // end parseXMLData function
+
+    /**
+     * Set author profile from centralized repo if applicable
+     * @param string
+     * @return none
+     **/
+
+    getAuthorProfile: function() {
+
+        const self = this;
+
+        if ( self.xmlLoaded && typeof self.xml.setup.author !== "object" ) {
+            return;
+        }
+
+        if ( self.xml.setup.author.length ) {
+                
+            // set author name and path to the profile to respective variable
+            const sanitizedAuthor = self.sanitize( self.xml.setup.author.attr( 'name' ).trim() );
+            const profileUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.json';
+            const profileInXml = self.getTextContent( self.xml.setup.author );
+            
+            self.xml.setup.author = self.xml.setup.author.attr( 'name' ).trim();
+            self.xml.setup.profile = profileInXml;
+
+            if ( self.isEmpty( profileInXml ) && !self.isEmpty( self.manifest.sbplus_author_directory ) && !self.isEmpty( sanitizedAuthor ) ) {
+
+                self.requestFile( profileUrl, response => {
+
+                    if ( response ) {
+
+                        const data = JSON.parse( response.responseText );
+
+                        self.xml.setup.author = data.name;
+                        self.xml.setup.profile = self.noScript( data.profile );
+
+                        if ( self.splashScreenRendered ) {
+                            $( self.splash.author ).html( self.xml.setup.author );
+                        }
+
+                    }
+
+                } );
+
+            }
+
+        }
+
+    },
     
     /**************************************************************************
         SPLASH SCREEN FUNCTIONS
     **************************************************************************/
-    //FIXME: refactor the code to get the splash screen more optimally
+    
     /**
      * Render presentation splash screen
      * @param none
@@ -761,29 +833,6 @@ let SBPLUS = {
         
         if ( self.xmlParsed === true && self.splashScreenRendered === false ) {
 
-            if ( self.hasStorageItem( "sbplus-autoplay" ) === false ) {
-                self.setStorageItem( "sbplus-autoplay", 1 );
-            }
-
-            if ( self.hasStorageItem( "sbplus-volume" ) === false ) {
-                self.setStorageItem( "sbplus-volume", 0.8 );
-            }
-
-            if ( self.hasStorageItem( "sbplus-playbackrate" ) === false ) {
-                self.setStorageItem( "sbplus-playbackrate", 1 );
-            } else {
-                self.playbackrate = self.getStorageItem( "sbplus-playbackrate" );
-            }
-
-            if ( self.hasStorageItem( "sbplus-subtitle" ) === false ) {
-                self.setStorageItem( "sbplus-subtitle", 0 );
-            }
-
-            // if autoplay for videoJS is on, add a class to the body tag
-            if ( self.getStorageItem( "sbplus-autoplay" ) == "1" ) {
-                $( self.layout.wrapper ).addClass( "sbplus_autoplay_on" );
-            }
-
             // set the HTML page title
             $( document ).attr( "title", self.xml.setup.title );
 
@@ -793,168 +842,190 @@ let SBPLUS = {
             $( self.splash.author ).html( self.xml.setup.author );
             $( self.splash.duration ).html( self.xml.setup.duration );
 
-            // get splash image background via AJAX
-            $.ajax({
-
-                // get the splash image from the local first
-                url: self.assetsPath + "splash." + self.xml.settings.splashImgType,
-                type: "head",
-
-            }).done(function () {
-
-                // when successful and done
-                // display the image
-                self.setSplashImage(this.url);
-
-            }).fail(function () {
-
-                // when failed, get from the server
-                // get the program and course value
-                let program = self.xml.setup.program;
-                let course = self.xml.setup.course;
-
-                // if program is empty
-                if ( self.isEmpty(program) ) {
-                    // set program to the program directory name from the URL
-                    program = SBPLUS.manifest.sbplus_program_default;
-                }
-
-                // if course is empty
-                if ( self.isEmpty(course) ) {
-
-                    // set course to the course directory name from the URL
-                    course = SBPLUS.getCourseDirectory();
-
-                    // if course is still empty
-                    if (self.isEmpty(course)) {
-                        // set course name to default
-                        course = "default";
-                    }
-
-                }
-
-                // append image file extension to course value
-                course += "." + self.xml.settings.splashImgType;
-
-                // if both program and course are not empty,
-                // get the image from the server
-                if ( !self.isEmpty(program) && !self.isEmpty(course) ) {
-
-                    // set the path to the image
-                    const ss_url = self.manifest.sbplus_splash_directory + program + "/" + course;
-
-                    // load the image via AJAX
-                    $.ajax({
-                        url: ss_url,
-                        type: "HEAD",
-                    })
-                        .done(function () {
-                            // when successful and done
-
-                            // display the image
-                            self.setSplashImage(this.url);
-                        })
-                        .fail(function () {
-                            self.setSplashImage(self.manifest.sbplus_root_directory + "images/default_splash.svg");
-                        });
-                } else {
-                    self.setSplashImage(self.manifest.sbplus_root_directory + "images/default_splash.svg");
-                }
-            });
-
             // set event listener to the start button
-            $(self.button.start).on("click", self.startPresentation.bind(self));
+            $( self.button.start ).on( "click", self.startPresentation.bind(self) );
 
             // if local storage has a value for the matching presentation title
-            if (self.hasStorageItem("sbplus-" + self.presentationLoc)) {
+            if ( self.hasStorageItem( "sbplus-" + self.presentationId ) ) {
+
                 // set event listener to the resume button
-                $(self.button.resume).on("click", self.resumePresentation.bind(self));
+                $( self.button.resume ).on( "click", self.resumePresentation.bind(self) );
+
             } else {
+
                 // hide the resume button
-                $(self.button.resume).hide(0, function () {
-                    $(self).attr("tabindex", "-1");
-                });
-            }
-
-            // set downloadable file name from the course directory name in URL
-            let fileName = SBPLUS.getCourseDirectory().replace(".sbproj", "");
-
-            // if file name is empty, default to 'sbplus'
-            if (self.isEmpty(fileName)) {
-                fileName = "sbplus";
-            }
-
-            // load each supported downloadable files specified in the manifest
-            self.manifest.sbplus_download_files.forEach(function (file) {
-                $.ajax({
-                    url: self.extractAssetsRoot( self.xmlPath ) + fileName + "." + file.format,
-                    type: "HEAD",
-                })
-                    .done(function () {
-                        const fileLabel = file.label.toLowerCase();
-
-                        self.downloads[fileLabel] = { fileName: fileName, fileFormat: file.format, url: this.url };
-
-                        $(self.splash.downloadBar).append('<a href="' + this.url + '" tabindex="1" download="' + fileName + "." + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + "</a>");
-                    })
-                    .always(function () {
-                        if (Object.keys(self.downloads).length <= 0) {
-                            $(self.splash.cta).addClass("no_downloads");
-                        }
-                    });
-            });
-
-            // set accent color
-
-            if ( !self.isEmpty( self.xml.settings.accent ) ) {
-
-                const hover = self.colorLum( self.xml.settings.accent, 0.2 ); // set hover color hex value
-                const textColor = self.colorContrast( self.xml.settings.accent ); // set the text color hex value
-                let markerColor = self.colorLum( self.xml.settings.accent, 0.4 ); // video marker color
-                const accentUrl = self.manifest.sbplus_root_directory + "scripts/templates/accent-css.tpl";
-
-                if ( textColor !== "#000" ) {
-                    markerColor = self.colorLum( self.xml.settings.accent, 0.8 );
-                }
-
-                $.get( accentUrl, ( data ) => {
-
-                    let accentCssModified = data;
-
-                    accentCssModified = accentCssModified.replace( /--var-accent/gi, self.xml.settings.accent );
-                    accentCssModified = accentCssModified.replace( /--var-hover/gi, hover );
-                    accentCssModified = accentCssModified.replace( /--var-textColor/gi, textColor );
-                    accentCssModified = accentCssModified.replace( /--var-markerColor/gi, markerColor );
-
-                    // append the style/css to the HTML head
-                    $( "head" ).append('<style type="text/css">' + accentCssModified + "</style>");
-
+                $( self.button.resume ).hide( 0, function() {
+                    $( self ).attr( "tabindex", "-1" );
                 } );
 
             }
-            
-            // if mathjax if turned on
-            if (self.xml.settings.mathjax === "on" || self.xml.settings.mathjax === "true") {
-                // load the MathJAX script from a CDN
-                $.getScript("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML", function () {
-                    MathJax.Hub.Config({
-                        "HTML-CSS": {
-                            matchFontHeight: true,
-                        },
-                    });
-                });
-            }
 
-            // flag the splash screen as rendered
-            self.splashScreenRendered = true;
-            self.sendToGA("splash_screen_view", self.getCourseDirectory() + " - splash");
-            self.resize();
+            self.determineSplashImage();  // get the splash image
+            self.determineDownloadableFiles(); // get and set any downloadable files
+            self.splashScreenRendered = true; // flag the splash screen as rendered
+            self.resize(); // "refresh the UI"
+            self.sendToGA( "splash_screen_view", self.getCourseDirectory() + " - splash" ); // send splash screen loaded event to GA
+            self.scheduleOnlineStatusCheck(); // schedule online connectivity status check
 
-            // schedule online connectivity status check
-            self.scheduleOnlineStatusCheck();
         }
         
     }, // end renderSplashScreen function
+
+    /**
+     * Set initial sbplus settings if not already
+     * @param none
+     * @return none
+     **/
+    applyStorageItems: function() {
+
+        const self = this;
+
+        if ( self.hasStorageItem( "sbplus-autoplay" ) === false ) {
+            self.setStorageItem( "sbplus-autoplay", 1 );
+        }
+
+        if ( self.hasStorageItem( "sbplus-volume" ) === false ) {
+            self.setStorageItem( "sbplus-volume", 0.8 );
+        }
+
+        if ( self.hasStorageItem( "sbplus-playbackrate" ) === false ) {
+            self.setStorageItem( "sbplus-playbackrate", 1 );
+        } else {
+            self.playbackrate = self.getStorageItem( "sbplus-playbackrate" );
+        }
+
+        if ( self.hasStorageItem( "sbplus-subtitle" ) === false ) {
+            self.setStorageItem( "sbplus-subtitle", 0 );
+        }
+
+        // if autoplay for videoJS is on, add a class to the body tag
+        if ( self.getStorageItem( "sbplus-autoplay" ) == "1" ) {
+            $( self.layout.wrapper ).addClass( "sbplus_autoplay_on" );
+        }
+
+    },
+
+    //FIXME: refactor the code to get the splash screen more optimally
+    determineSplashImage: function() {
+
+        const self = this;
+
+        // get splash image background via AJAX
+        $.ajax({
+
+            // get the splash image from the local first
+            url: self.assetsPath + "splash." + self.xml.settings.splashImgType,
+            type: "head",
+
+        }).done(function () {
+
+            // when successful and done
+            // display the image
+            self.setSplashImage(this.url);
+
+        }).fail(function () {
+
+            // when failed, get from the server
+            // get the program and course value
+            let program = self.xml.setup.program;
+            let course = self.xml.setup.course;
+
+            // if program is empty
+            if ( self.isEmpty(program) ) {
+                // set program to the program directory name from the URL
+                program = self.manifest.sbplus_program_default;
+            }
+
+            // if course is empty
+            if ( self.isEmpty(course) ) {
+
+                // set course to the course directory name from the URL
+                course = self.getCourseDirectory();
+
+                // if course is still empty
+                if (self.isEmpty(course)) {
+                    // set course name to default
+                    course = "default";
+                }
+
+            }
+
+            // append image file extension to course value
+            course += "." + self.xml.settings.splashImgType;
+
+            // if both program and course are not empty,
+            // get the image from the server
+            if ( !self.isEmpty(program) && !self.isEmpty(course) ) {
+
+                // set the path to the image
+                const ss_url = self.manifest.sbplus_splash_directory + program + "/" + course;
+
+                // load the image via AJAX
+                $.ajax({
+                    url: ss_url,
+                    type: "HEAD",
+                })
+                    .done(function () {
+                        // when successful and done
+
+                        // display the image
+                        self.setSplashImage(this.url);
+                    })
+                    .fail(function () {
+                        self.setSplashImage(self.manifest.sbplus_root_directory + "images/default_splash.svg");
+                    });
+            } else {
+                self.setSplashImage(self.manifest.sbplus_root_directory + "images/default_splash.svg");
+            }
+        });
+    },
+
+    /**
+     * Get and set the downloadable files that are available
+     * @param none
+     * @return none
+     **/
+    determineDownloadableFiles: function() {
+
+        const self = this;
+
+        // set downloadable file name from the course directory name in URL
+        let fileName = self.getCourseDirectory().replace( ".sbproj", "" );
+
+        // if file name is empty, default to 'sbplus'
+        if ( self.isEmpty( fileName ) ) {
+            fileName = "sbplus";
+        }
+
+        // load each supported downloadable files specified in the manifest
+        self.manifest.sbplus_download_files.forEach( function( file ) {
+
+            $.ajax( {
+
+                url: self.extractAssetsRoot( self.xmlPath ) + fileName + "." + file.format,
+                type: "HEAD",
+
+             } ).done( function() {
+
+                const fileLabel = file.label.toLowerCase();
+
+                self.downloads[fileLabel] = { fileName: fileName, fileFormat: file.format, url: this.url };
+
+                $( self.splash.downloadBar ).append('<a href="' + this.url + '" tabindex="1" download="' + fileName + "." + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + "</a>");
+
+            } ).always( function () {
+
+                if ( Object.keys( self.downloads ).length <= 0 ) {
+
+                    $(self.splash.cta).addClass("no_downloads");
+
+                }
+
+            } );
+
+        } );
+
+    },
     
     /**
      * Set the splash screen image to the DOM
@@ -1130,7 +1201,7 @@ let SBPLUS = {
                 self.hideSplash();
                 
                 // select the page that was set in the local storage data
-                self.selectPage( self.getStorageItem( 'sbplus-' + self.presentationLoc ) );
+                self.selectPage( self.getStorageItem( 'sbplus-' + self.presentationId ) );
                 
             } );
             
@@ -1911,12 +1982,12 @@ let SBPLUS = {
                 
                 if ( Modernizr.localstorage && Modernizr.sessionstorage ) {
                     
-                    if ( self.hasStorageItem( 'sbplus-' + self.presentationLoc + '-settings-loaded', true ) === false ) {
+                    if ( self.hasStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', true ) === false ) {
                     
                         $.get( self.manifest.sbplus_root_directory + 'scripts/templates/settings.tpl', function( data ) {
                         
                             self.settings = data;
-                            self.setStorageItem( 'sbplus-' + self.presentationLoc + '-settings-loaded', 1, true );
+                            self.setStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', 1, true );
                             menuContent.append( data );
                             self.afterSettingsLoaded();
                             
@@ -2060,7 +2131,7 @@ let SBPLUS = {
                 
                 if ( self.currentPage.mediaPlayer != null && self.currentPage.mediaPlayer.hasClass( 'sbplus-vjs-expanded' ) ) {
                     self.currentPage.mediaPlayer.removeClass( 'sbplus-vjs-expanded' );
-                    document.querySelector( SBPLUS.layout.sbplus ).classList.remove( 'sbplus-vjs-expanded' );
+                    document.querySelector( self.layout.sbplus ).classList.remove( 'sbplus-vjs-expanded' );
                 }
         
             } );
@@ -2559,7 +2630,7 @@ let SBPLUS = {
     
         for ( let i = 0; i < array.length; i++ ) {
             
-            if ( SBPLUS.isEmpty( array[i] ) ) {
+            if ( self.isEmpty( array[i] ) ) {
                 found = true;
             }
             
@@ -2755,7 +2826,7 @@ let SBPLUS = {
         
         const self = this;
         
-        if ( self.getStorageItem( 'sbplus-' + self.presentationLoc + '-settings-loaded', true ) === '1' ) {
+        if ( self.getStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', true ) === '1' ) {
             
             if ( self.isMobileDevice() ) {
                     
@@ -2813,7 +2884,7 @@ let SBPLUS = {
                 } else {
                     
                     self.setStorageItem( 'sbplus-volume', vol / 100 );
-                    self.setStorageItem( 'sbplus-' + self.presentationLoc + '-volume-temp', vol / 100, true );
+                    self.setStorageItem( 'sbplus-' + self.presentationId + '-volume-temp', vol / 100, true );
                     
                 }
                 
@@ -2834,7 +2905,7 @@ let SBPLUS = {
                 );
                 
                 self.setStorageItem(
-                    'sbplus-' + self.presentationLoc + '-playbackrate-temp',
+                    'sbplus-' + self.presentationId + '-playbackrate-temp',
                     $( '#sbplus_va_playbackrate option:selected' ).val(),
                     true
                 );
@@ -2865,7 +2936,7 @@ let SBPLUS = {
         
         const self = this;
         
-        if ( self.getStorageItem( 'sbplus-' + self.presentationLoc + '-settings-loaded', true ) === '1' ) {
+        if ( self.getStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', true ) === '1' ) {
             
             // widget
             const widgetVal = self.getStorageItem( 'sbplus-hide-widget' );

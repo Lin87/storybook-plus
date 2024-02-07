@@ -397,7 +397,7 @@ Page.prototype.getPageMedia = function() {
                     quizItem.getQuiz();
                     
                     if ( $( '#sbplus_widget' ).is( ':visible' ) ) {
-                        SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationLoc + '-previously-widget-open', 1, true );
+                        SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationId + '-previously-widget-open', 1, true );
                     }
 
             } );
@@ -1124,8 +1124,8 @@ Page.prototype.renderVideoJS = function( src ) {
         
         // volume
         
-        if ( SBPLUS.hasStorageItem( 'sbplus-' + SBPLUS.presentationLoc + '-volume-temp', true ) ) {
-            player.volume( Number( SBPLUS.getStorageItem( 'sbplus-' + SBPLUS.presentationLoc + '-volume-temp', true ) ) );
+        if ( SBPLUS.hasStorageItem( 'sbplus-' + SBPLUS.presentationId + '-volume-temp', true ) ) {
+            player.volume( Number( SBPLUS.getStorageItem( 'sbplus-' + SBPLUS.presentationId + '-volume-temp', true ) ) );
             
         } else {
             
@@ -1135,16 +1135,16 @@ Page.prototype.renderVideoJS = function( src ) {
         
         player.on( 'volumechange', function() {
             
-            SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationLoc + '-volume-temp', this.volume(), true );
+            SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationId + '-volume-temp', this.volume(), true );
             
         } );
         
         // subtitle
         if ( self.isYoutube === false && self.isVimeo === false && player.textTracks().tracks_.length >= 1 ) {
             
-            if ( SBPLUS.hasStorageItem( 'sbplus-' + SBPLUS.presentationLoc + '-subtitle-temp', true ) ) {
+            if ( SBPLUS.hasStorageItem( 'sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true ) ) {
             
-                if ( SBPLUS.getStorageItem( 'sbplus-' + SBPLUS.presentationLoc + '-subtitle-temp', true ) === '1' ) {
+                if ( SBPLUS.getStorageItem( 'sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true ) === '1' ) {
                     player.textTracks().tracks_[0].mode = 'showing';
                 } else {
                     player.textTracks().tracks_[0].mode = 'disabled';
@@ -1168,11 +1168,11 @@ Page.prototype.renderVideoJS = function( src ) {
                     
                     if ( this.mode === 'showing' ) {
                         
-                        SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationLoc + '-subtitle-temp', 1, true );
+                        SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationId + '-subtitle-temp', 1, true );
                         
                     } else {
                         
-                        SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationLoc + '-subtitle-temp', 0, true );
+                        SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationId + '-subtitle-temp', 0, true );
                         
                     }
                     
