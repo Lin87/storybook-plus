@@ -259,7 +259,7 @@ let SBPLUS = {
                 SBPLUS.showConnectionMessage();
             }
 
-        }, 60000 );
+        }, 180000 );
              
     }, // end go function
 
@@ -737,26 +737,37 @@ let SBPLUS = {
 
                 if ( self.isEmpty( profileInXml ) && !self.isEmpty( self.manifest.sbplus_author_directory ) && !self.isEmpty( sanitizedAuthor ) ) {
 
-                    const xhr = new XMLHttpRequest();
+                    self.requestFile( profileUrl, xhr => {
 
-                    xhr.open( "GET", profileUrl + "?_=" + new Date().getTime(), true );
-                    xhr.onload = function() {
+                        const data = JSON.parse( xhr.responseText );
 
-                        if ( xhr.status >= 200 && xhr.status < 300 ) {
-
-                            const data = JSON.parse( xhr.responseText );
-
-                            self.xml.setup.author = data.name;
-                            self.xml.setup.profile = self.noScript( data.profile );
-
-                        }
-
+                        self.xml.setup.author = data.name;
+                        self.xml.setup.profile = self.noScript( data.profile );
                         self.xmlParsed = true;
                         self.renderSplashscreen();
 
-                    };
+                    } );
 
-                    xhr.send();
+                    // const xhr = new XMLHttpRequest();
+
+                    // xhr.open( "GET", profileUrl + "?_=" + new Date().getTime(), true );
+                    // xhr.onload = function() {
+
+                    //     if ( xhr.status >= 200 && xhr.status < 300 ) {
+
+                    //         const data = JSON.parse( xhr.responseText );
+
+                    //         self.xml.setup.author = data.name;
+                    //         self.xml.setup.profile = self.noScript( data.profile );
+
+                    //     }
+
+                    //     self.xmlParsed = true;
+                    //     self.renderSplashscreen();
+
+                    // };
+
+                    // xhr.send();
 
                 } else {
 
@@ -2183,6 +2194,29 @@ let SBPLUS = {
         HELPER FUNCTIONS
     ***************************************************************************/
     
+    requestFile( url, callback ) {
+    
+        const request = new XMLHttpRequest();
+        
+        request.open( 'GET', url + "?_=" + new Date().getTime(), true );
+        
+        request.onload = function() {
+            
+            callback( this.status >= 200 && this.status < 400 ? this : null );
+            request.abort();
+            
+        };
+        
+        request.onerror = function() {
+            
+            callback( null );
+            
+        };
+        
+        request.send();
+        
+    },
+        
      /**
      * check to see if the browser supports the listed features
      * @param none
