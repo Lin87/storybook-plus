@@ -261,8 +261,7 @@ let SBPLUS = {
         if ( self.manifestLoaded ) {
             
             // set the template URL for the sbplus.tpl file
-            let templateUrl = self.manifest.sbplus_root_directory;
-            templateUrl += 'scripts/templates/sbplus.tpl';
+            const templateUrl = self.manifest.sbplus_root_directory + 'scripts/templates/sbplus.tpl';
             
             // AJAX call and load the sbplus.tpl template
             $.get( templateUrl, function( data ) {
@@ -288,15 +287,8 @@ let SBPLUS = {
                 
             } ).fail( function() { // when fail to load the template
                 
-                // set an error message
-                let msg = '<div class="error">';
-                msg += '<p><strong>Storybook Plus Error:</strong> ';
-                msg += 'failed to load template.<br>';
-                msg += 'Expecting: <code>' + this.url + '</code></p>';
-                msg += '</div>';
-                
                 // display the error message to the HTML page
-                $( self.layout.wrapper ).html( msg );
+                $( self.layout.wrapper ).html( "<div class=\"sbplus-core-error\"><h1><strong>Storybook Plus Error</strong></h1><p>Failed to load template. Expecting template file located at " + this.url + ".</p></div>" );
                 
             } );
             
@@ -863,6 +855,7 @@ let SBPLUS = {
             self.determineSplashImage();  // get the splash image
             self.determineDownloadableFiles(); // get and set any downloadable files
             self.splashScreenRendered = true; // flag the splash screen as rendered
+            self.showSplashScreen(); // show the splash screen
             self.resize(); // "refresh the UI"
             self.sendToGA( "splash_screen_view", self.getCourseDirectory() + " - splash" ); // send splash screen loaded event to GA
             self.scheduleOnlineStatusCheck(); // schedule online connectivity status check
@@ -905,79 +898,135 @@ let SBPLUS = {
 
     },
 
-    //FIXME: refactor the code to get the splash screen more optimally
     determineSplashImage: function() {
 
         const self = this;
+        const splashImgUrl = self.assetsPath + "splash." + self.xml.settings.splashImgType;
 
-        // get splash image background via AJAX
-        $.ajax({
+        self.requestedFileExists( splashImgUrl, result => {
 
-            // get the splash image from the local first
-            url: self.assetsPath + "splash." + self.xml.settings.splashImgType,
-            type: "head",
+            if ( result ) {
 
-        }).done(function () {
+                self.setSplashImage( splashImgUrl );
+                
+            } else {
 
-            // when successful and done
-            // display the image
-            self.setSplashImage(this.url);
+                /* when failed to load the image in the assets folder
+                   attempt to get it from the image repo on the server
+                   with the provided program and course values from the XML */
 
-        }).fail(function () {
-
-            // when failed, get from the server
-            // get the program and course value
-            let program = self.xml.setup.program;
-            let course = self.xml.setup.course;
-
-            // if program is empty
-            if ( self.isEmpty(program) ) {
-                // set program to the program directory name from the URL
-                program = self.manifest.sbplus_program_default;
-            }
-
-            // if course is empty
-            if ( self.isEmpty(course) ) {
-
-                // set course to the course directory name from the URL
-                course = self.getCourseDirectory();
-
-                // if course is still empty
-                if (self.isEmpty(course)) {
-                    // set course name to default
-                    course = "default";
+                // first, if splash directory is not specified in the manifest, no image and exit
+                if ( self.isEmpty( self.manifest.sbplus_splash_directory ) ) {
+                    self.setSplashImage( "" );
+                    return;
                 }
 
+                // otherwise, continue...
+                const program = self.isEmpty( self.xml.setup.program ) ? self.manifest.sbplus_program_default : self.xml.setup.program;
+                const course = self.isEmpty( self.xml.setup.course ) ? "" : "/" + self.xml.setup.course;
+
+                // if program is still empty, no image and exit
+                if ( self.isEmpty( program ) ) {
+
+                    self.setSplashImage( "" );
+                    return;
+
+                }
+
+                // otherwise, attempt to get the image from server
+                let serverSplashImgUrl = self.manifest.sbplus_splash_directory;
+
+                if ( self.isEmpty( course ) ) {
+                    serverSplashImgUrl += program + "/" + program + "." + self.xml.settings.splashImgType;
+                } else {
+                    serverSplashImgUrl += program + course + "." + self.xml.settings.splashImgType
+                }
+                
+                self.requestedFileExists( serverSplashImgUrl, serverResult => {
+
+                    self.setSplashImage( serverResult ? serverSplashImgUrl : "" );
+
+                } );
+
             }
 
-            // append image file extension to course value
-            course += "." + self.xml.settings.splashImgType;
+        } );
 
-            // if both program and course are not empty,
-            // get the image from the server
-            if ( !self.isEmpty(program) && !self.isEmpty(course) ) {
+    },
+    
+    /**
+     * Set the splash screen image to the DOM
+     * @param string
+     * @return none
+     **/
+    setSplashImage: function( str ) {
+        
+        const self = this;
 
-                // set the path to the image
-                const ss_url = self.manifest.sbplus_splash_directory + program + "/" + course;
+        if ( self.isEmpty( str ) ) { return; }
 
-                // load the image via AJAX
-                $.ajax({
-                    url: ss_url,
-                    type: "HEAD",
-                })
-                    .done(function () {
-                        // when successful and done
+        const img = new Image();
 
-                        // display the image
-                        self.setSplashImage(this.url);
-                    })
-                    .fail(function () {
-                        self.setSplashImage(self.manifest.sbplus_root_directory + "images/default_splash.svg");
-                    });
-            } else {
-                self.setSplashImage(self.manifest.sbplus_root_directory + "images/default_splash.svg");
+        img.src = str;
+        img.addEventListener( 'load', function() {
+            
+            if ( img.complete ) {
+                
+                $( self.splash.background ).css( 'background-image', 'url(' + img.src + ')' );
+
             }
-        });
+
+        } );
+        
+    },
+
+    /**
+     * Show the splash screen.
+     * @param none
+     * @return none
+     **/
+    showSplashScreen: function() {
+
+        const self = this;
+
+        $( self.splash.infoBox ).show();
+
+        setTimeout( () => {
+
+            $( self.loadingScreen.wrapper ).addClass( "fadeOut" ).one( 'webkitAnimationEnd mozAnimationEnd animationend', function() {
+                
+                $( this ).off();
+                $( this ).removeClass( 'fadeOut' ).hide();
+
+            } );
+            
+        }, 1500 );
+
+    },
+
+    /**
+     * Hide the splash screen. Should be used when starting or resuming.
+     * @param none
+     * @return none
+     **/
+    hideSplashScreen: function() {
+
+        const self = this;
+
+        // if presentation is rendered...
+        if ( self.presentationRendered ) {
+            
+            // add fadeOut class and listen for animation completion event
+            $( self.splash.screen ).addClass( 'fadeOut' ).one( 'webkitAnimationEnd mozAnimationEnd animationend', function() {
+
+                    $( this ).removeClass( 'fadeOut' ).hide();
+                    $( this ).off();
+
+                }
+            );
+            
+        }
+        
     },
 
     /**
@@ -1025,75 +1074,6 @@ let SBPLUS = {
 
         } );
 
-    },
-    
-    /**
-     * Set the splash screen image to the DOM
-     * @param string
-     * @return none
-     **/
-    setSplashImage: function( str ) {
-        
-        // if parameter is not empty, set the background image
-        if ( str ) {
-
-            const self = this;
-            const img = new Image();
-
-            img.src = str;
-            img.addEventListener('load', function() {
-                
-                if ( img.complete ) {
-                    
-                    $( self.splash.background )
-                        .css( 'background-image', 'url(' + img.src + ')' );
-
-                    setTimeout( () => {
-
-                        $( self.splash.infoBox).show();
-                        $( self.loadingScreen.wrapper ).addClass( "fadeOut" )
-                        .one( 'webkitAnimationEnd mozAnimationEnd animationend', 
-                        function() {
-                            
-                            $( this ).off();
-                            $( this ).removeClass( 'fadeOut' ).hide();
-
-                            }
-                        );
-                        
-                    }, 1500 );
-    
-                }
-
-            } );
-            
-        }
-        
-    },
-    
-    /**
-     * Hide the splash screen. Should be used when starting or resuming.
-     * @param none
-     * @return string
-     **/
-    hideSplash: function() {
-
-        const self = this;
-
-        // if presentation is rendered...
-        if ( self.presentationRendered ) {
-            
-            // add fadeOut class and listen for animation completion event
-            $( self.splash.screen ).addClass( 'fadeOut' ).one( 'webkitAnimationEnd mozAnimationEnd animationend', function() {
-
-                    $( this ).removeClass( 'fadeOut' ).hide();
-                    $( this ).off();
-
-                }
-            );
-            
-        }
-        
     },
 
      /**
@@ -1168,7 +1148,7 @@ let SBPLUS = {
             self.renderPresentation().promise().done( function() {
                 
                 // hide splash screen
-                self.hideSplash();
+                self.hideSplashScreen();
                 
                 // select the first page
                 self.selectPage( '0,0' );
@@ -1198,7 +1178,7 @@ let SBPLUS = {
             self.renderPresentation().promise().done( function() {
                 
                 // hide screen
-                self.hideSplash();
+                self.hideSplashScreen();
                 
                 // select the page that was set in the local storage data
                 self.selectPage( self.getStorageItem( 'sbplus-' + self.presentationId ) );
@@ -2248,6 +2228,29 @@ let SBPLUS = {
         request.onerror = function() {
             
             callback( null );
+            
+        };
+        
+        request.send();
+        
+    },
+
+    requestedFileExists( url, callback ) {
+    
+        const request = new XMLHttpRequest();
+        
+        request.open( 'HEAD', url + "?_=" + new Date().getTime(), true );
+        
+        request.onload = function() {
+            
+            callback( this.status >= 200 && this.status < 400 ? true : false );
+            request.abort();
+            
+        };
+        
+        request.onerror = function() {
+            
+            callback( false );
             
         };
         

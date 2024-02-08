@@ -1,4 +1,5 @@
 .sbplus_wrapper button:hover{color:--var-accent}
+.sbplus_wrapper #sbplus #sbplus_splash_screen #sb_splash_bg{background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button{color:--var-textColor;background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button:hover{background-color:--var-hover}
 .sbplus_wrapper #sbplus #sbplus_banner_bar{background-color:--var-accent;color:--var-textColor}

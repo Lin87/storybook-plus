@@ -2,7 +2,7 @@
 
 <storybook accent="" pageImgFormat="jpg" splashImgFormat="jpg" analytics="off" mathjax="off" xmlVersion="3.4">
     
-    <setup program="" course="">
+    <setup program="college-school" course="abc123">
         
         <title>BKN315 - Chocolate Chip Cookies</title>
         <subtitle>A Sample Storybook Plus Presentation</subtitle>
