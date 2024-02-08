@@ -37,7 +37,7 @@ import { MenuBar } from "./menubar";
 import { Page } from "./page";
 
 let worker;
-let SBPLUS = {
+const SBPLUS = {
     
     /***************************************************************************
         VARIABLE / CONSTANT / OBJECT DECLARATIONS
@@ -54,7 +54,7 @@ let SBPLUS = {
     menu : null,
     screenReader: null,
     presentationId: '',
-    logo: '',
+    logo: 'sources/images/logo.svg',
     
     // holds current and total pages in the presentation
     totalPages: 0,
@@ -325,72 +325,69 @@ let SBPLUS = {
 
         const self = this;
 
-        if ( self.isEmpty( self.logo ) ) {
-                
-            let program = this.xml.setup.program;
+        // if the logo repo is not specified in the manifest
+        // use the player's logo (sources/images/logo.svg) and exit
+        if ( self.isEmpty ( self.manifest.sbplus_logo_directory ) ) {
 
-            if ( self.isEmpty( program ) ) {
-                program = this.manifest.sbplus_program_default;
-            }
+            self.setLogo( self.logo );
+            return;
 
-            let logoUrl =  program + '.svg';
-
-            if ( !self.isEmpty ( this.manifest.sbplus_logo_directory ) ) {
-
-                logoUrl = this.manifest.sbplus_logo_directory + program + '.svg';
-
-                $.ajax( {
-                
-                    url: logoUrl,
-                    type: 'HEAD'
-                    
-                } ).done( function() {
-                    
-                    self.logo = this.url;
-                    $( self.loadingScreen.logo ).html( '<img src="' + self.logo + '" />' );
-    
-                    // set logo on splash screen
-                    const splashLogo = document.querySelector( self.splash.logo );
-                    const logo = document.createElement( 'img' );
-    
-                    logo.src = self.logo;
-                    splashLogo.appendChild( logo );
-                    
-                } ).fail( function() {
-                    
-                    self.setDefaultLogo();
-                    
-                } );
-
-            } else {
-
-                self.setDefaultLogo();
-
-            }
-            
         }
+
+        /* if logo repo is specified in the manifest */
+        
+        // check to see if a program is specified in the XML
+        // otherwise use the default program specified in the manifest
+        const program = self.isEmpty( self.xml.setup.program ) ? self.manifest.sbplus_program_default: self.xml.setup.program;
+
+        // if program is still empty
+        // use the player's logo (sources/images/logo.svg) and exit
+        if ( self.isEmpty( program ) ) {
+
+            self.setLogo( self.logo );
+            return;
+
+        }
+
+        /* if program is specified in the XML/manifest, attempt to get it */
+
+        const originLogo = self.logo; // hold the original logo path
+        self.logo = self.manifest.sbplus_logo_directory + program + '.svg'; // update the logo path
+
+        self.requestedFileExists( self.logo, response => {
+
+            // if not found logo repo; set logo back to original
+            if ( !response ) {
+                self.logo = originLogo;
+            }
+
+            self.setLogo( self.logo );
+
+        } );
 
     },
 
     /**
      * set the default logo
-     * @param none
+     * @param string
      * @return none
      **/
-    setDefaultLogo: function() {
+    setLogo: function( path ) {
 
         const self = this;
-        const logoUrl = self.manifest.sbplus_root_directory + 'images/default_logo.svg';
 
-        self.logo = logoUrl;
+        if ( self.isEmpty( path ) ) {
+            return;
+        }
 
-        $( self.loadingScreen.logo ).html( '<img src="' + self.logo + '" />' );
+        // set logo on the loading screen
+        $( self.loadingScreen.logo ).html( '<img src="' + path + '" />' );
 
         // set logo on splash screen
         const splashLogo = document.querySelector( self.splash.logo );
         const logo = document.createElement( 'img' );
         
-        logo.src = self.logo;
+        logo.src = path;
         splashLogo.appendChild( logo );
 
     },
