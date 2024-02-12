@@ -102,8 +102,6 @@ const SBPLUS = {
     /**
      * The initiating function that sets the HTML classes and IDs to the class
      * variables. Also, getting data from the manifest file.
-     * @param none
-     * @return none
      **/
     go: function() {
         
@@ -205,6 +203,8 @@ const SBPLUS = {
             logo: '#sbplus_loading_screen .program_logo'
         }
 
+        this.applyStorageItems(); // set player initial settings to the local storage
+
         // get manifest data if not set
         if ( this.manifest === null ) {
             
@@ -246,8 +246,6 @@ const SBPLUS = {
 
     /**
      * Load Storybook Plus HTML templates from the templates directory
-     * @param none
-     * @return none
      **/
     loadTemplate: function() {
         
@@ -298,8 +296,6 @@ const SBPLUS = {
     
     /**
      * Set the copyright info
-     * @param none
-     * @return none
      **/
      setCopyright: function() {
          
@@ -318,8 +314,6 @@ const SBPLUS = {
 
     /**
      * get the program logo
-     * @param none
-     * @return none
      **/
     getLogo: function() {
 
@@ -369,8 +363,7 @@ const SBPLUS = {
 
     /**
      * set the default logo
-     * @param string
-     * @return none
+     * @param string - the URL/path to the logo image
      **/
     setLogo: function( path ) {
 
@@ -394,8 +387,6 @@ const SBPLUS = {
 
     /**
      * set the custom accent colors and contrast for UIs
-     * @param none
-     * @return none
      **/
     setAccent: function() {
 
@@ -428,14 +419,10 @@ const SBPLUS = {
 
         }
 
-        
-
     },
     
     /**
      * Execute tasks before loading the external XML data
-     * @param none
-     * @return none
      **/
     beforeXMLLoading: function() {
 
@@ -478,8 +465,6 @@ const SBPLUS = {
     
     /**
      * Setting up the custom menu items specified in the manifest file
-     * @param none
-     * @return none
      **/
     setManifestCustomMenu: function() {
         
@@ -521,8 +506,6 @@ const SBPLUS = {
     
     /**
      * Load presentation data from an external XML file
-     * @param none
-     * @return none
      **/
     loadXML: function() {
         
@@ -562,8 +545,7 @@ const SBPLUS = {
     
     /**
      * Parse presentation data from an external XML file
-     * @param string
-     * @return none
+     * @param string - data from reading the XML file
      **/
     parseXMLData: function( d ) {
         
@@ -679,7 +661,6 @@ const SBPLUS = {
             self.setAccent(); // set accent color
             self.getLogo(); // get program logo
             self.setCopyright(); // set the copyright info
-            self.applyStorageItems(); // set player initial settings to the local storage
             
             // if mathjax if turned on
             if (self.xml.settings.mathjax === "on" || self.xml.settings.mathjax === "true") {
@@ -760,8 +741,6 @@ const SBPLUS = {
 
     /**
      * Set author profile from centralized repo if applicable
-     * @param string
-     * @return none
      **/
 
     getAuthorProfile: function() {
@@ -813,8 +792,6 @@ const SBPLUS = {
     
     /**
      * Render presentation splash screen
-     * @param none
-     * @return none
      **/
     renderSplashscreen: function() {
         
@@ -863,12 +840,36 @@ const SBPLUS = {
 
     /**
      * Set initial sbplus settings if not already
-     * @param none
-     * @return none
      **/
     applyStorageItems: function() {
 
         const self = this;
+
+        if ( self.hasStorageItem( "sbplus-colormode" ) === false ) {
+
+            self.setStorageItem( "sbplus-colormode", "light" );
+
+        } else {
+
+            const colorMode = self.getStorageItem( "sbplus-colormode" );
+            window.matchMedia( "(prefers-color-scheme: dark)" ).off;
+
+            switch ( colorMode ) {
+                case "dark":
+                    $ ( "html" ).addClass( "dark-mode" );
+                    break;
+                case "auto":
+                    $ ( "html" ).addClass( "auto-mode" );
+
+                    self.applyAutoColorMode();
+
+                    break;
+                default:
+                    $( "html" ).removeClass( ["auto-mode", "dark-mode"] );
+                break;
+            }
+
+        }
 
         if ( self.hasStorageItem( "sbplus-autoplay" ) === false ) {
             self.setStorageItem( "sbplus-autoplay", 1 );
@@ -895,6 +896,9 @@ const SBPLUS = {
 
     },
 
+    /**
+     * determine the image to load on the splash screen
+     **/
     determineSplashImage: function() {
 
         const self = this;
@@ -953,8 +957,7 @@ const SBPLUS = {
     
     /**
      * Set the splash screen image to the DOM
-     * @param string
-     * @return none
+     * @param string - the URL/path to the splash image file
      **/
     setSplashImage: function( str ) {
         
@@ -978,9 +981,7 @@ const SBPLUS = {
     },
 
     /**
-     * Show the splash screen.
-     * @param none
-     * @return none
+     * Show the splash screen
      **/
     showSplashScreen: function() {
 
@@ -1003,8 +1004,6 @@ const SBPLUS = {
 
     /**
      * Hide the splash screen. Should be used when starting or resuming.
-     * @param none
-     * @return none
      **/
     hideSplashScreen: function() {
 
@@ -1028,8 +1027,6 @@ const SBPLUS = {
 
     /**
      * Get and set the downloadable files that are available
-     * @param none
-     * @return none
      **/
     determineDownloadableFiles: function() {
 
@@ -1075,9 +1072,8 @@ const SBPLUS = {
 
      /**
      * preload all images used in the presentation if applicable
-     * @param none
-     * @return none
      **/
+    // FIXME: refactor image preloading to remove the need of PHP scripting
     preloadPresentationImages: function() {
 
         const self = this;
@@ -1131,8 +1127,6 @@ const SBPLUS = {
     
     /**
      * Start presentation function for the start button
-     * @param none
-     * @return none
      **/
     startPresentation: function() {
         
@@ -1160,8 +1154,6 @@ const SBPLUS = {
     
     /**
      * Resume presentation function for the start button
-     * @param none
-     * @return none
      **/
     resumePresentation: function() {
         
@@ -1191,18 +1183,12 @@ const SBPLUS = {
     
     /**
      * Render the presentation (after the hiding the splash screen)
-     * @param none
-     * @return none
      **/
     renderPresentation: function() {
 
         const self = this;
         
         if ( self.presentationRendered === false ) {
-            
-            if ( self.getStorageItem( 'sbplus-hide-sidebar' ) === '1' ) {
-                self.hideSidebar();
-            }
             
             // remove focus (from the hidden elements)
             $( self.layout.sbplus ).blur();
@@ -1313,14 +1299,14 @@ const SBPLUS = {
             self.layout.mainMenu = new MenuBar( $( self.button.menu )[0].id, false );
             
             // hide general info under main menu if empty
-            if (self.isEmpty(self.xml.setup.generalInfo)) {
+            if ( self.isEmpty( self.xml.setup.generalInfo ) ) {
 
-                $(".sbplus_general_info").hide();
+                $( ".sbplus_general_info" ).hide();
 
             }
             
             // add download button if downloads object is not empty
-            if ( !$.isEmptyObject(self.downloads) ) {
+            if ( !$.isEmptyObject( self.downloads ) ) {
                 
                 self.layout.dwnldMenu = new MenuBar( $( self.button.download )[0].id, false );
                 
@@ -1369,8 +1355,6 @@ const SBPLUS = {
     
     /**
      * Go to next page in the table of contents
-     * @param none
-     * @return none
      **/
     goToNextPage: function() {
         
@@ -1421,8 +1405,6 @@ const SBPLUS = {
     
     /**
      * Go to previous page in the table of contents
-     * @param none
-     * @return none
      **/
     goToPreviousPage: function() {
         
@@ -1467,8 +1449,6 @@ const SBPLUS = {
 
     /**
      * Toggle table of contents in mobile view
-     * @param none
-     * @return none
      **/
     toggleToc: function () {
 
@@ -1491,8 +1471,6 @@ const SBPLUS = {
 
     /**
      * Calculate the table of content height dynamically
-     * @param none
-     * @return none
      **/
     calcTocHeight: function() {
 
@@ -1503,8 +1481,6 @@ const SBPLUS = {
     
     /**
      * Update Page Status (or the status bar) next to the page controls
-     * @param none
-     * @return none
      **/
     updatePageStatus: function( num ) {
         
@@ -1520,10 +1496,9 @@ const SBPLUS = {
     **************************************************************************/
     /**
      * Toggling table of content sections
-     * @param string or object
-     * @return none
+     * @param any
      **/
-    toggleSection: function( e ) {
+    toggleSection: function( el ) {
         
         const self = this;
 
@@ -1537,15 +1512,15 @@ const SBPLUS = {
             let targetSectionHeader;
             
             // if the object is an click event object
-            if ( e instanceof Object ) {
+            if ( el instanceof Object ) {
                 
                 // set the current section to the current event click target
-                targetSectionHeader = $( e.currentTarget );
+                targetSectionHeader = $( el.currentTarget );
                 
             } else {
                 
                 // if argument is greater than total number of sections
-                if ( Number( e ) > totalHeaderCount - 1 ) {
+                if ( Number( el ) > totalHeaderCount - 1 ) {
                     
                     // exit function
                     return false;
@@ -1553,7 +1528,7 @@ const SBPLUS = {
                 }
                 
                 // set the current section to the passed argument
-                targetSectionHeader = $( '.header:eq(' + e + ')' );
+                targetSectionHeader = $( '.header:eq(' + el + ')' );
                 
             }
             
@@ -1574,8 +1549,7 @@ const SBPLUS = {
     
     /**
      * Close specified table of content section
-     * @param DOM object
-     * @return none
+     * @param object
      **/
      
      closeSection: function( obj ) {
@@ -1596,8 +1570,7 @@ const SBPLUS = {
      
      /**
      * Open specified table of content section
-     * @param DOM object
-     * @return none
+     * @param object
      **/
      
      openSection: function( obj ) {
@@ -1618,23 +1591,22 @@ const SBPLUS = {
     
     /**
      * Selecting page on the table of contents
-     * @param string or object
-     * @return none
+     * @param any
      **/
-    selectPage: function( e ) {
+    selectPage: function( el ) {
         
         const self = this;
 
         // if the argument is an click event object
-        if ( e instanceof Object ) {
+        if ( el instanceof Object ) {
             
             // set target to current click event target
-            self.targetPage = $( e.currentTarget );
+            self.targetPage = $( el.currentTarget );
             
         } else {
             
             // set target to the passed in argument
-            self.targetPage = $( '.item[data-page="' + e + '"]' );
+            self.targetPage = $( '.item[data-page="' + el + '"]' );
             
             // if targe page does not exist
             if ( self.targetPage.length === 0 ) {
@@ -1709,7 +1681,6 @@ const SBPLUS = {
     /**
      * Getting page after selected a page
      * @param string
-     * @return none
      **/
     getPage: function ( page ) {
         
@@ -1801,7 +1772,6 @@ const SBPLUS = {
     /**
      * Updating the table of content's scroll bar position
      * @param object
-     * @return none
      **/
     updateScroll: function( obj ) {
         
@@ -1862,7 +1832,6 @@ const SBPLUS = {
     /**
      * open a menu item under the menu
      * @param string
-     * @return none
      **/
     openMenuItem: function( id ) {
         
@@ -2018,8 +1987,6 @@ const SBPLUS = {
     
     /**
      * Close the menu and its content
-     * @param none
-     * @return none
      **/
     closeMenuContent: function() {
         
@@ -2036,8 +2003,6 @@ const SBPLUS = {
     
     /**
      * an easter egg to change the menu icon to a hamburger emoji
-     * @param none
-     * @return none
      **/
     burgerBurger: function() {
         
@@ -2062,8 +2027,6 @@ const SBPLUS = {
 
     /**
      * clear the widget area
-     * @param none
-     * @return none
      **/
     clearWidget: function() {
 
@@ -2075,8 +2038,6 @@ const SBPLUS = {
     
      /**
      * determine if the widget has content
-     * @param none
-     * @return none
      **/
     hasWidgetContent: function() {
         
@@ -2087,10 +2048,9 @@ const SBPLUS = {
     
     /**
      * select the tabs in the widget area
-     * @param string or object
-     * @return none
+     * @param any
      **/
-    selectSegment: function( e ) {
+    selectSegment: function( el ) {
         
         const self = this;
         const button = $( self.widget.segment ).find( 'button' );
@@ -2105,22 +2065,29 @@ const SBPLUS = {
             $( self.button.notes ).attr( 'aria-label', 'View Notes' );
 
             $( self.button.notes ).on( 'click', function() {
-                
-                if ( self.currentPage.mediaPlayer != null && self.currentPage.mediaPlayer.hasClass( 'sbplus-vjs-expanded' ) ) {
-                    self.currentPage.mediaPlayer.removeClass( 'sbplus-vjs-expanded' );
-                    document.querySelector( self.layout.sbplus ).classList.remove( 'sbplus-vjs-expanded' );
+
+                const secControlExpandedBtn = document.querySelector( '#expand_contract_btn' );
+
+                if ( secControlExpandedBtn && secControlExpandedBtn.classList.contains( 'expanded' ) ) {
+                    secControlExpandedBtn.classList.remove( 'expanded' );
                 }
+
+                if ( self.currentPage.mediaPlayer && self.currentPage.mediaPlayer.hasClass( 'sbplus-vjs-expanded' ) ) {
+                    self.currentPage.mediaPlayer.removeClass( 'sbplus-vjs-expanded' );
+                }
+
+                document.querySelector( self.layout.sbplus ).classList.remove( 'sbplus-vjs-expanded' );
         
             } );
             
             let target = '';
             let targetId = '';
             
-            if ( typeof e === 'string' ) {
-                target = $( '#' + e );
-                targetId = e;
+            if ( typeof el === 'string' ) {
+                target = $( '#' + el );
+                targetId = el;
             } else {
-                target = $( e.currentTarget );
+                target = $( el.currentTarget );
                 targetId = target[0].id;
             }
             
@@ -2155,8 +2122,6 @@ const SBPLUS = {
     
     /**
      * select the first tab in the widget area
-     * @param none
-     * @return none
      **/
     selectFirstSegment: function() {
         
@@ -2171,7 +2136,6 @@ const SBPLUS = {
     /**
      * add a tab to the widget area
      * @param string
-     * @return none
      **/
     addSegment: function( str ) {
         
@@ -2190,8 +2154,6 @@ const SBPLUS = {
     
     /**
      * clear all tabs and their content
-     * @param none
-     * @return none
      **/
     clearWidgetSegment: function() {
 
@@ -2209,6 +2171,11 @@ const SBPLUS = {
         HELPER FUNCTIONS
     ***************************************************************************/
     
+    /**
+     * get and read file
+     * @param string - the URL/path to the file
+     * @param callback - callback function
+     **/
     requestFile( url, callback ) {
     
         const request = new XMLHttpRequest();
@@ -2232,6 +2199,11 @@ const SBPLUS = {
         
     },
 
+    /**
+     * check if file existing by requesting the HEAD
+     * @param string - the URL/path to the file
+     * @param callback - callback function
+     **/
     requestedFileExists( url, callback ) {
     
         const request = new XMLHttpRequest();
@@ -2257,8 +2229,6 @@ const SBPLUS = {
         
      /**
      * check to see if the browser supports the listed features
-     * @param none
-     * @return none
      **/
     checkForSupport: function() {
         
@@ -2274,7 +2244,6 @@ const SBPLUS = {
      * show the error message screen based on error type
      * (visually covered up the presentation)
      * @param string
-     * @return none
      **/
     showErrorScreen: function( type ) {
         
@@ -2310,8 +2279,7 @@ const SBPLUS = {
                 
                 $.get( errorTemplateUrl, function( data ) {
                     
-                    $( self.layout.errorScreen ).html( data ).show()
-                        .css( 'display', 'flex' );
+                    $( self.layout.errorScreen ).html( data ).show().css( 'display', 'flex' );
                     
                 } );
                 
@@ -2323,8 +2291,6 @@ const SBPLUS = {
     
      /**
      * calculate the height of the player
-     * @param none
-     * @return none
      **/
     calcLayout: function() {
 
@@ -2353,8 +2319,6 @@ const SBPLUS = {
     
     /**
      * resize the player layout; alias for calcLayout function
-     * @param none
-     * @return none
      **/
     resize: function() {
 
@@ -2365,8 +2329,6 @@ const SBPLUS = {
     
     /**
      * get the sbplus.xml URL/path form the query parameter
-     * @param none
-     * @return none
      **/
     getXMLPath: function() {
         
@@ -2409,8 +2371,7 @@ const SBPLUS = {
 
     /**
      * determine if the XML URL/path ends with sbplus.xml
-     * @param none
-     * @return none
+     * @param string - the path or URL to the sbplus.xml file
      **/
     isXMLFile: function( path ) {
 
@@ -2420,8 +2381,7 @@ const SBPLUS = {
 
     /**
      * extract the path to the assets directory from the XML URL
-     * @param none
-     * @return none
+     * @param string - the path or URL to the sbplus.xml file
      **/
     extractAssetsPath: function( path ) {
 
@@ -2435,8 +2395,7 @@ const SBPLUS = {
 
      /**
      * extract the path to the root directory containing the assets directory from the XML URL
-     * @param none
-     * @return none
+     * @param string - the path or URL to the sbplus.xml file
      **/
     extractAssetsRoot: function( path ) {
 
@@ -2455,8 +2414,6 @@ const SBPLUS = {
 
     /**
      * get the course or root directory name
-     * @param none
-     * @return string
      **/
     getCourseDirectory: function() {
 
@@ -2482,7 +2439,6 @@ const SBPLUS = {
     /**
      * clean the string to be web friendly
      * @param string
-     * @return none
      **/
     sanitize: function( str ) {
     
@@ -2493,7 +2449,6 @@ const SBPLUS = {
      /**
      * Capitalize the first letter of a word
      * @param string
-     * @return none
      **/
     capitalizeFirstLetter: function (str) {
         return str.charAt( 0 ).toUpperCase() + str.slice( 1 );
@@ -2502,7 +2457,6 @@ const SBPLUS = {
      /**
      * trim empty space before and after a string and set it to lowercase
      * @param string
-     * @return none
      **/
     trimAndLower: function (str) {
         return str.trim().toLowerCase();
@@ -2511,7 +2465,6 @@ const SBPLUS = {
     /**
      * check if a string is empty
      * @param string
-     * @return none
      **/
     isEmpty: function( str ) {
         
@@ -2521,8 +2474,8 @@ const SBPLUS = {
     
     /**
      * get the color highlight based on the parameters
-     * @param string, string
-     * @return string
+     * @param string - the hexadecimal
+     * @param number - the luminosity rate between 0 to 1
      **/
     colorLum: function( hex, lum ) {
     
@@ -2549,8 +2502,7 @@ const SBPLUS = {
     
     /**
      * get the color contrast for text colors based on the parameter
-     * @param string
-     * @return string
+     * @param string - the hexadecimal
      **/
     colorContrast: function( hex ) {
 
@@ -2568,7 +2520,6 @@ const SBPLUS = {
     /**
      * remove script tag in string value
      * @param string
-     * @return string
      **/
     noScript: function( str ) {
         
@@ -2589,7 +2540,6 @@ const SBPLUS = {
     /**
      * remove CDATA from string value in XML
      * @param string
-     * @return string
      **/
     noCDATA: function( str ) {
         
@@ -2603,8 +2553,7 @@ const SBPLUS = {
 
     /**
      * convert hexadecimal to RGB value
-     * @param string
-     * @return string
+     * @param string - the hexadecimal
      **/
     hexToRgb: function( hex ) {
         
@@ -2622,7 +2571,6 @@ const SBPLUS = {
     /**
      * remove empty items from an array
      * @param array
-     * @return array
      **/
     removeEmptyElements: function ( array ) {
     
@@ -2651,8 +2599,9 @@ const SBPLUS = {
     
     /**
      * set setting values to the local or session storage
-     * @param string, string, boolean
-     * @return none
+     * @param string - key
+     * @param string - value
+     * @param boolean - `true` for session storage; `false` for local storage
      **/
     setStorageItem: function( key, value, toSession ) {
         
@@ -2660,13 +2609,11 @@ const SBPLUS = {
             
             if ( toSession ) {
             
-                sessionStorage.setItem( key, value );
-                
-            } else {
-                
-                localStorage.setItem( key, value );
+                return sessionStorage.setItem( key, value );
                 
             }
+
+            return localStorage.setItem( key, value );
             
         }
         
@@ -2674,8 +2621,8 @@ const SBPLUS = {
     
     /**
      * get setting values from the local or session storage
-     * @param string, boolean
-     * @return string
+     * @param string - key
+     * @param boolean - `true` for session; `false` for local
      **/
     getStorageItem: function( key, fromSession ) {
         
@@ -2685,11 +2632,9 @@ const SBPLUS = {
             
                 return sessionStorage.getItem( key );
                 
-            } else {
-                
-                return localStorage.getItem( key );
-                
             }
+
+            return localStorage.getItem( key );
             
         }
         
@@ -2697,8 +2642,8 @@ const SBPLUS = {
     
     /**
      * delete setting values from the local or session storage
-     * @param string, boolean
-     * @return string
+     * @param string - key
+     * @param boolean - `true` for session; `false` for local
      **/
     deleteStorageItem: function( key, fromSession ) {
         
@@ -2708,11 +2653,9 @@ const SBPLUS = {
             
                 return sessionStorage.removeItem( key );
                 
-            } else {
-                
-                return localStorage.removeItem( key );
-                
             }
+
+            return localStorage.removeItem( key );
             
         }
         
@@ -2720,8 +2663,8 @@ const SBPLUS = {
     
     /**
      * check for setting value existence from the local or session storage
-     * @param string, boolean
-     * @return boolean
+     * @param string - key
+     * @param boolean - `true` for session; `false` for local
      **/
     hasStorageItem: function( key, fromSession ) {
         
@@ -2737,15 +2680,13 @@ const SBPLUS = {
                 
                 return true;
                 
-            } else {
-                
-                if ( self.isEmpty( localStorage.getItem( key ) ) ) {
-                    return false;
-                }
-                
-                return true;
-                
             }
+
+            if ( self.isEmpty( localStorage.getItem( key ) ) ) {
+                return false;
+            }
+            
+            return true;
             
         }
         
@@ -2753,8 +2694,6 @@ const SBPLUS = {
     
     /**
      * delete all settings value in local and session storage
-     * @param none
-     * @return none
      **/
     removeAllSessionStorage: function() {
         
@@ -2770,7 +2709,6 @@ const SBPLUS = {
      * decode strings that contain HTML/XMl tags
      * also remove any script tags and CDATA
      * @param object
-     * @return string
      **/
     getTextContent: function( obj ) {
         
@@ -2808,8 +2746,6 @@ const SBPLUS = {
 
     /**
      * determine if it is on a web browser in mobile device
-     * @param object
-     * @return string
      **/
     isMobileDevice: function() {
 
@@ -2819,8 +2755,6 @@ const SBPLUS = {
     
     /**
      * save settings to the local and session storages
-     * @param none
-     * @return none
      **/
     afterSettingsLoaded: function() {
         
@@ -2841,19 +2775,35 @@ const SBPLUS = {
                 
                 // show msg
                 $( self.menu.menuSavingMsg ).fadeIn().html( 'Saving...' );
-                
-                // widget
-                if ( $( '#sbplus_gs_widget' ).is( ':checked' ) ) {
-                    self.setStorageItem( 'sbplus-hide-widget', 1 );
+
+                // color mode
+                window.matchMedia( "(prefers-color-scheme: dark)" ).off;
+
+                if ( $( 'input[name="sbplus_color_mode"]:checked' ) ) {
+
+                    const mode = $( 'input[name="sbplus_color_mode"]:checked' ).val()
+
+                    self.setStorageItem( 'sbplus-colormode', mode );
+
+                    switch (mode) {
+                        case 'dark':
+                            $( "html" ).addClass( 'dark-mode' );
+                            $( "html" ).removeClass( ["auto-mode"] )
+                            break;
+                        case 'auto':
+                            $( 'html' ).addClass( 'auto-mode' );
+
+                            self.applyAutoColorMode();
+                            break;
+                        default:
+                            $( "html" ).removeClass( ["auto-mode", "dark-mode"] );
+                            break;
+                    }
+
                 } else {
-                    self.setStorageItem( 'sbplus-hide-widget', 0 );
-                }
-                
-                // sidebar
-                if ( $( '#sbplus_gs_sidebar' ).is( ':checked' ) ) {
-                    self.setStorageItem( 'sbplus-hide-sidebar', 1 );
-                } else {
-                    self.setStorageItem( 'sbplus-hide-sidebar', 0 );
+
+                    self.setStorageItem( 'sbplus-colormode', 'light' );
+
                 }
                 
                 // autoplay
@@ -2926,11 +2876,35 @@ const SBPLUS = {
         }
             
     },
+
+    /**
+     * apply auto mode to toggle system default color mode
+     **/
+    applyAutoColorMode: function() {
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            $ ( "html" ).addClass( "dark-mode" );
+        } else {
+            $ ( "html" ).addClass( "auto-mode" );
+        }
+
+        // watch for color mode change
+        window.matchMedia( "(prefers-color-scheme: dark)" ).addEventListener( "change", event => {
+
+            const color = event.matches ? "dark" : "light";
+            
+            if ( color === "dark" ) {
+                $ ( "html" ).addClass( "dark-mode" );
+            } else {
+                $ ( "html" ).removeClass( "dark-mode" );
+            }
+
+        });
+
+    },
     
     /**
      * load saved settings from the local and session storages
-     * @param none
-     * @return none
      **/
     syncSettings: function() {
         
@@ -2938,22 +2912,21 @@ const SBPLUS = {
         
         if ( self.getStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', true ) === '1' ) {
             
-            // widget
-            const widgetVal = self.getStorageItem( 'sbplus-hide-widget' );
-            
-            if ( widgetVal === '1') {
-                $( '#sbplus_gs_widget' ).prop( 'checked', true );
-            } else {
-                $( '#sbplus_gs_widget' ).prop( 'checked', false );
-            }
-            
-            // sidebar
-            const sidebarVal = self.getStorageItem( 'sbplus-hide-sidebar' );
-            
-            if ( sidebarVal === '1') {
-                $( '#sbplus_gs_sidebar' ).prop( 'checked', true );
-            } else {
-                $( '#sbplus_gs_sidebar' ).prop( 'checked', false );
+            // color mode
+            const colorMode = self.getStorageItem( 'sbplus-colormode' );
+
+            switch (colorMode) {
+
+                case 'dark':
+                    $( '#dark_color_mode' ).prop( "checked", true );
+                    break;
+                case 'auto':
+                    $( '#auto_color_mode' ).prop( "checked", true );
+                    break;
+                default:
+                    $( '#light_color_mode').prop( "checked", true );
+                    break;
+
             }
             
             // autoplay
@@ -2998,8 +2971,6 @@ const SBPLUS = {
     
      /**
      * send tracked event to Google Analytics
-     * @param none
-     * @return none
      **/
     sendToGA: function( event, context ) {
 
@@ -3036,8 +3007,6 @@ const SBPLUS = {
     
     /**
      * clear Google Analytics time intervals for video progress check
-     * @param none
-     * @return none
      **/
     clearGATimeout: function() {
 
@@ -3064,8 +3033,6 @@ const SBPLUS = {
 
     /**
      * Show an message if the user has not network/Internet connectivity
-     * @param none
-     * @return none
      **/
     showConnectionMessage: function() {
 
@@ -3086,8 +3053,6 @@ const SBPLUS = {
 
     /**
      * hide the message if the user has network/Internet connectivity
-     * @param none
-     * @return none
      **/
     hideConnectionMessage: function() {
 
@@ -3104,8 +3069,6 @@ const SBPLUS = {
 
     /**
      * hold the network/Internet connectivity status by pinging the index file
-     * @param none
-     * @return none
      **/
     checkOnlineStatus: async () => {
 
@@ -3121,8 +3084,6 @@ const SBPLUS = {
     /**
      * schedule network/Internet connectivity status check by pinging
      * the index.html HEAD every 3 minutes
-     * @param none
-     * @return none
      **/
     scheduleOnlineStatusCheck: async function() {
 

@@ -108,7 +108,7 @@
                     <div class="tab_segment"></div>
                 </div>
                 
-                <div class="segment_content animated"></div>
+                <div class="segment_content"></div>
                 
             </div>
             

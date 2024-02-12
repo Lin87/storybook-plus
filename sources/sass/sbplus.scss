@@ -88,6 +88,8 @@ body {
     background-color: $body-bg-color;
 }
 
+
+
 .sbplus_pop_full {
     position: relative;
     width: 100%;
@@ -1922,6 +1924,17 @@ body {
                     .name {
                         margin-bottom: 0;
                     }
+
+                    .color-mode-choices {
+
+                        padding: 0 8px;
+
+                        .mode {
+                            display: inline-block;
+                            margin-right: 8px;
+                        }
+
+                    }
                     
                     .grid {
                         
@@ -2115,9 +2128,377 @@ body {
     
 } // end main wrapper
 
-@media only screen
-    and ( min-device-width: 768px )
-    and ( min-width: 900px ) {
+// dark mode
+
+.dark-mode {
+
+    //@media (prefers-color-scheme: dark) {
+
+        body {
+            color: #fff;
+            background-color: #212529;
+        }
+
+        .sbplus_wrapper {
+
+            #sbplus_loading_screen {
+
+                background-color: #1b1f22;
+
+                .program_logo {
+                    filter:  none;
+                    opacity: 0.75;
+                }
+
+            }
+
+            #sbplus {
+
+                #sbplus_splash_screen {
+
+                    #sbplus_presentation_info {
+
+                        background-color: rgba(43, 48, 53, 0.75);
+                        color: #fff;
+            
+                        .sb_context {
+            
+                            .sb_downloads {
+            
+                                a {
+                                    color: #fff;
+            
+                                    .icon-download {
+                                        color: rgba(222,226,230,.75);
+                                    }
+            
+                                }
+            
+                            }
+            
+                        }
+            
+                    }
+
+                }
+
+                #sbplus_banner_bar {
+                    border: solid 1px rgb(73, 80, 87);
+                    border-bottom: none;
+                }
+
+                #sbplus_content_wrapper {
+
+                    #sbplus_left_col {
+
+                        #sbplus_quiz_wrapper {
+
+                            background-color: #1b1f22;
+
+                            .sbplus_quiz_header {
+                                background-color: #343a40;
+                            }
+
+                            .quiz_correct,
+                            .quiz_incorrect,
+                            .quiz_error {
+                                color: #000;
+                            }
+
+                        }
+
+                        #sbplus_media_wrapper {
+
+                            background-color: #1b1f22;
+
+                            .sbplus_media_content .html {
+
+                                background-color: #1b1f22;
+
+                                a {
+                                    color: rgb(110, 168, 254);
+                                }
+
+                            }
+
+                        }
+
+                        #sbplus_widget {
+
+                            background-color: #1b1f22;
+
+                            .widget_controls_bar {
+
+                                border-bottom-color: rgb(73, 80, 87);
+                                background-color: #343a40;
+
+                                .tab_segment {
+
+                                    button {
+
+                                        color: rgba(222, 226, 230, 0.75);
+                                        border-right-color: rgb(73, 80, 87);
+
+                                        &.active {
+
+                                            color: #fff;
+                                            background-color: #1b1f22;
+    
+                                            &:after {
+                                                background-color: #1b1f22;
+                                            }
+                                            
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                            .segment_content {
+
+                                color: #fff;
+                                background-color: #1b1f22;
+
+                                a {
+                                    color: rgb(110, 168, 254);
+                                }
+
+                            }
+
+                            &.noSegments {
+
+                                .segment_content {
+                                    background-color: #343a40;
+                                    opacity: 0.25;
+                                    filter: none;
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    #sbplus_right_col {
+
+                        border-left-color: rgb(73, 80, 87);
+
+                        #sbplus_sub_bar {
+                            background-color: #343a40;
+                            border-bottom-color: rgb(73, 80, 87);
+                        }
+
+                        #sbplus_table_of_contents_wrapper {
+
+                            background-color: #1b1f22;
+
+                            .section {
+
+                                .header {
+                                    background-color: #343a40;
+                                    border-top-color: rgb(73, 80, 87);
+                                }
+
+                                .list {
+
+                                    .item {
+
+                                        border-color: rgb(73, 80, 87);
+
+                                        &:last-child {
+                                            border-color: rgb(73, 80, 87);
+                                        }
+
+                                    }
+
+                                }
+
+                                &:last-child {
+                                    .header {
+                                        border-bottom-color: rgb(73, 80, 87);
+                                    }
+                                }
+
+                            }
+                        }
+
+                    }
+
+                }
+
+                #sbplus_control_bar {
+
+                    background-color: #343a40;
+
+                    #sbplus_page_status {
+                        border-color: rgb(73, 80, 87);
+                    }
+
+                    .controls {
+
+                        #sbplus_previous_btn,
+                        #sbplus_next_btn,
+                        #sbplus_download_btn,
+                        #mobile_toc_toggle_btn {
+
+                            border-color: rgb(73, 80, 87);
+
+                            [class^="icon-"], [class*=" icon-"] {
+                                color: #fff;
+                            }
+
+                        }
+
+                    }
+                    
+                }
+
+                #menu_item_content {
+
+                    background-color: #1b1f22;
+
+                    .container {
+
+                        .side_menu {
+
+                            .menu {
+                                background-color: #343a40;
+                            }
+
+                        }
+
+                        .settings {
+
+                            .grid {
+                                .row {
+                                    &:nth-child(2n) {
+                                        background-color: #343a40;
+                                    }
+                                }
+                            }
+
+
+                            #save_settings {
+                                color: #000;
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        @media only screen and (min-device-width: 768px) and (min-width: 900px) {
+
+            .sbplus_boxed {
+
+                #sbplus {
+
+                    #sbplus_content_wrapper {
+                        border-color: rgb(73, 80, 87);
+                    }
+
+                    #sbplus_control_bar {
+
+                        #sbplus_page_status {
+                            background-color: #343a40;
+                        }
+
+                        .controls {
+                            
+                            #sbplus_download_btn_wrapper {
+
+                                #sbplus_download_btn {
+
+                                    .menu-parent {
+
+                                        .menu {
+
+                                            background-color: #343a40;
+                                            border-color: rgb(73, 80, 87);
+                                            box-shadow: 0 -3px 6px rgb(73, 80, 87);
+
+                                            .menu-item {
+
+                                                a {
+                                                    color: #fff;
+                                                }
+
+                                            }
+
+                                        }
+    
+                                    }
+
+                                }
+                                
+                            }
+
+                        }
+
+                    }
+
+                    &.sbplus-vjs-expanded {
+
+                        #sbplus_content_wrapper {
+
+                            #sbplus_left_col {
+                                
+                                #sbplus_quiz_wrapper {
+                                    border: solid 1px rgb(73, 80, 87);
+                                }
+
+                            }
+
+                            #sbplus_right_col {
+
+                                #sbplus_control_bar {
+
+                                    #sbplus_new_note_btn {
+                                        color: #fff;
+                                    }
+
+                                    #sbplus_page_status {
+                                        background-color: #343a40;
+                                        border-color: rgb(73, 80, 87);
+                                    }
+        
+                                }
+
+                            }
+
+                        }
+                        
+                    }
+
+                }
+
+                #copyright-footer {
+
+                    color: rgba(222, 226, 230, 0.75);
+        
+                    a {
+                        color: rgb(110, 168, 254);
+                    }
+        
+                }
+
+            }
+            
+        }
+        
+    //}
+
+}
+
+// larger screen (over 900px)
+@media only screen and ( min-device-width: 768px ) and ( min-width: 900px ) {
     
     html {
 

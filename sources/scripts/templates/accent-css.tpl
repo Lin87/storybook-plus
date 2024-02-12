@@ -2,6 +2,7 @@
 .sbplus_wrapper #sbplus #sbplus_splash_screen #sb_splash_bg{background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button{color:--var-textColor;background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button:hover{background-color:--var-hover}
+.sbplus_wrapper #sbplus #menu_item_content .sbplus_menu_title_bar {background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_banner_bar{background-color:--var-accent;color:--var-textColor}
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .item:hover{color:--var-textColor;background-color:--var-hover}
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .sb_selected{color:--var-textColor;background-color:--var-accent}

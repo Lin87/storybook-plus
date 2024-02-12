@@ -1620,13 +1620,12 @@ function setupMarkers ( player, markers ) {
 
 function displayWidgetContent( str ) {
     
-    $( SBPLUS.widget.content ).html( str )
-        .addClass( 'fadeIn' ).one( 'webkitAnimationEnd mozAnimationEnd animationend', 
+    $( SBPLUS.widget.content ).html( str ).one( 'webkitAnimationEnd mozAnimationEnd animationend', 
         function() {
             
             const region = $( this );
             
-            region.removeClass( 'fadeIn' ).off();
+            region.off();
             
             if ( region.find( 'a' ).length ) {
 

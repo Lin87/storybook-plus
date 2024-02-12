@@ -1,6 +1,23 @@
 <form class="settings">
     
     <div id="save_settings"></div>
+
+    <p class="name">Color Mode</p>
+
+    <div class="color-mode-choices">
+        <div class="mode">
+            <input type="radio" name="sbplus_color_mode" id="light_color_mode" value="light" />
+            <label for="light_color_mode">Light</label>
+        </div>
+        <div class="mode">
+            <input type="radio" name="sbplus_color_mode" id="dark_color_mode" value="dark" />
+            <label for="dark_color_mode">Dark</label>
+        </div>
+        <div class="mode">
+            <input type="radio" name="sbplus_color_mode" id="auto_color_mode" value="auto" />
+            <label for="auto_color_mode">System Default</label>
+        </div>
+    </div>
     
     <p class="name">Video & Audio Player</p>
     
