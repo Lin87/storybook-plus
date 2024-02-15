@@ -236,7 +236,6 @@ const SBPLUS = {
                 // call the loadTemplate function to load Storybook Plus's HTML structures
                 /* !! SHOULD BE THE LAST THING TO BE CALLED IN THIS BLOCK!! */
                 self.loadTemplate();
-                self.preloadPresentationImages();
                 
             } );
             
@@ -661,6 +660,7 @@ const SBPLUS = {
             self.setAccent(); // set accent color
             self.getLogo(); // get program logo
             self.setCopyright(); // set the copyright info
+            self.preloadPresentationImages(); // preload images
             
             // if mathjax if turned on
             if (self.xml.settings.mathjax === "on" || self.xml.settings.mathjax === "true") {
@@ -1073,55 +1073,92 @@ const SBPLUS = {
      /**
      * preload all images used in the presentation if applicable
      **/
-    // FIXME: refactor image preloading to remove the need of PHP scripting
-    preloadPresentationImages: function() {
+    preloadPresentationImages: async function() {
 
         const self = this;
 
-        let path = window.location.pathname,
-            location = window.location.href,
-            index = location.indexOf( '?' );
-        
-        // remove all query parameters from the URL
-        if ( index != -1 ) {
-            location = location.substring( 0, index );
+        if ( self.isEmpty( self.assetsPath ) ) {
+            return;
         }
         
-        // remove all hashtags from the URL
-        index = location.indexOf( '#' );
-        
-        if ( index != -1 ) {
-            location = location.substring( 0, index );
-        }
-        
-        path = path.replace( 'index.html', '' );
-        location = location.replace( 'index.html', '' );
-        
-        const paths = {
-            "php": 'php/preload.php',
-            "pages": path + "assets/pages/",
-            "url": location + "assets/pages/"
+        try {
+
+            await self.parseSectionPageSources( self.xml.sections );
+
+        } catch ( err ) {
+
+            console.warn( "Preloading images failed." );
+            return err;
+
         }
 
-        // start a worker service thread to preload page images
-        worker = new Worker( self.manifest.sbplus_root_directory + 'scripts/preload.js' );
+    },
 
-        worker.postMessage( paths );
+     /**
+     * parse preload all images used in the presentation
+     **/
+    parseSectionPageSources: function( xmlSections ) {
+        const self = this;
+        return new Promise( (resolve, reject) => {
+
+            let srcArray = [];
+
+            $( xmlSections ).each( function()  {
+
+                $( this ).find( 'page' ).each( function () {
+
+                    const type = $( this ).attr( 'type' );
+
+                    switch ( type ) {
+
+                        case 'bundle': {
+
+                            const src = $ ( this ).attr( 'src' );
+                            const bundleSrc = [];
+
+                            bundleSrc.push( src + '-' + (1) );
+
+                            $( this ).find( 'frame' ).each( function ( i ) {
+                                bundleSrc.push( src + '-' + (i + 2) );
+                            } );
+
+                            srcArray = srcArray.concat( bundleSrc );
+                            break;
+
+                        }
+                        case 'image':
+                        case 'image-audio': {
+                            const src = $( this ).attr( 'src' );
+                            srcArray.push( src );
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+
+                } );
+
+            } );
+
+            srcArray = srcArray.filter( (value, index) => srcArray.indexOf(value) === index);
+
+            srcArray.forEach( function( name ) {
         
-        worker.onmessage = function( e ) {
-
-            e.data.forEach( function( image ) {
-
+                const imagePath = self.assetsPath + "pages/" + name + "." + self.xml.settings.imgType;
                 const linkObj = document.createElement( 'link' );
+
                 linkObj.rel = "prefetch";
-                linkObj.href = paths.pages + image;
+                linkObj.href = imagePath;
                 linkObj.setAttribute( 'aria-hidden', true );
                 linkObj.style = "position: fixed; width: 1px; height: 1px; opacity: 0;";
+
                 document.getElementsByTagName( "body" )[0].appendChild( linkObj );
                 
             } );
-            
-        }
+
+            resolve( true );
+
+        } );
 
     },
     

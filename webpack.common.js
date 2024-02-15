@@ -8,10 +8,7 @@ const terser = require('terser');
 module.exports = {
 
     entry: {
-        sbplus: [
-            path.resolve(__dirname, './sources/scripts/sbplus-dev.js'),
-        ],
-        preload: path.resolve(__dirname, './sources/scripts/preload-dev.js'),
+        sbplus: path.resolve(__dirname, './sources/scripts/sbplus-dev.js'),
     },
     output: {
         filename: 'sources/scripts/[name].js',
@@ -56,7 +53,6 @@ module.exports = {
             template: 'index.html',
             filename: path.resolve( __dirname, 'dist', 'index.html' ),
             chunks: [ 'sbplus' ],
-            excludeChunks: ['preload'],
             links: [
                 'sources/scripts/libs/modernizr.js',
                 'sources/scripts/libs/videojs/video-js.min.css',
@@ -94,10 +90,6 @@ module.exports = {
                     globOptions: {
                         ignore: [ "**/videojs/plugins/**" ],
                     },
-                },
-                {
-                    from: 'sources/scripts/php',
-                    to: 'sources/scripts/php',
                 },
                 {
                     from: 'sources/scripts/templates',

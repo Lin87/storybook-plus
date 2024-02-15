@@ -734,6 +734,10 @@ body {
                         .video-js.vjs-youtube {
                             @include aspect-ratio( 16, 9 );
                         }
+
+                        .video-js.vjs-has-started .vjs-tech {
+                            pointer-events: none;
+                        }
                         
                         .video-js.vjs-default-skin {
                         
@@ -1103,22 +1107,22 @@ body {
 
                     // }
 
-                    .show-vjs-poster {
+                    // .show-vjs-poster {
                         
-                        .vjs-has-started {
+                    //     .vjs-has-started {
                             
-                            .vjs-poster {
-                                @include calc( height, '100% - ' + 33px );
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                z-index: 1;
-                                cursor: default;
-                            }
+                    //         .vjs-poster {
+                    //             @include calc( height, '100% - ' + 33px );
+                    //             display: flex;
+                    //             align-items: center;
+                    //             justify-content: center;
+                    //             z-index: 1;
+                    //             cursor: default;
+                    //         }
                             
-                        }
+                    //     }
                         
-                    }
+                    // }
                     
                 }
                 
