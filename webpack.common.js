@@ -22,6 +22,14 @@ module.exports = {
 
         rules: [
             {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {}
+                }
+            },
+            {
                 test: /\.(sa|sc|c)ss$/,
                 use: [
                     MiniCssExtractPlugin.loader,
@@ -52,7 +60,7 @@ module.exports = {
             links: [
                 'sources/scripts/libs/modernizr.js',
                 'sources/scripts/libs/videojs/video-js.min.css',
-                'sources/scripts/libs/videojs/video.js',
+                'sources/scripts/libs/videojs/video.min.js',
             ],
         } ),
         new CopyWebpackPlugin( {
@@ -100,9 +108,9 @@ module.exports = {
         new WebpackConcatPlugin({
             bundles: [
               {
-                dest: './dist/sources/scripts/libs/videojs/video.js',
+                dest: './dist/sources/scripts/libs/videojs/video.min.js',
                 src: [
-                    './sources/scripts/libs/videojs/video.js',
+                    './sources/scripts/libs/videojs/video.min.js',
                     './sources/scripts/libs/videojs/plugins/cuepoint/videojs.cuepoints.js',
                     './sources/scripts/libs/videojs/plugins/markers/videojs-markers.js',
                     './sources/scripts/libs/videojs/plugins/resolution/silvermine-videojs-quality-selector.min.js',
