@@ -1414,9 +1414,10 @@ function getEntryKalturaStatus( code ) {
 
 function addForwardButton( vjs ) {
     
-    let secToSkip = 10;
-    let Button = videojs.getComponent( 'Button' );
-    let forwardBtn = videojs.extend( Button, {
+    const secToSkip = 10;
+    const Button = videojs.getComponent( 'Button' );
+
+    const forwardBtn = videojs.extend( Button, {
         constructor: function( player, options ) {
             
             Button.call( this, player, options );
@@ -1451,9 +1452,9 @@ function addForwardButton( vjs ) {
 
 function addBackwardButton( vjs ) {
     
-    let secToSkip = 10;
-    let Button = videojs.getComponent( 'Button' );
-    let backwardBtn = videojs.extend( Button, {
+    const secToSkip = 10;
+    const Button = videojs.getComponent( 'Button' );
+    const backwardBtn = videojs.extend( Button, {
         constructor: function( player, options ) {
             
             Button.call( this, player, options );
@@ -1490,8 +1491,8 @@ function addBackwardButton( vjs ) {
 
 function addExpandContractButton( vjs ) {
 
-    let Button = videojs.getComponent( 'Button' );
-    let expandContractBtn = videojs.extend( Button, {
+    const Button = videojs.getComponent( 'Button' );
+    const expandContractBtn = videojs.extend( Button, {
         constructor: function( player, options ) {
             
             Button.call( this, player, options );

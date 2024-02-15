@@ -13,6 +13,7 @@
 * The `index.html` file is now centralized and does not need to be copied for every presentation. With the index file centralized, the presentation assets are loaded by specifying the URL to the `sbplus.xml` file as a query parameter. However, the old approach (including the index file for every presentation) still works and act as a fallback.
 * The `manifest.json` file is no longer part of the `index.html` file.
 * Now supports dark mode.
+* Update videojs to version 7.21.5
 * Minor improvements
 
 #### 3.4.2 (09/05/2023)
