@@ -1,6 +1,6 @@
 ### Version Change Logs
 
-#### 3.5.0 (xx/xx/2024)
+#### 3.5.0 (02/28/2024)
 * Updated Kaltura checks before loading Kaltura API scripts
 * Notes/widget area now loads even if Kaltura is not available or errored out
 * Added a new error message for Kaltura ID not specified in the manifest file
@@ -13,7 +13,8 @@
 * The `index.html` file is now centralized and does not need to be copied for every presentation. With the index file centralized, the presentation assets are loaded by specifying the URL to the `sbplus.xml` file as a query parameter. However, the old approach (including the index file for every presentation) still works and act as a fallback.
 * The `manifest.json` file is no longer part of the `index.html` file.
 * Now supports dark mode.
-* Update videojs to version 7.21.5
+* Updated videojs to version 7.21.5
+* Updated preloading script to remove the no longer needed service worker and PHP script
 * Minor improvements
 
 #### 3.4.2 (09/05/2023)
