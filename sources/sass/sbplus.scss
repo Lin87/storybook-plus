@@ -455,7 +455,7 @@ body {
                                 padding: 0;
                                 border-top: none;
                                 background-color: #5f5d5d;
-                                box-shadow: 0 6px 4px 2px #fff;
+                                box-shadow: -4px 4px 4px #8d8d8d;
                                 z-index: 11;
                                 
                                 .menu-item {
@@ -500,6 +500,15 @@ body {
                                         color: #fff;
                                     }
                                     
+                                }
+
+                                #sbplus_version {
+                                    text-align: center;
+                                    font-size: 10px;
+                                    color: #8f8f8f;
+                                    cursor: default;
+                                    padding: $gutter ($gutter + 5);
+                                    margin: 0;
                                 }
                                                                     
                             }
@@ -2665,7 +2674,7 @@ body {
                                     padding: 0;
                                     border-top: none;
                                     background-color: #5f5d5d;
-                                    box-shadow: 0 6px 4px 2px #fff;
+                                    //box-shadow: 0 6px 4px 2px #fff;
                                     z-index: 11;
                                     
                                     .menu-item {

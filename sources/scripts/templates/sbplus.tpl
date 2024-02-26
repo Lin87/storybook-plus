@@ -79,6 +79,8 @@
                                     Settings
                                 </a>
                             </li>
+
+                            <li id="sbplus_version" tabindex="-1"></li>
                             
                         </ul>
                         

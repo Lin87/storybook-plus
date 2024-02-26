@@ -36,7 +36,6 @@ import "../sass/sbplus.scss";
 import { MenuBar } from "./menubar";
 import { Page } from "./page";
 
-let worker;
 const SBPLUS = {
     
     /***************************************************************************
@@ -90,6 +89,9 @@ const SBPLUS = {
         halfway: null,
         completed: null
     },
+
+    // version number
+    version: '3.5.0',
     
     // easter egg variables
     clickCount: 0,
@@ -185,7 +187,8 @@ const SBPLUS = {
             menuBarTitle: '#menu_item_content .sbplus_menu_title_bar .title',
             menuContentWrapper: '#menu_item_content',
             menuContent: '#menu_item_content .content',
-            menuSavingMsg: '#save_settings'
+            menuSavingMsg: '#save_settings',
+            versionContainer: '#sbplus_version'
         };
         
         // set screen reader classes and IDs
@@ -275,6 +278,8 @@ const SBPLUS = {
                     self.showErrorScreen( 'support' );
                     return false; // EXIT & STOP FURTHER SCRIPT EXECUTION
                 }
+
+                $( self.menu.versionContainer ).html( 'v' + self.version );
                 
                 // execute tasks before loading external XML data
                 self.beforeXMLLoading();
