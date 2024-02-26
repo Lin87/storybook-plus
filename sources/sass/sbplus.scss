@@ -2359,7 +2359,13 @@ body {
                             border-color: rgb(73, 80, 87);
 
                             [class^="icon-"], [class*=" icon-"] {
+
                                 color: #fff;
+
+                                &:hover {
+                                    color: #1b1f22;
+                                }
+                                
                             }
 
                         }

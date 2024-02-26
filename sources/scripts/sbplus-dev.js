@@ -1841,7 +1841,7 @@ const SBPLUS = {
                 target.scrollIntoView( { behavior: 'smooth', block: 'end' } );
                 
             }
-            
+
             return;
         }
         
