@@ -1045,8 +1045,6 @@ const SBPLUS = {
             fileName = self.sanitize( self.xml.setup.title );
         }
 
-        console.log(fileName);
-
         // load each supported downloadable files specified in the manifest
         self.manifest.sbplus_download_files.forEach( function( file ) {
 
@@ -1820,6 +1818,7 @@ const SBPLUS = {
     updateScroll: function( obj ) {
         
         const self = this;
+        const scrollOption = { behavior: 'smooth', block: 'nearest', inline: 'start' };
 
         // set the obj from the parameter
         let target = obj;
@@ -1836,16 +1835,18 @@ const SBPLUS = {
             
             if ( $( target ).parent().prev().length ) {
                 
-                $( $( target ).parent().prev() )[0].scrollIntoView( { behavior: 'smooth', block: 'end' } );
+                $( $( target ).parent().prev() )[0].scrollIntoView( scrollOption );
                 
             } else {
                 
-                target.scrollIntoView( { behavior: 'smooth', block: 'end' } );
+                target.scrollIntoView( scrollOption );
                 
             }
 
             return;
         }
+
+        console.log(target);
         
         // get/set the scrollable height
         const scrollHeight = $( self.tableOfContents.container ).height();
@@ -1858,12 +1859,12 @@ const SBPLUS = {
         }
         
         if ( targetTop > scrollHeight ) {
-            target.scrollIntoView( { behavior: 'smooth', block: 'end' } );
+            target.scrollIntoView( scrollOption );
         }
         
         if ( targetTop < targetHeight ) {
             
-            target.scrollIntoView( { behavior: 'smooth' } );
+            target.scrollIntoView( scrollOption );
             
         }
         
