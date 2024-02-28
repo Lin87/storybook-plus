@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<storybook accent="" pageImgFormat="jpg" splashImgFormat="jpg" analytics="off" mathjax="off" xmlVersion="3.4">
+<storybook accent="" pageImgFormat="jpg" splashImgFormat="jpg" analytics="off" mathjax="off" downloadableFileName="sbplus">
     
     <setup program="college-school" course="abc123">
         

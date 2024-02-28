@@ -3,8 +3,8 @@
  *
  * @author: Ethan Lin
  * @url: https://github.com/excelsior-university-web-systems/sbplus-v3
- * @version: 3.5.0
- * Released 02/28/2024
+ * @version: 3.5.1
+ * Released 03/06/2024
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
@@ -91,7 +91,7 @@ const SBPLUS = {
     },
 
     // version number
-    version: '3.5.0',
+    version: '3.5.1',
     
     // easter egg variables
     clickCount: 0,
@@ -568,7 +568,7 @@ const SBPLUS = {
             let xSplashImgType = 'svg';
             let xAnalytics = self.trimAndLower( xSb.attr( 'analytics' ) );
             let xMathjax = '';
-            let xVersion = xSb.attr( 'xmlVersion' );
+            let xDownloadableFileName = xSb.attr( 'downloadableFileName' );
             let xProgram = '';
             let xCourse = self.trimAndLower( xSetup.attr( 'course' ) );
             let xTitle = self.noScript( xSetup.find( 'title' ).text().trim() );
@@ -642,7 +642,7 @@ const SBPLUS = {
                     splashImgType: xSplashImgType,
                     analytics: xAnalytics,
                     mathjax: xMathjax,
-                    version: xVersion
+                    downloadableFileName: xDownloadableFileName
                 },
                 setup: {
                     program: xProgram,
@@ -1038,12 +1038,14 @@ const SBPLUS = {
         const self = this;
 
         // set downloadable file name from the course directory name in URL
-        let fileName = self.getCourseDirectory().replace( ".sbproj", "" );
+        let fileName = self.xml.settings.downloadableFileName;
 
         // if file name is empty, default to 'sbplus'
         if ( self.isEmpty( fileName ) ) {
-            fileName = "sbplus";
+            fileName = self.sanitize( self.xml.setup.title );
         }
+
+        console.log(fileName);
 
         // load each supported downloadable files specified in the manifest
         self.manifest.sbplus_download_files.forEach( function( file ) {
