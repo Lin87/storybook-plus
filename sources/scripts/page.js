@@ -418,7 +418,7 @@ Page.prototype.getPageMedia = function() {
             let path = self.src;
                 
             if ( !isUrl(path) ) {
-                path = SBPLUS.assetsPath + 'html/' + self.src;
+                path = SBPLUS.assetsPath + 'html/' + self.src + '/';
             }
             
             if ( $(self.pageXML).attr('embed') !== undefined ) {
