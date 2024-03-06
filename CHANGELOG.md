@@ -2,6 +2,8 @@
 
 #### 3.5.1 (03/06/2024)
 * Downloadable file name is no longer reliant on the course directory or the URI path name. Downloadable file name can be set in the `sbplus.xml` file in the `storybook` node. If not specified, it defaults to the presentation title with spaces and special characters removed.
+* Fixed table of content scrolling behavior that caused the browser window to scroll as well.
+* Fixed relative path for HTML page type embed.
 
 #### 3.5.0 (02/28/2024)
 * Updated Kaltura checks before loading Kaltura API scripts
