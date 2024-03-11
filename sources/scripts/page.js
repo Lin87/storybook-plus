@@ -88,7 +88,7 @@ Page.prototype.getPageMedia = function() {
         $( SBPLUS.layout.quizContainer ).remove();
     }
     
-    $( self.mediaContent ).css('backgroundImage', '').removeClass('compat-object-fit');//.removeClass( 'show-vjs-poster' );
+    $( self.mediaContent ).css('backgroundImage', '').removeClass('compat-object-fit').removeClass( 'show-vjs-poster' );
     
     $( this.mediaError ).empty().hide();
     
@@ -189,7 +189,7 @@ Page.prototype.getPageMedia = function() {
                     
                     const html = '<video id="mp" class="video-js vjs-default-skin"></video>';
                     
-                    //$( self.mediaContent ).addClass( 'show-vjs-poster' );
+                    $( self.mediaContent ).addClass( 'show-vjs-poster' );
                     
                     $( self.mediaContent ).html( html ).promise().done( function() {
                 
@@ -363,7 +363,7 @@ Page.prototype.getPageMedia = function() {
                 
                 const html = '<video id="mp" class="video-js vjs-default-skin"></video>';
 
-                //$( self.mediaContent ).addClass( 'show-vjs-poster' );
+                $( self.mediaContent ).addClass( 'show-vjs-poster' );
                 
                 $( self.mediaContent ).html( html ).promise().done( function() {
             
@@ -830,8 +830,8 @@ Page.prototype.renderVideoJS = function( src ) {
             
             if ( self.isAudio && self.hasImage ) {
                 player.poster( SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType );
-                // const imgPath = SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType;
-                // $('.vjs-poster')[0].innerHTML = "<img src=" + imgPath + " />";
+                const imgPath = SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType;
+                $('.vjs-poster')[0].innerHTML = "<img src=" + imgPath + " />";
             }
             
             if ( self.isBundle ) {
@@ -854,7 +854,7 @@ Page.prototype.renderVideoJS = function( src ) {
                 	onStart: function() {
                     	
                     	pageImage.src = SBPLUS.assetsPath + 'pages/' + src + '-1.' + self.imgType;
-                    	//$('.vjs-poster')[0].innerHTML = "<img src=" + pageImage.src + " />";
+                    	$('.vjs-poster')[0].innerHTML = "<img src=" + pageImage.src + " />";
                     	player.poster( pageImage.src );
                     	
                 	},
@@ -887,13 +887,13 @@ Page.prototype.renderVideoJS = function( src ) {
                                 self.showPageError( 'NO_IMG', pageImage.src );
                             } );
                             
-                            // const imageEl = $('.vjs-poster')[0];
-                            // const img = document.createElement('img');
+                            const imageEl = $('.vjs-poster')[0];
+                            const img = document.createElement('img');
                             
-                            // img.src = pageImage.src;
+                            img.src = pageImage.src;
                             
-                            // $( imageEl ).append( img );
-                            // $( img ).hide().fadeIn(250);
+                            $( imageEl ).append( img );
+                            $( img ).hide().fadeIn(250);
                             
                             player.poster( pageImage.src );
                             
