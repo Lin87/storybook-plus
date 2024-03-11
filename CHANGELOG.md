@@ -1,5 +1,8 @@
 ### Version Change Logs
 
+#### 3.5.2 (03/13/2024)
+* Fixed an issue where slide images are showing as black screen on Safari.
+
 #### 3.5.1 (03/06/2024)
 * Downloadable file name is no longer reliant on the course directory or the URI path name. Downloadable file name can be set in the `sbplus.xml` file in the `storybook` node. If not specified, it defaults to the presentation title with spaces and special characters removed.
 * Fixed table of content scrolling behavior that caused the browser window to scroll as well.
