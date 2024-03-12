@@ -430,8 +430,10 @@ Page.prototype.getPageMedia = function() {
             }
             
             if ( embed === 'yes' || embed === "true" ) {
+
+                const isYouTubeSrc = path.startsWith( "https://www.youtube.com/embed" ) && ( path.includes( "autoplay=1" ) || path.includes( "autoplay=true" ) );
                 
-                let iframe = '<iframe class="html" src="' + path + '"></iframe>';
+                let iframe = '<iframe class="html" src="' + path + '"' + ( isYouTubeSrc ? ' allow="autoplay; fullscreen"' : ' allow="fullscreen"' ) + '></iframe>';
                 
                 if ( audioSrc.length ) {
 

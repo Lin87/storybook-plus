@@ -1845,8 +1845,6 @@ const SBPLUS = {
 
             return;
         }
-
-        console.log(target);
         
         // get/set the scrollable height
         const scrollHeight = $( self.tableOfContents.container ).height();
