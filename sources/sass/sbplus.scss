@@ -736,9 +736,9 @@ body {
                             left: 0;
                         }
 
-                        #mp_vimeo_api {
-                            animation-duration: 0.75s;
-                        }
+                        // #mp_vimeo_api {
+                        //     animation-duration: 0.75s;
+                        // }
 
                         .video-js.vjs-youtube {
                             @include aspect-ratio( 16, 9 );
@@ -755,9 +755,9 @@ body {
                             font-size: 11px;
                             color: #fff;
                             
-                            &.vjs-vimeo-tech {
-                                height: 360px;
-                            }
+                            // &.vjs-vimeo-tech {
+                            //     height: 360px;
+                            // }
 
                             button:hover {
                                 color: #fff;
@@ -2935,11 +2935,11 @@ body {
 
                                 }
                                 
-                                .video-js.vjs-default-skin {
-                                    &.vjs-vimeo-tech {
-                                        @include calc( height, '100% - ' + 33px );
-                                    }
-                                }
+                                // .video-js.vjs-default-skin {
+                                //     &.vjs-vimeo-tech {
+                                //         @include calc( height, '100% - ' + 33px );
+                                //     }
+                                // }
                                 
                             }
 

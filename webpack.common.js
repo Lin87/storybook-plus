@@ -107,7 +107,7 @@ module.exports = {
                     './sources/scripts/libs/videojs/plugins/markers/videojs-markers.js',
                     './sources/scripts/libs/videojs/plugins/resolution/silvermine-videojs-quality-selector.min.js',
                     './sources/scripts/libs/videojs/plugins/youtube/youtube.js',
-                    './sources/scripts/libs/videojs/plugins/vimeo/videojs-vimeo.min.js',
+                    //'./sources/scripts/libs/videojs/plugins/vimeo/videojs-vimeo.min.js',
                 ],
                 transforms: {
                     after: async (code) => {

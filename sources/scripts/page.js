@@ -49,7 +49,7 @@ let Page = function ( obj, data ) {
         this.isAudio = false;
         this.isVideo = false;
         this.isYoutube = false;
-        this.isVimeo = false;
+        //this.isVimeo = false;
         this.isBundle = false;
         this.isPlaying = false;
         this.captionUrl = '';
@@ -306,7 +306,7 @@ Page.prototype.getPageMedia = function() {
                 const autoplay = 
                     self.preventAutoplay === "false" || self.preventAutoplay === "no" ? 1 : 0;
 
-                $( self.mediaContent ).html( '<div class="yt-native"><iframe id="youtube-ui" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/' + self.src + '?autoplay=' + autoplay + '&playsinline=1&modestbranding=1&disablekb=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe></div>' ).promise().done( function() {
+                $( self.mediaContent ).html( '<div class="yt-native"><iframe id="youtube-ui" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/' + self.src + '?autoplay=' + autoplay + '&playsinline=1&modestbranding=1&disablekb=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture, fullscreen"></iframe></div>' ).promise().done( function() {
                 
                     addSecondaryControls();
                     
@@ -324,24 +324,24 @@ Page.prototype.getPageMedia = function() {
             
         break;
         
-        case 'vimeo':
+        // case 'vimeo':
 
-            $( self.mediaContent ).html( '<video id="mp" class="video-js vjs-default-skin vjs-vimeo-tech"></video>' ).promise().done( function() {
+        //     $( self.mediaContent ).html( '<video id="mp" class="video-js vjs-default-skin vjs-vimeo-tech"></video>' ).promise().done( function() {
                 
-                self.isVimeo = true;
-                self.renderVideoJS();
-                self.setWidgets();
-                addSecondaryControls();
+        //         self.isVimeo = true;
+        //         self.renderVideoJS();
+        //         self.setWidgets();
+        //         addSecondaryControls();
                 
-            } );
+        //     } );
 
-            // self.gaEventCate = 'Video';
-            // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':vimeo:page' + SBPLUS.targetPage.data('count');
-            // self.gaEventAction = 'start';
-            // self.gaEventValue = 3;
-            // self.gaDelays.start = 6;
+        //     // self.gaEventCate = 'Video';
+        //     // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':vimeo:page' + SBPLUS.targetPage.data('count');
+        //     // self.gaEventAction = 'start';
+        //     // self.gaEventValue = 3;
+        //     // self.gaDelays.start = 6;
             
-        break;
+        // break;
         
         case 'bundle':
             
@@ -430,10 +430,8 @@ Page.prototype.getPageMedia = function() {
             }
             
             if ( embed === 'yes' || embed === "true" ) {
-
-                const isYouTubeSrc = path.startsWith( "https://www.youtube.com/embed" ) && ( path.includes( "autoplay=1" ) || path.includes( "autoplay=true" ) );
                 
-                let iframe = '<iframe class="html" src="' + path + '"' + ( isYouTubeSrc ? ' allow="autoplay; fullscreen"' : ' allow="fullscreen"' ) + '></iframe>';
+                let iframe = '<iframe class="html" src="' + path + '" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen"></iframe>';
                 
                 if ( audioSrc.length ) {
 
@@ -798,13 +796,14 @@ Page.prototype.renderVideoJS = function( src ) {
         options.sources = [{ type: "video/youtube", src: "https://www.youtube.com/watch?v=" + src + "&modestbranding=1" }];
         options.playbackRates = null;
 
-    } else if ( self.isVimeo ) {
-        
-        options.techOrder = ["vimeo"];
-        options.sources = [{ type: "video/vimeo", src: "https://vimeo.com/" + src }];
-        options.playbackRates = null;
-        
     }
+    // else if ( self.isVimeo ) {
+        
+    //     options.techOrder = ["vimeo"];
+    //     options.sources = [{ type: "video/vimeo", src: "https://vimeo.com/" + src }];
+    //     options.playbackRates = null;
+        
+    // }
     
     self.mediaPlayer = videojs( 'mp', options, function onPlayerReady() {
         
@@ -1144,7 +1143,8 @@ Page.prototype.renderVideoJS = function( src ) {
         } );
         
         // subtitle
-        if ( self.isYoutube === false && self.isVimeo === false && player.textTracks().tracks_.length >= 1 ) {
+        //if ( self.isYoutube === false && self.isVimeo === false && player.textTracks().tracks_.length >= 1 ) {
+        if ( self.isYoutube === false && player.textTracks().tracks_.length >= 1 ) {
             
             if ( SBPLUS.hasStorageItem( 'sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true ) ) {
             
@@ -1296,7 +1296,7 @@ Page.prototype.showPageError = function( type, src ) {
                 
         case 'NO_IMG':
         
-            msg = '<p><strong>The content for this Storybook Page could not be loaded.</strong></p><p><strong>Expected image:</strong> ' + src + '</p><p>Please try refreshing your browser, or coming back later.</p><p>If this problem continues, please <a href="javascript:void(0);" onclick="SBPLUS.openMenuItem(\'sbplus_help\');">contact tech support</a>.</p>';
+            msg = '<p><strong>The content for this Storybook Page could not be loaded.</strong></p><p><strong>Expected image:</strong> ' + src + '</p><p>Please try refreshing your browser, or coming back later.</p><p>Contact support if you continue to have issues.</p>';
 
         break;
 
@@ -1333,12 +1333,12 @@ Page.prototype.showPageError = function( type, src ) {
                 msg += '<p><strong>Expected media:</strong> ' + src + '</p>';
             }
             
-            msg += '<p>Please try refreshing your browser, or coming back later.</p><p>If this problem continues, please <a href="javascript:void(0);" onclick="SBPLUS.openMenuItem(\'sbplus_help\');">contact tech support</a>.</p>';
+            msg += '<p>Please try refreshing your browser, or coming back later.</p><p>Contact support if you continue to have issues.</p>';
             
         break;
         
         case 'UNKNOWN_TYPE':
-            msg = '<p><strong>UNKNOWN PAGE TYPE</strong></p><p>Page type ("' + src + '") is not supported.</p><p>If this problem continues, please <a href="javascript:void(0);" onclick="SBPLUS.openMenuItem(\'sbplus_help\');">contact tech support</a>.</p>';
+            msg = '<p><strong>UNKNOWN PAGE TYPE</strong></p><p>Page type ("' + src + '") is not supported.</p><p>Contact support if you continue to have issues.</p>';
         break;
         
     }

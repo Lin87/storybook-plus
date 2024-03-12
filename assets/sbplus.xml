@@ -183,7 +183,7 @@
         
     </section>
     
-    <section title="Other Examples (Not Related to Chocolate Chip Cookies)">
+    <section title="Other Examples">
         
         <page type="video" src="smgt370_course_intro" title="Video from Assets Directory">
             <note />
@@ -198,7 +198,7 @@
             </widget>
         </page>
         
-        <page type="vimeo" src="167409747" title="Video from Vimeo" preventAutoplay="false">
+        <page type="html" src="https://player.vimeo.com/video/167409747?h=98a4f7c76f&amp;autoplay=1" title="Video from Vimeo" embed="true">
             <note />
         </page>
         
@@ -206,11 +206,11 @@
             <note />
         </page>
         
-        <page type="html" src="testing" title="HTML" embed="yes">
+        <page type="html" src="testing" title="HTML from Local Assets" embed="yes">
             <note />
         </page>
         
-        <page type="html" src="aframe" title="A-Frame" embed="yes">
+        <page type="html" src="aframe" title="A-Frame from Remote Assets" embed="yes">
             <note />
         </page>
     
@@ -442,12 +442,8 @@
             </multipleChoiceMultiple>
             
         </page>
-                
-    </section>
-    
-    <section title="New Feature (Shhh!)">
-        
-        <page type="html" src="https://media.uwex.edu" title="Media Services Website" embed="true">
+
+        <page type="html" src="https://media.uwex.edu" title="HTML Page with Audio and Markers" embed="true">
             <audio src="slide02" />
             <note />
             <markers>
@@ -456,14 +452,14 @@
             </markers>
         </page>
         
-        <page type="html" src="https://www.ecfr.gov/current/title-45" title="Title 45 CFR" embed="no">
+        <page type="html" src="https://www.ecfr.gov/current/title-45" title="Open HTML page in a new tab/window" embed="false">
             <note />
         </page>
         
-        <page type="html" src="https://media.uwex.edu/sandbox/ethan/gvp_v4/index.html" title="Will it works?" embed="yes">
+        <page type="html" src="https://media.uwex.edu/sandbox/ethan/gvp_v4/index.html" title="HTML page containing a generic video player embed" embed="true">
             <note />
         </page>
-        
+                
     </section>
     
 </storybook>
