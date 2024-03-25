@@ -49,7 +49,7 @@ let Page = function ( obj, data ) {
         this.isAudio = false;
         this.isVideo = false;
         this.isYoutube = false;
-        //this.isVimeo = false;
+        this.isBrightcove = null;
         this.isBundle = false;
         this.isPlaying = false;
         this.captionUrl = '';
@@ -116,7 +116,6 @@ Page.prototype.getPageMedia = function() {
         
         case 'kaltura':
 
-
             if ( !isNaN( self.kaltura.id ) && self.kaltura.id !== 0 ) {
 
                 self.addMarkers();
@@ -153,6 +152,14 @@ Page.prototype.getPageMedia = function() {
             // self.gaEventAction = 'start';
             // self.gaEventValue = 3;
             // self.gaDelays.start = 6;
+            
+        break;
+
+        case 'brightcove':
+
+            self.addMarkers();
+            self.loadBrightcoveVideoData();
+            self.setWidgets();
             
         break;
         
@@ -323,25 +330,6 @@ Page.prototype.getPageMedia = function() {
             // self.gaDelays.start = 6;
             
         break;
-        
-        // case 'vimeo':
-
-        //     $( self.mediaContent ).html( '<video id="mp" class="video-js vjs-default-skin vjs-vimeo-tech"></video>' ).promise().done( function() {
-                
-        //         self.isVimeo = true;
-        //         self.renderVideoJS();
-        //         self.setWidgets();
-        //         addSecondaryControls();
-                
-        //     } );
-
-        //     // self.gaEventCate = 'Video';
-        //     // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':vimeo:page' + SBPLUS.targetPage.data('count');
-        //     // self.gaEventAction = 'start';
-        //     // self.gaEventValue = 3;
-        //     // self.gaDelays.start = 6;
-            
-        // break;
         
         case 'bundle':
             
@@ -709,6 +697,61 @@ Page.prototype.loadKalturaVideoData = function () {
     
 };
 
+// kaltura api request
+Page.prototype.loadBrightcoveVideoData = function () {
+    
+    const self = this;
+
+    fetch( 'https://api.academics.excelsior.edu/brightcove?vid=' + self.src ).then ( response => {
+
+        if ( !response.ok ) {
+            self.showPageError( 'BRIGHTCOVE_NOT_AVAILABLE' );
+            throw new Error( 'Failed to retrieve Brightcove video' );
+        }
+
+        return response.json();
+
+    } ).then( data => {
+
+        self.isBrightcove = {
+            name: data.response.name, 
+            sources: data.response.sources,
+            poster: data.response.poster
+        };
+
+        self.captionUrl = [];
+
+        if ( data.response.text_tracks.length ) {
+
+            data.response.text_tracks.forEach( caption => {
+
+                if ( caption.label.toLowerCase() != "english (autocaption)" ) {
+    
+                    self.captionUrl.push( {
+                        kind: caption.kind,
+                        language: caption.srclang,
+                        label: caption.label,
+                        url: caption.src
+                    } );
+    
+                }
+                
+            } );
+
+        }
+
+        const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
+                    
+        $( self.mediaContent ).html( html ).promise().done( function() {
+            self.renderVideoJS();
+        } );
+        
+    } ).catch( error => {
+        self.showPageError( 'BRIGHTCOVE_NOT_AVAILABLE' );
+    } );
+    
+};
+
 Page.prototype.addMarkers = function() {
 
     if ( this.markersNode != undefined ) {
@@ -797,13 +840,6 @@ Page.prototype.renderVideoJS = function( src ) {
         options.playbackRates = null;
 
     }
-    // else if ( self.isVimeo ) {
-        
-    //     options.techOrder = ["vimeo"];
-    //     options.sources = [{ type: "video/vimeo", src: "https://vimeo.com/" + src }];
-    //     options.playbackRates = null;
-        
-    // }
     
     self.mediaPlayer = videojs( 'mp', options, function onPlayerReady() {
         
@@ -825,6 +861,24 @@ Page.prototype.renderVideoJS = function( src ) {
 
             player.controlBar.addChild('QualitySelector');
             
+        }
+
+        if ( self.isBrightcove ) {
+
+            if ( isAutoplay === false && self.isBrightcove.poster.length ) {
+                player.poster( self.isBrightcove.poster[0].src );
+            }
+
+            self.isBrightcove.sources.forEach( source => {
+                
+                if ( source.codec && source.codec == 'H264' ) {
+                    player.src( { type: 'video/mp4', src: source.src } );
+                }
+
+                player.src( { type: source.type, src: source.src } );
+
+            } );
+
         }
         
         if ( self.isAudio || self.isBundle ) {
@@ -928,7 +982,7 @@ Page.prototype.renderVideoJS = function( src ) {
         
         // add caption
 
-        if ( self.isKaltura ) {
+        if ( self.isKaltura || self.isBrightcove ) {
 
             if ( self.captionUrl.length ) {
 
@@ -989,127 +1043,26 @@ Page.prototype.renderVideoJS = function( src ) {
           self.isPlaying = false;
         } );
         
-        // player.on( 'loadedmetadata', function() {
-            
-        //     if ( self.isKaltura ) {
-        //         sendKAnalytics(2, self.kaltura.id, self.src, player.duration());
-        //     }
-            
-        // } );
-        
         player.on( 'play', function() {
-            
             if ( $(SBPLUS.layout.mediaMsg).is( ':visible' ) ) {
                 $(SBPLUS.layout.mediaMsg).addClass( 'hide' ).html('');
             }
-            
         } );
         
         player.on( 'playing', function() {
-            
-          self.isPlaying = true;
-          
-        //   if ( self.isKaltura && ka.play === false && ka.replay === false ) {
-              
-        //       ka.play = true;
-        //       sendKAnalytics(3, self.kaltura.id, self.src, player.duration());
-              
-        //   }
-          
-        //   if ( self.isKaltura && ka.replay ) {
-              
-        //       ka.replay = false;
-        //       sendKAnalytics(16, self.kaltura.id, self.src, player.duration());
-              
-        //   }
-          
+            self.isPlaying = true;
         } );
         
-        // player.on( 'timeupdate', function() {
-          
-        //   if ( self.isKaltura && self.isPlaying ) {
-              
-        //       var progress = player.currentTime() / player.duration()
-              
-        //       if ( progress > 0.25 && ka.playReached25 === false ) {
-                  
-        //           ka.playReached25 = true;
-        //           sendKAnalytics(4, self.kaltura.id, self.src, player.duration());
-                  
-        //       }
-              
-        //       if ( progress > 0.50 && ka.playReached50 === false ) {
-                  
-        //           ka.playReached50 = true;
-        //           sendKAnalytics(5, self.kaltura.id, self.src, player.duration());
-                  
-        //       }
-              
-        //       if ( progress > 0.75 && ka.playReached75 === false ) {
-                  
-        //           ka.playReached75 = true;
-        //           sendKAnalytics(6, self.kaltura.id, self.src, player.duration());
-                  
-        //       }
-              
-        //   }
-          
-        // } );
-        
-        player.on( 'ended', function() {
-            
+        player.on( 'ended', function() {      
             self.isPlaying = false;
-            
-            // if ( self.isKaltura && ka.playReached100 === false ) {
-                
-            //     ka.playReached100 = true;
-            //     sendKAnalytics(7, self.kaltura.id, self.src, player.duration());
-            
-            // }
-            
-            // if ( self.isKaltura && ka.replay === false ) {
-            //     ka.replay = true;
-            // }
-
-            // send event to Google Analytics
-            // if ( self.gaEventCate !== '' ) {
-                
-            //     SBPLUS.sendToGA( self.gaEventCate, "completed",
-            //                      self.gaEventLabel, 3, 0 );
-                
-            // }
-          
         } );
-        
-        // if ( SBPLUS.xml.settings.analytics === 'on' ) {
-            
-        //     player.on( 'timeupdate', function() {
-                
-        //         var percent = player.currentTime() / player.duration() * 100;
-                
-        //         if ( self.gaEventCate !== '' && percent >= 50
-        //              && self.gaEventHalfway === false ) {
-                    
-        //             SBPLUS.sendToGA( self.gaEventCate, "halfway",
-        //                          self.gaEventLabel, 2, 0 );
-        //             self.gaEventHalfway = true;
-                                 
-        //         }
-              
-        //     });
-        
-        // }
         
         player.on( 'error', function() {
-            
           self.showPageError( 'NO_MEDIA', player.src() );
-          
         } );
         
         player.on( 'resolutionchange', function() {
-                
     		player.playbackRate( SBPLUS.playbackrate );
-    		
 		} );
         
         player.on( 'ratechange', function() {
@@ -1117,33 +1070,24 @@ Page.prototype.renderVideoJS = function( src ) {
             const rate = this.playbackRate();
             
             if ( SBPLUS.playbackrate !== rate ) {
-                
                 SBPLUS.playbackrate = rate;
                 this.playbackRate(rate);
-                
             }
     		
 		} );
         
         // volume
-        
         if ( SBPLUS.hasStorageItem( 'sbplus-' + SBPLUS.presentationId + '-volume-temp', true ) ) {
             player.volume( Number( SBPLUS.getStorageItem( 'sbplus-' + SBPLUS.presentationId + '-volume-temp', true ) ) );
-            
         } else {
-            
             player.volume( Number( SBPLUS.getStorageItem( 'sbplus-volume' ) ) );
-            
         }
         
         player.on( 'volumechange', function() {
-            
             SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationId + '-volume-temp', this.volume(), true );
-            
         } );
         
         // subtitle
-        //if ( self.isYoutube === false && self.isVimeo === false && player.textTracks().tracks_.length >= 1 ) {
         if ( self.isYoutube === false && player.textTracks().tracks_.length >= 1 ) {
             
             if ( SBPLUS.hasStorageItem( 'sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true ) ) {
@@ -1187,7 +1131,6 @@ Page.prototype.renderVideoJS = function( src ) {
         }
         
         // add forward and backward buttons
-
         addForwardButton( player );
         addBackwardButton( player );
 
@@ -1320,6 +1263,12 @@ Page.prototype.showPageError = function( type, src ) {
             
             msg += getEntryKalturaStatus( self.isKaltura.status.entry ) + '</p>';
             
+        break;
+
+        case 'BTIGHTCOVE_NOT_AVAILABLE':
+
+        msg = '<p>The video is still processing or could not be loaded at the moment. Please try again later. Contact support if you continue to have issues.</p><p><strong>Expected video source</strong>: Brightcove video ID # ' + self.src + '<br><strong>Status</strong>: ';
+
         break;
         
         case 'NO_MEDIA':
@@ -1596,32 +1545,6 @@ function setupMarkers ( player, markers ) {
     }
 
 }
-
-// function sendKAnalytics(type, id, source, duration) {
-    
-//     var settings = {
-//       "url": "https://www.kaltura.com/api_v3/service/stats/action/collect",
-//       "method": "POST",
-//       "timeout": 0,
-//       "headers": {
-//         "Content-Type": "application/x-www-form-urlencoded"
-//       },
-//       "data": {
-//         "event[entryId]": source,
-//         "event[partnerId]": id,
-//         "event[duration]": duration,
-//         "event[eventType]": type,
-//         "event[referrer]": "https://media.uwex.edu",
-//         "event[seek]": "false",
-//         "event[sessionId]": guid(),
-//         "event[eventTimestamp]": +new Date(),
-//         "event[objectType]": "KalturaStatsEvent"
-//       }
-//     };
-    
-//     $.ajax(settings);
-    
-// }
 
 function displayWidgetContent( str ) {
     
