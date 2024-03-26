@@ -1,5 +1,8 @@
 ### Version Change Logs
 
+#### 3.5.3 (03/27/2024)
+* Added support for Brightcove
+
 #### 3.5.2 (03/13/2024)
 * Fixed an issue where slide images are showing as black screen on Safari.
 * Allow YouTube iFrame embed to autoplay in Google Chrome when set as the HTML page type source.
