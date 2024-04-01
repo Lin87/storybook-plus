@@ -702,6 +702,8 @@ Page.prototype.loadBrightcoveVideoData = function () {
     
     const self = this;
 
+    $( self.mediaContent ).html( '<span class="loading-spinner"></span>' );
+
     fetch( 'https://api.academics.excelsior.edu/brightcove?vid=' + self.src ).then ( response => {
 
         if ( !response.ok ) {
@@ -740,7 +742,7 @@ Page.prototype.loadBrightcoveVideoData = function () {
 
         }
 
-        const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
+        const html = '<video id="mp" class="video-js vjs-default-skin animated fadeIn" crossorigin="anonymous" width="100%" height="100%"></video>';
                     
         $( self.mediaContent ).html( html ).promise().done( function() {
             self.renderVideoJS();
@@ -869,14 +871,22 @@ Page.prototype.renderVideoJS = function( src ) {
                 player.poster( self.isBrightcove.poster[0].src );
             }
 
+            let vidSources = [];
+
             self.isBrightcove.sources.forEach( source => {
                 
                 if ( source.codec && source.codec == 'H264' ) {
-                    player.src( { type: 'video/mp4', src: source.src } );
+                    vidSources.push( { type: 'video/mp4', src: source.src } );
                 }
 
-                player.src( { type: source.type, src: source.src } );
+                vidSources.push( { type: source.type, src: source.src } );
 
+            } );
+
+            player.src( vidSources );
+
+            player.on( 'loadedmetadata', ()=> {
+                Array.from( player.textTracks() ).filter( ({kind}) => !['chapters','metadata'].includes(kind)).forEach((track) => track.mode = 'disabled' );
             } );
 
         }
