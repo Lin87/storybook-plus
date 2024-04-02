@@ -3,6 +3,7 @@
 #### 3.5.4 (04/03/2024)
 * Adjusted Brightcove video source set order
 * Added a loading spinner for loading Brightcove video
+* Table of Content now pops out when the media area covered up the bottom area
 
 #### 3.5.3 (03/27/2024)
 * Added support for Brightcove
