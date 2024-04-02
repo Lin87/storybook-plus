@@ -1667,6 +1667,15 @@ body {
                         }
                         
                     }
+
+                    &.popout {
+                        position: absolute;
+                        height: 300px !important;
+                        bottom: 47px;
+                        width: 100%;
+                        box-shadow: 0 -6px 10px #888;
+                        z-index: 10;
+                    }
                     
                 }
                 

@@ -2357,6 +2357,14 @@ const SBPLUS = {
             $( self.tableOfContents.container ).css( 'height', '' );
 
         }
+
+        // if the media area is too large and covers up the table of content
+        // made the table of content pop out instead
+        if ( (window.innerWidth >= 600 && window.innerWidth <= 899) && window.innerHeight <= 586 ) {
+            $( self.tableOfContents.container ).addClass( 'popout' );
+        } else {
+            $( self.tableOfContents.container ).removeClass( 'popout' );
+        }
         
     },
     
