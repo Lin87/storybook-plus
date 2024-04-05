@@ -778,7 +778,7 @@ Page.prototype.addMarkers = function() {
 Page.prototype.renderVideoJS = function( src ) {
     
     const self = this;
-    
+
     // var ka = {
     //     play: false,
     //     replay: false,
@@ -828,7 +828,7 @@ Page.prototype.renderVideoJS = function( src ) {
     };
     
     // autoplay is off for iPhone or iPod
-    if( SBPLUS.isMobileDevice() ) {
+    if ( SBPLUS.isMobileDevice() ) {
         options.autoplay = false;
         options.playsinline = true;
         options.nativeControlsForTouch = false;
@@ -842,9 +842,21 @@ Page.prototype.renderVideoJS = function( src ) {
         options.playbackRates = null;
 
     }
+
+    if ( self.isBrightcove ) {
+        options.html5 = {
+            vhs: {
+              withCredentials: false,
+              overrideNative: false,
+            },
+        };
+    }
     
+
     self.mediaPlayer = videojs( 'mp', options, function onPlayerReady() {
         
+
+
         const player = this;
         
         if ( self.isKaltura ) {
@@ -884,6 +896,8 @@ Page.prototype.renderVideoJS = function( src ) {
             } );
 
             player.src( vidSources );
+            player.qualityLevels();
+            player.hlsQualitySelector();
 
             player.on( 'loadedmetadata', ()=> {
                 Array.from( player.textTracks() ).filter( ({kind}) => !['chapters','metadata'].includes(kind)).forEach((track) => track.mode = 'disabled' );
