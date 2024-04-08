@@ -1,5 +1,8 @@
 ### Version Change Logs
 
+#### 3.5.5 (04/10/2024)
+* Add video quality selector for Brightcove video
+
 #### 3.5.4 (04/03/2024)
 * Adjusted Brightcove video source set order
 * Added a loading spinner for loading Brightcove video

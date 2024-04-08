@@ -1027,9 +1027,10 @@ body {
 
                             }
 
-                            // hls resolution plugin
-                            .vjs-hls-quality-selector{
-                                display:block
+                            .vjs-hls-quality-selector {
+                                li {
+                                    text-transform: unset;
+                                }
                             }
                             
                             // resolution plugin

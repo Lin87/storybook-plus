@@ -91,7 +91,7 @@ const SBPLUS = {
     },
 
     // version number
-    version: '3.5.4',
+    version: '3.5.5',
     
     // easter egg variables
     clickCount: 0,

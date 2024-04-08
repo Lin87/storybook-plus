@@ -850,12 +850,16 @@ Page.prototype.renderVideoJS = function( src ) {
               overrideNative: false,
             },
         };
+        options.plugins = {
+            qualityLevels: {},
+            hlsQualitySelector: {
+                placementIndex: 8
+            }
+        };
     }
     
 
     self.mediaPlayer = videojs( 'mp', options, function onPlayerReady() {
-        
-
 
         const player = this;
         
@@ -896,8 +900,6 @@ Page.prototype.renderVideoJS = function( src ) {
             } );
 
             player.src( vidSources );
-            player.qualityLevels();
-            player.hlsQualitySelector();
 
             player.on( 'loadedmetadata', ()=> {
                 Array.from( player.textTracks() ).filter( ({kind}) => !['chapters','metadata'].includes(kind)).forEach((track) => track.mode = 'disabled' );
