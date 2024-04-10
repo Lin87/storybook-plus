@@ -1,5 +1,8 @@
 ### Version Change Logs
 
+#### 3.5.6 (04/17/2024)
+* Allow video to go full screen when specified in the XML by adding and setting the `allowFullscreen` attribute to `true`
+
 #### 3.5.5 (04/10/2024)
 * Add video quality selector for Brightcove video
 
