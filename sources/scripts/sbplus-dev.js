@@ -1770,6 +1770,20 @@ const SBPLUS = {
             } else {
                 pageData.useDefaultPlayer = "true";
             }
+
+            // check for allowFullscreen attribute
+            if ( pageData.type == 'brightcove' 
+            || pageData.type == 'kaltura'
+            || pageData.type == 'video' 
+            || ( pageData.type == 'youtube' && pageData.useDefaultPlayer == "true" ) ) {
+
+                if ( target.attr( 'allowFullscreen' ) != undefined ) {
+                    pageData.allowFullscreen = target.attr( 'allowFullscreen' ).trim();
+                } else {
+                    pageData.allowFullscreen = "false";
+                }
+
+            }
             
             // if there is a note tag, set notes
             if ( target.find( 'note' ).length ) {

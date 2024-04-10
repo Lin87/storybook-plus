@@ -27,6 +27,7 @@ let Page = function ( obj, data ) {
         
         this.src = obj.src;
         this.preventAutoplay = obj.preventAutoplay;
+        this.allowFullscreen = obj.allowFullscreen;
         this.useDefaultPlayer = obj.useDefaultPlayer;
         this.notes = obj.notes;
         this.widget = obj.widget;
@@ -804,7 +805,7 @@ Page.prototype.renderVideoJS = function( src ) {
     } else {
         $( SBPLUS.layout.wrapper ).removeClass( 'preventAutoplay' ); 
     }
-    
+
     const options = {
         
         techOrder: ['html5'],
@@ -814,7 +815,7 @@ Page.prototype.renderVideoJS = function( src ) {
         preload: "auto",
         playbackRates: [0.5, 1, 1.5, 2],
         controlBar: {
-            fullscreenToggle: false,
+            fullscreenToggle: self.allowFullscreen === "true" ? true : false,
             children: [
                 'PlayToggle',
                 'VolumePanel',
@@ -1090,6 +1091,16 @@ Page.prototype.renderVideoJS = function( src ) {
         player.on( 'resolutionchange', function() {
     		player.playbackRate( SBPLUS.playbackrate );
 		} );
+
+        player.on( 'fullscreenchange', () => {
+
+            if ( player.isFullscreen() ) {
+                player.options( { inactivityTimeout: 2000 } );
+            } else {
+                player.options( { inactivityTimeout: 0 } );
+            }
+
+        } );
         
         player.on( 'ratechange', function() {
             
