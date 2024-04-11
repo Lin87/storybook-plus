@@ -27,7 +27,7 @@ let Page = function ( obj, data ) {
         
         this.src = obj.src;
         this.preventAutoplay = obj.preventAutoplay;
-        this.allowFullscreen = obj.allowFullscreen;
+        this.disableFullscreen = obj.disableFullscreen;
         this.useDefaultPlayer = obj.useDefaultPlayer;
         this.notes = obj.notes;
         this.widget = obj.widget;
@@ -815,7 +815,7 @@ Page.prototype.renderVideoJS = function( src ) {
         preload: "auto",
         playbackRates: [0.5, 1, 1.5, 2],
         controlBar: {
-            fullscreenToggle: self.allowFullscreen === "true" ? true : false,
+            fullscreenToggle: false,
             children: [
                 'PlayToggle',
                 'VolumePanel',
@@ -837,11 +837,9 @@ Page.prototype.renderVideoJS = function( src ) {
     
     // set tech order and plugins
     if ( self.isYoutube ) {
-        
         options.techOrder = ['youtube'];
         options.sources = [{ type: "video/youtube", src: "https://www.youtube.com/watch?v=" + src + "&modestbranding=1" }];
         options.playbackRates = null;
-
     }
 
     if ( self.isBrightcove ) {
@@ -859,6 +857,9 @@ Page.prototype.renderVideoJS = function( src ) {
         };
     }
     
+    if ( self.isKaltura || self.isBrightcove || self.isYoutube || self.isVideo ) {
+        options.controlBar.fullscreenToggle = self.disableFullscreen === "true" ? false : true;
+    }
 
     self.mediaPlayer = videojs( 'mp', options, function onPlayerReady() {
 
@@ -1513,7 +1514,7 @@ function addExpandContractButton( vjs ) {
     } );
 
     videojs.registerComponent( 'ExpandContractBtn', expandContractBtn );
-    vjs.getChild( 'controlBar' ).addChild( 'ExpandContractBtn', {}, 10 );
+    vjs.getChild( 'controlBar' ).addChild( 'ExpandContractBtn', {}, 8 );
     
 }
 

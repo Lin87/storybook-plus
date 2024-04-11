@@ -1771,16 +1771,16 @@ const SBPLUS = {
                 pageData.useDefaultPlayer = "true";
             }
 
-            // check for allowFullscreen attribute
+            // check for disableFullscreen attribute
             if ( pageData.type == 'brightcove' 
             || pageData.type == 'kaltura'
             || pageData.type == 'video' 
             || ( pageData.type == 'youtube' && pageData.useDefaultPlayer == "true" ) ) {
 
-                if ( target.attr( 'allowFullscreen' ) != undefined ) {
-                    pageData.allowFullscreen = target.attr( 'allowFullscreen' ).trim();
+                if ( target.attr( 'disableFullscreen' ) != undefined ) {
+                    pageData.disableFullscreen = target.attr( 'disableFullscreen' ).trim();
                 } else {
-                    pageData.allowFullscreen = "false";
+                    pageData.disableFullscreen = "false";
                 }
 
             }
