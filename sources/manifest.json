@@ -1,11 +1,4 @@
 {
-    "lang": "en",
-    "dir": "ltr",
-    "name": "Storybook Plus",
-    "description": "Storybook Plus is a web application that uses HTML5, JavaScript, CSS3, and web storage to delivery multimedia presentations.",
-    "short_name": "SB+",
-    "display": "browser",
-    "orientation": "portrait",
     "sbplus_hotjar_site_id": "",
     "sbplus_google_tracking_id": "",
     "sbplus_root_directory": "sources/",

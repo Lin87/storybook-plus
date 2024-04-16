@@ -2,6 +2,9 @@
 
 #### 3.5.6 (04/17/2024)
 * Video player can go full screen by default and can be disabled by adding and setting the `disableFullscreen` attribute to `true` in the XML.
+* Upgraded VideoJS to the latest version (8.10.0), and its latest compatible plugins.
+* Replaced Expand/Contract and Download button icons.
+* Prioritize Kaltura HLS sources over MP4. (Getting it the same treatments as Brightcove.)
 
 #### 3.5.5 (04/10/2024)
 * Add video quality selector for Brightcove video
