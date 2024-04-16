@@ -103,11 +103,10 @@ module.exports = {
                 dest: './dist/sources/scripts/libs/videojs/video.min.js',
                 src: [
                     './sources/scripts/libs/videojs/video.min.js',
+                    './sources/scripts/libs/videojs/plugins/quality-selector/quality-selector.js',
                     './sources/scripts/libs/videojs/plugins/cuepoint/videojs.cuepoints.js',
                     './sources/scripts/libs/videojs/plugins/markers/videojs-markers.js',
-                    './sources/scripts/libs/videojs/plugins/resolution/silvermine-videojs-quality-selector.min.js',
                     './sources/scripts/libs/videojs/plugins/youtube/youtube.js',
-                    './sources/scripts/libs/videojs/plugins/hls-resolution/videojs-hls-quality-selector.min.js',
                 ],
                 transforms: {
                     after: async (code) => {

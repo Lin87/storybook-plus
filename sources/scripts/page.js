@@ -816,14 +816,16 @@ Page.prototype.renderVideoJS = function( src ) {
         playbackRates: [0.5, 1, 1.5, 2],
         controlBar: {
             fullscreenToggle: false,
-            children: [
-                'PlayToggle',
-                'VolumePanel',
-                'ProgressControl',
-                'RemainingTimeDisplay',
-                'PlaybackRateMenuButton',
-                'CaptionsButton'
-            ]
+            pictureInPictureToggle: false,
+            liveDisplay: false,
+            seekToLive: false,
+            skipButtons: {
+                forward: 10,
+                backward: 10
+            },
+        },
+        plugins: {
+            qualityMenu: {}
         }
 
     };
@@ -838,7 +840,8 @@ Page.prototype.renderVideoJS = function( src ) {
     // set tech order and plugins
     if ( self.isYoutube ) {
         options.techOrder = ['youtube'];
-        options.sources = [{ type: "video/youtube", src: "https://www.youtube.com/watch?v=" + src + "&modestbranding=1" }];
+        options.sources = [{ type: "video/youtube", src: "https://www.youtube.com/watch?v=" + src }];
+        options.youtube = { "iv_load_policy": 3, "rel": 0 };;
         options.playbackRates = null;
     }
 
@@ -848,12 +851,6 @@ Page.prototype.renderVideoJS = function( src ) {
               withCredentials: false,
               overrideNative: false,
             },
-        };
-        options.plugins = {
-            qualityLevels: {},
-            hlsQualitySelector: {
-                placementIndex: 8
-            }
         };
     }
     
@@ -878,8 +875,6 @@ Page.prototype.renderVideoJS = function( src ) {
     			{ src: self.isKaltura.flavors.medium, type: "video/mp4", label: "medium" }
     			
     		] );
-
-            player.controlBar.addChild('QualitySelector');
             
         }
 
@@ -1012,8 +1007,8 @@ Page.prototype.renderVideoJS = function( src ) {
 
         if ( self.isKaltura || self.isBrightcove ) {
 
-            if ( self.captionUrl.length ) {
-
+            if ( self.captionUrl.length && player.currentSource().src.includes('.mp4') ) {
+            
                 self.captionUrl.forEach( caption => {
     
                     player.addRemoteTextTrack( {
@@ -1024,7 +1019,7 @@ Page.prototype.renderVideoJS = function( src ) {
                     }, true );
     
                 } );
-    
+
             }
 
         } else {
@@ -1167,10 +1162,6 @@ Page.prototype.renderVideoJS = function( src ) {
             } );
             
         }
-        
-        // add forward and backward buttons
-        addForwardButton( player );
-        addBackwardButton( player );
 
         // add expand/contract button
         addExpandContractButton( player );
@@ -1402,91 +1393,13 @@ function getEntryKalturaStatus( code ) {
 }
 
 // page class helper functions
-
-function addForwardButton( vjs ) {
-    
-    const secToSkip = 10;
-    const Button = videojs.getComponent( 'Button' );
-
-    const forwardBtn = videojs.extend( Button, {
-        constructor: function( player, options ) {
-            
-            Button.call( this, player, options );
-            this.el().setAttribute( 'aria-label','Skip Forward' );
-            this.controlText( 'Skip Forward' );
-
-        },
-        handleClick: function() {
-            
-            if ( vjs.seekable() ) {
-                
-                let seekTime = vjs.currentTime() + secToSkip;
-                
-                if ( seekTime >= vjs.duration() ) {
-                    seekTime = vjs.duration();
-                }
-                
-                vjs.currentTime( seekTime );
-                
-            }
-            
-        },
-        buildCSSClass: function() {
-            return 'vjs-forward-button vjs-control vjs-button';
-        } 
-    } );
-
-    videojs.registerComponent( 'ForwardBtn', forwardBtn );
-    vjs.getChild( 'controlBar' ).addChild( 'ForwardBtn', {}, 1 );
-    
-}
-
-function addBackwardButton( vjs ) {
-    
-    const secToSkip = 10;
-    const Button = videojs.getComponent( 'Button' );
-    const backwardBtn = videojs.extend( Button, {
-        constructor: function( player, options ) {
-            
-            Button.call( this, player, options );
-            this.el().setAttribute( 'aria-label','Skip Backward' );
-            this.controlText( 'Skip Backward' );
-
-        },
-        handleClick: function() {
-            
-            if ( vjs.seekable() ) {
-                
-                let seekTime = vjs.currentTime() - secToSkip;
-                
-                if ( seekTime <= 0 ) {
-                    seekTime = 0;
-                }
-                
-                vjs.currentTime( seekTime );
-                
-            }
-            
-        },
-        
-        buildCSSClass: function() {
-            return 'vjs-backward-button vjs-control vjs-button';
-        }
-        
-    } );
-
-    videojs.registerComponent( 'BackwardBtn', backwardBtn );
-    vjs.getChild( 'controlBar' ).addChild( 'BackwardBtn', {}, 1 );
-    
-}
-
 function addExpandContractButton( vjs ) {
 
-    const Button = videojs.getComponent( 'Button' );
-    const expandContractBtn = videojs.extend( Button, {
-        constructor: function( player, options ) {
-            
-            Button.call( this, player, options );
+    class ExpandContractButton extends videojs.getComponent( 'Button' ) {
+
+        constructor(player, options) {
+
+            super(player, options);
             this.el().setAttribute( 'aria-label','Expand/Contract' );
             this.controlText( 'Expand/Contract' );
 
@@ -1494,8 +1407,9 @@ function addExpandContractButton( vjs ) {
                 vjs.addClass( 'sbplus-vjs-expanded' );
             }
 
-        },
-        handleClick: function() {
+        }
+
+        handleClick() {
             
             if ( vjs.hasClass( 'sbplus-vjs-expanded' ) ) {
                 vjs.removeClass( 'sbplus-vjs-expanded' );
@@ -1504,17 +1418,17 @@ function addExpandContractButton( vjs ) {
                 vjs.addClass( 'sbplus-vjs-expanded' );
                 document.querySelector( SBPLUS.layout.sbplus ).classList.add( 'sbplus-vjs-expanded' );
             }
-            
-        },
-        
-        buildCSSClass: function() {
+                
+        }
+
+        buildCSSClass() {
             return 'vjs-expand-contract-button vjs-control vjs-button';
         }
-        
-    } );
 
-    videojs.registerComponent( 'ExpandContractBtn', expandContractBtn );
-    vjs.getChild( 'controlBar' ).addChild( 'ExpandContractBtn', {}, 8 );
+    }
+
+    videojs.registerComponent( 'ExpandContractButton', ExpandContractButton );
+    vjs.getChild( 'controlBar' ).addChild( 'ExpandContractButton', {}, 15 );
     
 }
 
