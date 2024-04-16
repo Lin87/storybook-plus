@@ -64,12 +64,7 @@ let Page = function ( obj, data ) {
     this.root = SBPLUS.manifest.sbplus_root_directory;
     this.assetsRoot = SBPLUS.assetsPath;
     this.kaltura = {
-        id: SBPLUS.manifest.sbplus_kaltura.id,
-        flavors: {
-            low: SBPLUS.manifest.sbplus_kaltura.low,
-            normal: SBPLUS.manifest.sbplus_kaltura.normal,
-            medium: SBPLUS.manifest.sbplus_kaltura.medium
-        }
+        id: SBPLUS.manifest.sbplus_kaltura_id
     };
     this.kalturaSrc = {};
     
@@ -592,7 +587,6 @@ Page.prototype.loadKalturaVideoData = function () {
 
     self.isKaltura = {
         
-        flavors: {},
         status: {
             entry: 0,
             low: 0,
@@ -614,82 +608,60 @@ Page.prototype.loadKalturaVideoData = function () {
             self.isKaltura.status.entry = data.status;
             self.isKaltura.duration = data.duration;
             self.isKaltura.poster = data.poster;
+            self.isKaltura.playerSrc = [];
 
-            for( let i in data.sources ) {
-
-                const source = data.sources[i];
-    
-                if ( source.flavorParamsId === self.kaltura.flavors.low ) {
-                    
-                    self.isKaltura.flavors.low = source.src;
-                    self.isKaltura.status.low = source.status;
-    
+            data.sources.forEach( ( source ) => {
+                
+                if ( source.type === "video/mp4" ) {
+                    self.isKaltura.playerSrc.push({
+                        src: source.src,
+                        type: source.type
+                    });
                 }
-    
-                if ( source.flavorParamsId === self.kaltura.flavors.normal ) {
-    
-                    self.isKaltura.flavors.normal = source.src;
-                    self.isKaltura.status.normal = source.status;
-    
+
+                if ( source.type === "application/vnd.apple.mpegurl" ) {
+                    self.isKaltura.playerSrc.push({
+                        src: source.src,
+                        type: source.type
+                    } );
                 }
-    
-                if ( source.flavorParamsId === self.kaltura.flavors.medium ) {
-    
-                    self.isKaltura.flavors.medium = source.src;
-                    self.isKaltura.status.medium = source.status;
-    
-                }
-    
-            }
 
-            // entry video
-            if ( self.isKaltura.status.entry >= 1 && self.isKaltura.status.entry <= 2 ) {
+            } );
 
-                // entry video
-                if ( self.isKaltura.status.entry >= 1 && self.isKaltura.status.entry <= 2 ) {
-                        
-                    // flavor videos
-                    if ( self.isKaltura.status.normal === 2 || self.isKaltura.status.normal === 4 ) {
-                    
-                        if ( captions !== null ) {
+            if ( self.isKaltura.status.entry == 2 ) {
 
-                            self.captionUrl = [];
+                if ( captions !== null ) {
 
-                            captions.forEach( caption => {
+                    self.captionUrl = [];
 
-                                if ( caption.label.toLowerCase() != "english (autocaption)" ) {
+                    captions.forEach( caption => {
 
-                                    self.captionUrl.push( {
-                                        kind: 'captions',
-                                        language: caption.languageCode,
-                                        label: caption.language,
-                                        url: 'https://www.kaltura.com/api_v3/?service=caption_captionasset&action=servewebvtt&captionAssetId=' + caption.id + '&segmentDuration=' + self.isKaltura.duration + '&segmentIndex=1'
-                                    } );
+                        if ( caption.label.toLowerCase() != "english (autocaption)" ) {
 
-                                }
-                                
+                            self.captionUrl.push( {
+                                kind: 'captions',
+                                language: caption.languageCode,
+                                label: caption.language,
+                                url: 'https://www.kaltura.com/api_v3/?service=caption_captionasset&action=servewebvtt&captionAssetId=' + caption.id + '&segmentDuration=' + self.isKaltura.duration + '&segmentIndex=1'
                             } );
 
                         }
                         
-                        const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
-                    
-                        $( self.mediaContent ).html( html ).promise().done( function() {
-                            
-                            // call video js
-                            self.renderVideoJS();
-                            
-                        } );
-                        
-                        
-                    } else {
-                        self.showPageError( 'KAL_NOT_READY' );
-                    }
-                        
-                } else {
-                    self.showPageError( 'KAL_ENTRY_NOT_READY' );
-                }
+                    } );
 
+                }
+                
+                const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
+            
+                $( self.mediaContent ).html( html ).promise().done( function() {
+                    
+                    // call video js
+                    self.renderVideoJS();
+                    
+                } );
+                    
+            } else {
+                self.showPageError( 'KAL_ENTRY_NOT_READY' );
             }
 
         }
@@ -868,13 +840,7 @@ Page.prototype.renderVideoJS = function( src ) {
                 player.poster( self.isKaltura.poster + '/width/900/quality/100' );
             }
             
-            player.src( [
-			
-    			{ src: self.isKaltura.flavors.low, type: "video/mp4", label: "low" },
-    			{ src: self.isKaltura.flavors.normal, type: "video/mp4", label: "normal", selected: true },
-    			{ src: self.isKaltura.flavors.medium, type: "video/mp4", label: "medium" }
-    			
-    		] );
+            player.src( self.isKaltura.playerSrc.reverse() );
             
         }
 
@@ -1094,6 +1060,7 @@ Page.prototype.renderVideoJS = function( src ) {
                 player.options( { inactivityTimeout: 2000 } );
             } else {
                 player.options( { inactivityTimeout: 0 } );
+                document.querySelector( '.video-js.vjs-default-skin' ).classList.remove( 'vjs-user-inactive' );
             }
 
         } );
@@ -1276,15 +1243,6 @@ Page.prototype.showPageError = function( type, src ) {
 
             msg = '<p>The manifest file does not specify the Kaltura organization or partner ID. Consequently, Kaltura is unavailable for use throughout the presentation.</p><p><strong>Expected Kaltura video source</strong>: ' + self.src + '</p>';
 
-        break;
-        
-        case 'KAL_NOT_READY':
-            msg = '<p>The video for this Storybook Page is still processing and could not be loaded at the moment. Please try again later. Contact support if you continue to have issues.</p><p><strong>Expected video source</strong>: Kaltura video ID  ' + self.src + '<br><strong>Status</strong>:<br>';
-            
-            msg += 'Low &mdash; ' + getKalturaStatus( self.isKaltura.status.low ) + '<br>';
-            msg += 'Normal &mdash; ' + getKalturaStatus( self.isKaltura.status.normal ) + '<br>';
-            msg += 'Medium &mdash; ' + getKalturaStatus( self.isKaltura.status.medium ) + '</p>';
-            
         break;
         
         case 'KAL_ENTRY_NOT_READY':
