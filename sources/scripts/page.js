@@ -64,12 +64,7 @@ let Page = function ( obj, data ) {
     this.root = SBPLUS.manifest.sbplus_root_directory;
     this.assetsRoot = SBPLUS.assetsPath;
     this.kaltura = {
-        id: SBPLUS.manifest.sbplus_kaltura.id,
-        flavors: {
-            low: SBPLUS.manifest.sbplus_kaltura.low,
-            normal: SBPLUS.manifest.sbplus_kaltura.normal,
-            medium: SBPLUS.manifest.sbplus_kaltura.medium
-        }
+        id: SBPLUS.manifest.sbplus_kaltura_id
     };
     this.kalturaSrc = {};
     
@@ -592,7 +587,6 @@ Page.prototype.loadKalturaVideoData = function () {
 
     self.isKaltura = {
         
-        flavors: {},
         status: {
             entry: 0,
             low: 0,
@@ -614,82 +608,60 @@ Page.prototype.loadKalturaVideoData = function () {
             self.isKaltura.status.entry = data.status;
             self.isKaltura.duration = data.duration;
             self.isKaltura.poster = data.poster;
+            self.isKaltura.playerSrc = [];
 
-            for( let i in data.sources ) {
-
-                const source = data.sources[i];
-    
-                if ( source.flavorParamsId === self.kaltura.flavors.low ) {
-                    
-                    self.isKaltura.flavors.low = source.src;
-                    self.isKaltura.status.low = source.status;
-    
+            data.sources.forEach( ( source ) => {
+                
+                if ( source.type === "video/mp4" ) {
+                    self.isKaltura.playerSrc.push({
+                        src: source.src,
+                        type: source.type
+                    });
                 }
-    
-                if ( source.flavorParamsId === self.kaltura.flavors.normal ) {
-    
-                    self.isKaltura.flavors.normal = source.src;
-                    self.isKaltura.status.normal = source.status;
-    
+
+                if ( source.type === "application/vnd.apple.mpegurl" ) {
+                    self.isKaltura.playerSrc.push({
+                        src: source.src,
+                        type: source.type
+                    } );
                 }
-    
-                if ( source.flavorParamsId === self.kaltura.flavors.medium ) {
-    
-                    self.isKaltura.flavors.medium = source.src;
-                    self.isKaltura.status.medium = source.status;
-    
-                }
-    
-            }
 
-            // entry video
-            if ( self.isKaltura.status.entry >= 1 && self.isKaltura.status.entry <= 2 ) {
+            } );
 
-                // entry video
-                if ( self.isKaltura.status.entry >= 1 && self.isKaltura.status.entry <= 2 ) {
-                        
-                    // flavor videos
-                    if ( self.isKaltura.status.normal === 2 || self.isKaltura.status.normal === 4 ) {
-                    
-                        if ( captions !== null ) {
+            if ( self.isKaltura.status.entry == 2 ) {
 
-                            self.captionUrl = [];
+                if ( captions !== null ) {
 
-                            captions.forEach( caption => {
+                    self.captionUrl = [];
 
-                                if ( caption.label.toLowerCase() != "english (autocaption)" ) {
+                    captions.forEach( caption => {
 
-                                    self.captionUrl.push( {
-                                        kind: 'captions',
-                                        language: caption.languageCode,
-                                        label: caption.language,
-                                        url: 'https://www.kaltura.com/api_v3/?service=caption_captionasset&action=servewebvtt&captionAssetId=' + caption.id + '&segmentDuration=' + self.isKaltura.duration + '&segmentIndex=1'
-                                    } );
+                        if ( caption.label.toLowerCase() != "english (autocaption)" ) {
 
-                                }
-                                
+                            self.captionUrl.push( {
+                                kind: 'captions',
+                                language: caption.languageCode,
+                                label: caption.language,
+                                url: 'https://www.kaltura.com/api_v3/?service=caption_captionasset&action=servewebvtt&captionAssetId=' + caption.id + '&segmentDuration=' + self.isKaltura.duration + '&segmentIndex=1'
                             } );
 
                         }
                         
-                        const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
-                    
-                        $( self.mediaContent ).html( html ).promise().done( function() {
-                            
-                            // call video js
-                            self.renderVideoJS();
-                            
-                        } );
-                        
-                        
-                    } else {
-                        self.showPageError( 'KAL_NOT_READY' );
-                    }
-                        
-                } else {
-                    self.showPageError( 'KAL_ENTRY_NOT_READY' );
-                }
+                    } );
 
+                }
+                
+                const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
+            
+                $( self.mediaContent ).html( html ).promise().done( function() {
+                    
+                    // call video js
+                    self.renderVideoJS();
+                    
+                } );
+                    
+            } else {
+                self.showPageError( 'KAL_ENTRY_NOT_READY' );
             }
 
         }
@@ -816,14 +788,16 @@ Page.prototype.renderVideoJS = function( src ) {
         playbackRates: [0.5, 1, 1.5, 2],
         controlBar: {
             fullscreenToggle: false,
-            children: [
-                'PlayToggle',
-                'VolumePanel',
-                'ProgressControl',
-                'RemainingTimeDisplay',
-                'PlaybackRateMenuButton',
-                'CaptionsButton'
-            ]
+            pictureInPictureToggle: false,
+            liveDisplay: false,
+            seekToLive: false,
+            skipButtons: {
+                forward: 10,
+                backward: 10
+            },
+        },
+        plugins: {
+            qualityMenu: {}
         }
 
     };
@@ -838,7 +812,8 @@ Page.prototype.renderVideoJS = function( src ) {
     // set tech order and plugins
     if ( self.isYoutube ) {
         options.techOrder = ['youtube'];
-        options.sources = [{ type: "video/youtube", src: "https://www.youtube.com/watch?v=" + src + "&modestbranding=1" }];
+        options.sources = [{ type: "video/youtube", src: "https://www.youtube.com/watch?v=" + src }];
+        options.youtube = { "iv_load_policy": 3, "rel": 0 };;
         options.playbackRates = null;
     }
 
@@ -848,12 +823,6 @@ Page.prototype.renderVideoJS = function( src ) {
               withCredentials: false,
               overrideNative: false,
             },
-        };
-        options.plugins = {
-            qualityLevels: {},
-            hlsQualitySelector: {
-                placementIndex: 8
-            }
         };
     }
     
@@ -871,15 +840,7 @@ Page.prototype.renderVideoJS = function( src ) {
                 player.poster( self.isKaltura.poster + '/width/900/quality/100' );
             }
             
-            player.src( [
-			
-    			{ src: self.isKaltura.flavors.low, type: "video/mp4", label: "low" },
-    			{ src: self.isKaltura.flavors.normal, type: "video/mp4", label: "normal", selected: true },
-    			{ src: self.isKaltura.flavors.medium, type: "video/mp4", label: "medium" }
-    			
-    		] );
-
-            player.controlBar.addChild('QualitySelector');
+            player.src( self.isKaltura.playerSrc.reverse() );
             
         }
 
@@ -1012,8 +973,8 @@ Page.prototype.renderVideoJS = function( src ) {
 
         if ( self.isKaltura || self.isBrightcove ) {
 
-            if ( self.captionUrl.length ) {
-
+            if ( self.captionUrl.length && player.currentSource().src.includes('.mp4') ) {
+            
                 self.captionUrl.forEach( caption => {
     
                     player.addRemoteTextTrack( {
@@ -1024,7 +985,7 @@ Page.prototype.renderVideoJS = function( src ) {
                     }, true );
     
                 } );
-    
+
             }
 
         } else {
@@ -1099,6 +1060,7 @@ Page.prototype.renderVideoJS = function( src ) {
                 player.options( { inactivityTimeout: 2000 } );
             } else {
                 player.options( { inactivityTimeout: 0 } );
+                document.querySelector( '.video-js.vjs-default-skin' ).classList.remove( 'vjs-user-inactive' );
             }
 
         } );
@@ -1167,10 +1129,6 @@ Page.prototype.renderVideoJS = function( src ) {
             } );
             
         }
-        
-        // add forward and backward buttons
-        addForwardButton( player );
-        addBackwardButton( player );
 
         // add expand/contract button
         addExpandContractButton( player );
@@ -1287,15 +1245,6 @@ Page.prototype.showPageError = function( type, src ) {
 
         break;
         
-        case 'KAL_NOT_READY':
-            msg = '<p>The video for this Storybook Page is still processing and could not be loaded at the moment. Please try again later. Contact support if you continue to have issues.</p><p><strong>Expected video source</strong>: Kaltura video ID  ' + self.src + '<br><strong>Status</strong>:<br>';
-            
-            msg += 'Low &mdash; ' + getKalturaStatus( self.isKaltura.status.low ) + '<br>';
-            msg += 'Normal &mdash; ' + getKalturaStatus( self.isKaltura.status.normal ) + '<br>';
-            msg += 'Medium &mdash; ' + getKalturaStatus( self.isKaltura.status.medium ) + '</p>';
-            
-        break;
-        
         case 'KAL_ENTRY_NOT_READY':
             msg = '<p>The video for this Storybook Page is still processing and could not be loaded at the moment. Please try again later. Contact support if you continue to have issues.</p><p><strong>Expected video source</strong>: Kaltura video ID ' + self.src + '<br><strong>Status</strong>: ';
             
@@ -1402,91 +1351,13 @@ function getEntryKalturaStatus( code ) {
 }
 
 // page class helper functions
-
-function addForwardButton( vjs ) {
-    
-    const secToSkip = 10;
-    const Button = videojs.getComponent( 'Button' );
-
-    const forwardBtn = videojs.extend( Button, {
-        constructor: function( player, options ) {
-            
-            Button.call( this, player, options );
-            this.el().setAttribute( 'aria-label','Skip Forward' );
-            this.controlText( 'Skip Forward' );
-
-        },
-        handleClick: function() {
-            
-            if ( vjs.seekable() ) {
-                
-                let seekTime = vjs.currentTime() + secToSkip;
-                
-                if ( seekTime >= vjs.duration() ) {
-                    seekTime = vjs.duration();
-                }
-                
-                vjs.currentTime( seekTime );
-                
-            }
-            
-        },
-        buildCSSClass: function() {
-            return 'vjs-forward-button vjs-control vjs-button';
-        } 
-    } );
-
-    videojs.registerComponent( 'ForwardBtn', forwardBtn );
-    vjs.getChild( 'controlBar' ).addChild( 'ForwardBtn', {}, 1 );
-    
-}
-
-function addBackwardButton( vjs ) {
-    
-    const secToSkip = 10;
-    const Button = videojs.getComponent( 'Button' );
-    const backwardBtn = videojs.extend( Button, {
-        constructor: function( player, options ) {
-            
-            Button.call( this, player, options );
-            this.el().setAttribute( 'aria-label','Skip Backward' );
-            this.controlText( 'Skip Backward' );
-
-        },
-        handleClick: function() {
-            
-            if ( vjs.seekable() ) {
-                
-                let seekTime = vjs.currentTime() - secToSkip;
-                
-                if ( seekTime <= 0 ) {
-                    seekTime = 0;
-                }
-                
-                vjs.currentTime( seekTime );
-                
-            }
-            
-        },
-        
-        buildCSSClass: function() {
-            return 'vjs-backward-button vjs-control vjs-button';
-        }
-        
-    } );
-
-    videojs.registerComponent( 'BackwardBtn', backwardBtn );
-    vjs.getChild( 'controlBar' ).addChild( 'BackwardBtn', {}, 1 );
-    
-}
-
 function addExpandContractButton( vjs ) {
 
-    const Button = videojs.getComponent( 'Button' );
-    const expandContractBtn = videojs.extend( Button, {
-        constructor: function( player, options ) {
-            
-            Button.call( this, player, options );
+    class ExpandContractButton extends videojs.getComponent( 'Button' ) {
+
+        constructor(player, options) {
+
+            super(player, options);
             this.el().setAttribute( 'aria-label','Expand/Contract' );
             this.controlText( 'Expand/Contract' );
 
@@ -1494,8 +1365,9 @@ function addExpandContractButton( vjs ) {
                 vjs.addClass( 'sbplus-vjs-expanded' );
             }
 
-        },
-        handleClick: function() {
+        }
+
+        handleClick() {
             
             if ( vjs.hasClass( 'sbplus-vjs-expanded' ) ) {
                 vjs.removeClass( 'sbplus-vjs-expanded' );
@@ -1504,17 +1376,17 @@ function addExpandContractButton( vjs ) {
                 vjs.addClass( 'sbplus-vjs-expanded' );
                 document.querySelector( SBPLUS.layout.sbplus ).classList.add( 'sbplus-vjs-expanded' );
             }
-            
-        },
-        
-        buildCSSClass: function() {
+                
+        }
+
+        buildCSSClass() {
             return 'vjs-expand-contract-button vjs-control vjs-button';
         }
-        
-    } );
 
-    videojs.registerComponent( 'ExpandContractBtn', expandContractBtn );
-    vjs.getChild( 'controlBar' ).addChild( 'ExpandContractBtn', {}, 8 );
+    }
+
+    videojs.registerComponent( 'ExpandContractButton', ExpandContractButton );
+    vjs.getChild( 'controlBar' ).addChild( 'ExpandContractButton', {}, 15 );
     
 }
 

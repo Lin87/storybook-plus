@@ -1,11 +1,4 @@
 {
-    "lang": "en",
-    "dir": "ltr",
-    "name": "Storybook Plus",
-    "description": "Storybook Plus is a web application that uses HTML5, JavaScript, CSS3, and web storage to delivery multimedia presentations.",
-    "short_name": "SB+",
-    "display": "browser",
-    "orientation": "portrait",
     "sbplus_hotjar_site_id": "",
     "sbplus_google_tracking_id": "",
     "sbplus_root_directory": "sources/",
@@ -16,12 +9,7 @@
     "sbplus_logo_directory": "",
     "sbplus_default_accent": "#642667",
     "sbplus_copyright_notice": "Excelsior University. All rights reserved. No part of this publication can be reproduced, stored in a retrieval system or transmitted in any form by any means, electronic, mechanical or photocopying, recording, or otherwise without the prior permission of the publisher. <a href=\"https://www.excelsior.edu/policies/\" target=\"_blank\">Policies</a> | <a href=\"https://www.excelsior.edu/support-resources/accessibility-services/\" target=\"_blank\">Accessibility Services</a>",
-    "sbplus_kaltura": {
-        "id": 0,
-        "normal": 0,
-        "medium": 0,
-        "low": 0
-    },
+    "sbplus_kaltura_id": 2370711,
     "sbplus_download_files": [ 
         
         {
