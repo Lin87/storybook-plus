@@ -1,7 +1,7 @@
 ### Version Change Logs
 
 #### 3.5.7 (05/22/2024)
-* Udpated VideoJS to version 8.12.0
+* Updated VideoJS to version 8.12.0
 
 #### 3.5.6 (04/17/2024)
 * Video player can go full screen by default and can be disabled by adding and setting the `disableFullscreen` attribute to `true` in the XML.
