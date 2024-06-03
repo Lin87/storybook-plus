@@ -2,7 +2,7 @@
 
 <storybook accent="" pageImgFormat="jpg" splashImgFormat="jpg" analytics="off" mathjax="off" downloadableFileName="sbplus">
     
-    <setup program="college-school" course="abc123">
+    <setup splashImg="technology_color_purple">
         
         <title>BKN315 - Chocolate Chip Cookies</title>
         <subtitle>A Sample Storybook Plus Presentation</subtitle>

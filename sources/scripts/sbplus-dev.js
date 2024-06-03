@@ -3,8 +3,8 @@
  *
  * @author: Ethan Lin
  * @url: https://github.com/excelsior-university-web-systems/sbplus-v3
- * @version: 3.5.7
- * Released 05/22/2024
+ * @version: 3.5.8
+ * Released 06/05/2024
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
@@ -91,7 +91,7 @@ const SBPLUS = {
     },
 
     // version number
-    version: '3.5.7',
+    version: '3.5.8',
     
     // easter egg variables
     clickCount: 0,
@@ -317,55 +317,6 @@ const SBPLUS = {
      }, // end set copyright function
 
     /**
-     * get the program logo
-     **/
-    getLogo: function() {
-
-        const self = this;
-
-        // if the logo repo is not specified in the manifest
-        // use the player's logo (sources/images/logo.svg) and exit
-        if ( self.isEmpty ( self.manifest.sbplus_logo_directory ) ) {
-
-            self.setLogo( self.logo );
-            return;
-
-        }
-
-        /* if logo repo is specified in the manifest */
-        
-        // check to see if a program is specified in the XML
-        // otherwise use the default program specified in the manifest
-        const program = self.isEmpty( self.xml.setup.program ) ? self.manifest.sbplus_program_default: self.xml.setup.program;
-
-        // if program is still empty
-        // use the player's logo (sources/images/logo.svg) and exit
-        if ( self.isEmpty( program ) ) {
-
-            self.setLogo( self.logo );
-            return;
-
-        }
-
-        /* if program is specified in the XML/manifest, attempt to get it */
-
-        const originLogo = self.logo; // hold the original logo path
-        self.logo = self.manifest.sbplus_logo_directory + program + '.svg'; // update the logo path
-
-        self.requestedFileExists( self.logo, response => {
-
-            // if not found logo repo; set logo back to original
-            if ( !response ) {
-                self.logo = originLogo;
-            }
-
-            self.setLogo( self.logo );
-
-        } );
-
-    },
-
-    /**
      * set the default logo
      * @param string - the URL/path to the logo image
      **/
@@ -569,8 +520,7 @@ const SBPLUS = {
             let xAnalytics = self.trimAndLower( xSb.attr( 'analytics' ) );
             let xMathjax = '';
             let xDownloadableFileName = xSb.attr( 'downloadableFileName' );
-            let xProgram = '';
-            let xCourse = self.trimAndLower( xSetup.attr( 'course' ) );
+            let xSplashImg = '';
             let xTitle = self.noScript( xSetup.find( 'title' ).text().trim() );
             let xSubtitle = self.noScript( xSetup.find( 'subtitle' ).text().trim() );
             let xLength = xSetup.find( 'length' ).text().trim();
@@ -580,7 +530,7 @@ const SBPLUS = {
             
             // variable to hold temporary XML value for further evaluation
             let splashImgType_temp = xSb.attr( 'splashImgFormat' );
-            let program_temp = xSetup.attr( 'program' );
+            let splashImg_temp = xSetup.attr( 'splashImg' );
             
             // if temporary splash image type is defined...
             if ( splashImgType_temp ) {
@@ -595,12 +545,10 @@ const SBPLUS = {
                 
             }
             
-            // if program temporary is defined
-            if ( program_temp ) {
-                
-                // set the program to the temporary value
-                xProgram = self.trimAndLower( program_temp );
-                
+            // if splashImg_temp temporary is defined
+            // set the splashImg_temp to the temporary value
+            if ( splashImg_temp ) {
+                xSplashImg = self.trimAndLower( splashImg_temp );
             }
             
             // if accent is empty, set the accent to the value in the manifest
@@ -645,8 +593,7 @@ const SBPLUS = {
                     downloadableFileName: xDownloadableFileName
                 },
                 setup: {
-                    program: xProgram,
-                    course: xCourse,
+                    splashImg: xSplashImg,
                     title: xTitle,
                     subtitle: xSubtitle,
                     author: xAuthor,
@@ -660,10 +607,11 @@ const SBPLUS = {
             self.xmlParsed = true;
 
             /* finished parsing XML; do additional setup based on parsed XML values */
+
+            self.setLogo( self.logo );
             
             self.getAuthorProfile(); // get author profile
             self.setAccent(); // set accent color
-            self.getLogo(); // get program logo
             self.setCopyright(); // set the copyright info
             self.preloadPresentationImages(); // preload images
             
@@ -919,7 +867,7 @@ const SBPLUS = {
 
                 /* when failed to load the image in the assets folder
                    attempt to get it from the image repo on the server
-                   with the provided program and course values from the XML */
+                   with the provided splashImg values from the XML */
 
                 // first, if splash directory is not specified in the manifest, no image and exit
                 if ( self.isEmpty( self.manifest.sbplus_splash_directory ) ) {
@@ -928,11 +876,8 @@ const SBPLUS = {
                 }
 
                 // otherwise, continue...
-                const program = self.isEmpty( self.xml.setup.program ) ? self.manifest.sbplus_program_default : self.xml.setup.program;
-                const course = self.isEmpty( self.xml.setup.course ) ? "" : "/" + self.xml.setup.course;
-
-                // if program is still empty, no image and exit
-                if ( self.isEmpty( program ) ) {
+                // if splashImg is empty, no image and exit
+                if ( self.isEmpty( self.xml.setup.splashImg ) ) {
 
                     self.setSplashImage( "" );
                     return;
@@ -940,18 +885,10 @@ const SBPLUS = {
                 }
 
                 // otherwise, attempt to get the image from server
-                let serverSplashImgUrl = self.manifest.sbplus_splash_directory;
-
-                if ( self.isEmpty( course ) ) {
-                    serverSplashImgUrl += program + "/" + program + "." + self.xml.settings.splashImgType;
-                } else {
-                    serverSplashImgUrl += program + course + "." + self.xml.settings.splashImgType
-                }
+                const serverSplashImgUrl = self.manifest.sbplus_splash_directory + self.xml.setup.splashImg + "." + self.xml.settings.splashImgType;
                 
                 self.requestedFileExists( serverSplashImgUrl, serverResult => {
-
                     self.setSplashImage( serverResult ? serverSplashImgUrl : "" );
-
                 } );
 
             }
@@ -976,9 +913,7 @@ const SBPLUS = {
         img.addEventListener( 'load', function() {
             
             if ( img.complete ) {
-                
                 $( self.splash.background ).css( 'background-image', 'url(' + img.src + ')' );
-
             }
 
         } );
