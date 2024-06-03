@@ -1,5 +1,10 @@
 ### Version Change Logs
 
+#### 3.5.8 (06/05/2024)
+* Now supports centralized splash image for Excelsior. Replaced `program` and `course` attributes with `splashImg`. `splashImg` now holds the remaining path to the splash image without the file extension.
+* Multiple logos support removed. It only now support one logo for all.
+* Minor UI adjustments
+
 #### 3.5.7 (05/22/2024)
 * Updated VideoJS to version 8.12.0
 
