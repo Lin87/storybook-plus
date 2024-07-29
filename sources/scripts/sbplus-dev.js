@@ -82,16 +82,9 @@ const SBPLUS = {
     
     // videojs
     playbackrate: 1,
-    
-    // google analytics variables
-    gaTimeouts: {
-        start: null,
-        halfway: null,
-        completed: null
-    },
 
     // version number
-    version: '3.5.8',
+    version: '3.5.9',
     
     // easter egg variables
     clickCount: 0,
@@ -517,7 +510,6 @@ const SBPLUS = {
             let xAccent = self.trimAndLower( xSb.attr( 'accent' ) );
             let xImgType = self.trimAndLower( xSb.attr( 'pageImgFormat' ) );
             let xSplashImgType = 'svg';
-            let xAnalytics = self.trimAndLower( xSb.attr( 'analytics' ) );
             let xMathjax = '';
             let xDownloadableFileName = xSb.attr( 'downloadableFileName' );
             let xSplashImg = '';
@@ -562,11 +554,6 @@ const SBPLUS = {
                 xImgType = 'jpg';
             }
             
-            // if analytic is not on, default to off
-            if ( xAnalytics !== 'on' && xAnalytics !== 'true' ) {
-                xAnalytics = 'off';
-            }
-            
             // if mathjax is not found or empty
             if ( self.isEmpty( xSb.attr( 'mathjax' ) ) ) {
                 
@@ -588,7 +575,6 @@ const SBPLUS = {
                     accent: xAccent,
                     imgType: xImgType,
                     splashImgType: xSplashImgType,
-                    analytics: xAnalytics,
                     mathjax: xMathjax,
                     downloadableFileName: xDownloadableFileName
                 },
@@ -642,7 +628,7 @@ const SBPLUS = {
                 } ) ( window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=' );
             }
             
-            // if analytics is on, get and set Google analytics tracking
+            // if analytics ID is specified, get and set Google analytics tracking
             if ( !self.isEmpty( self.manifest.sbplus_google_tracking_id ) ) {
 
                 /* Google Analytics gtag.js */

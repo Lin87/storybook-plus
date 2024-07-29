@@ -83,10 +83,6 @@ Page.prototype.getPageMedia = function() {
     SBPLUS.clearWidget();
     
     $( self.mediaContent ).removeClass( 'iframeEmbed' ).empty();
-    
-    self.gaEventHalfway = false;
-    SBPLUS.clearGATimeout();
-    
     $(SBPLUS.layout.mediaMsg).addClass( 'hide' ).html('');
     
     removeSecondaryControls();
