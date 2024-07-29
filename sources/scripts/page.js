@@ -9,19 +9,7 @@ let Page = function ( obj, data ) {
     this.title = obj.title;
     this.type = obj.type;
     this.transition = obj.transition;
-    this.pageNumber = obj.number;
-    
-    // google analytic variables
-    // this.gaEventCate = '';
-    // this.gaEventLabel = '';
-    // this.gaEventAction = '';
-    // this.gaEventValue = -1;
-    // this.gaEventHalfway = false;
-    // this.gaDelays = {
-    //     start: 0,
-    //     halfway: 0,
-    //     completed: 0
-    // }; 
+    this.pageNumber = obj.number; 
     
     if ( obj.type !== 'quiz' ) {
         
@@ -143,12 +131,6 @@ Page.prototype.getPageMedia = function() {
 
             self.setWidgets();
             
-            // self.gaEventCate = 'Video';
-            // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':kaltura:page' + SBPLUS.targetPage.data('count');
-            // self.gaEventAction = 'start';
-            // self.gaEventValue = 3;
-            // self.gaDelays.start = 6;
-            
         break;
 
         case 'brightcove':
@@ -206,12 +188,6 @@ Page.prototype.getPageMedia = function() {
                 
             } );
             
-            // self.gaEventCate = 'Audio';
-            // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':audio:page' + SBPLUS.targetPage.data('count');
-            // self.gaEventAction = 'start';
-            // self.gaEventValue = 2;
-            // self.gaDelays.start = 6;
-            
         break;
         
         case 'image':
@@ -245,14 +221,6 @@ Page.prototype.getPageMedia = function() {
                 self.setWidgets();
                 addSecondaryControls( true );
             } );
-            
-            // self.gaEventCate = 'Image';
-            // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':image:page' + SBPLUS.targetPage.data('count');
-            // self.gaEventAction = 'start';
-            // self.gaEventValue = 4;
-            // self.gaDelays.start = 10;
-            // self.gaDelays.halfway = 30;
-            // self.gaDelays.completed = 60;
                         
         break;
         
@@ -282,12 +250,6 @@ Page.prototype.getPageMedia = function() {
                 } );
                 
             } );
-            
-            // self.gaEventCate = 'Video';
-            // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':video:page' + SBPLUS.targetPage.data('count');
-            // self.gaEventAction = 'start';
-            // self.gaEventValue = 3;
-            // self.gaDelays.start = 6;
         
         break;
         
@@ -318,12 +280,6 @@ Page.prototype.getPageMedia = function() {
             }
             
             self.setWidgets();
-
-            // self.gaEventCate = 'Video';
-            // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':youtube:page' + SBPLUS.targetPage.data('count');
-            // self.gaEventAction = 'start';
-            // self.gaEventValue = 3;
-            // self.gaDelays.start = 6;
             
         break;
         
@@ -360,12 +316,6 @@ Page.prototype.getPageMedia = function() {
                 
             } );
             
-            // self.gaEventCate = 'Audio';
-            // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':bundle:page' + SBPLUS.targetPage.data('count');
-            // self.gaEventAction = 'start';
-            // self.gaEventValue = 2;
-            // self.gaDelays.start = 6;
-            
         break;
         
         case 'quiz':
@@ -385,13 +335,6 @@ Page.prototype.getPageMedia = function() {
                     }
 
             } );
-            
-            // self.gaEventCate = 'Quiz';
-            // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':quiz:page' + SBPLUS.targetPage.data('count');
-            // self.gaEventAction = 'start';
-            // self.gaEventValue = 5;
-            // self.gaDelays.start = 10;
-            // self.gaDelays.halfway = 30;
             
         break;
         
@@ -448,14 +391,6 @@ Page.prototype.getPageMedia = function() {
             
             self.setWidgets();
             
-            // self.gaEventCate = 'HTML';
-            // self.gaEventLabel = SBPLUS.getCourseDirectory() + ':html:page' + SBPLUS.targetPage.data('count');
-            // self.gaEventAction = 'start';
-            // self.gaEventValue = 6;
-            // self.gaDelays.start = 10;
-            // self.gaDelays.halfway = 30;
-            // self.gaDelays.completed = 60;
-            
         break;
         
         default:
@@ -492,15 +427,6 @@ Page.prototype.getPageMedia = function() {
         }
         
     }, 3000 );
-    
-    // send event to Google Analytics
-    // if ( self.gaEventCate !== '' ) {
-        
-    //     SBPLUS.sendToGA( self.gaEventCate, self.gaEventAction,
-    //                      self.gaEventLabel, self.gaEventValue,
-    //                      self.gaDelays );
-        
-    // }
     
 };
 
@@ -751,15 +677,6 @@ Page.prototype.addMarkers = function() {
 Page.prototype.renderVideoJS = function( src ) {
     
     const self = this;
-
-    // var ka = {
-    //     play: false,
-    //     replay: false,
-    //     playReached25: false,
-    //     playReached50: false,
-    //     playReached75: false,
-    //     playReached100: false
-    // }
     
     src = typeof src !== 'undefined' ? src : self.src;
 

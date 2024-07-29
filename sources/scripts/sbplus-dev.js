@@ -3,8 +3,8 @@
  *
  * @author: Ethan Lin
  * @url: https://github.com/excelsior-university-web-systems/sbplus-v3
- * @version: 3.5.8
- * Released 06/05/2024
+ * @version: 3.5.9
+ * Released 07/31/2024
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
@@ -643,7 +643,7 @@ const SBPLUS = {
             }
             
             // if analytics is on, get and set Google analytics tracking
-            if ( !self.isEmpty( self.manifest.sbplus_google_tracking_id ) && ( self.xml.settings.analytics === 'on' || self.xml.settings.analytics === 'true' ) ) {
+            if ( !self.isEmpty( self.manifest.sbplus_google_tracking_id ) ) {
 
                 /* Google Analytics gtag.js */
                 const head = document.getElementsByTagName( 'head' )[0];
@@ -654,24 +654,6 @@ const SBPLUS = {
                 gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + self.manifest.sbplus_google_tracking_id;
 
                 head.appendChild( gtagScript );
-
-                /* Google Tag Manager */
-                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                })(window,document,'script','dataLayer','GTM-NT3HHS5');
-                
-                const noscript = document.getElementsByTagName( 'noscript' )[0];
-                const gtagIframe = document.createElement( 'iframe' );
-
-                gtagIframe.src = 'https://www.googletagmanager.com/ns.html?id=GTM-NT3HHS5';
-                gtagIframe.width = 0;
-                gtagIframe.height = 0;
-                gtagIframe.style.display = 'none';
-                gtagIframe.style.visibility = 'hidden';
-
-                noscript.appendChild( gtagIframe );
 
                 /* Google Analytics */
                 function gtag(){
@@ -784,7 +766,6 @@ const SBPLUS = {
             self.splashScreenRendered = true; // flag the splash screen as rendered
             self.showSplashScreen(); // show the splash screen
             self.resize(); // "refresh the UI"
-            self.sendToGA( "splash_screen_view", self.getCourseDirectory() + " - splash" ); // send splash screen loaded event to GA
             self.scheduleOnlineStatusCheck(); // schedule online connectivity status check
 
         }
@@ -1121,7 +1102,6 @@ const SBPLUS = {
                 // select the first page
                 self.selectPage( '0,0' );
                 self.presentationStarted = true;
-                self.sendToGA( 'presentation_screen_view', self.getCourseDirectory() );
                 
             } );
             
@@ -1152,7 +1132,6 @@ const SBPLUS = {
             } );
             
             self.presentationStarted = true;
-            self.sendToGA( 'presentation_screen_view', self.getCourseDirectory() );
             
         }
         
@@ -2969,68 +2948,6 @@ const SBPLUS = {
         
     },
     
-     /**
-     * send tracked event to Google Analytics
-     **/
-    sendToGA: function( event, context ) {
-
-        const self = this;
-        
-        if ( !self.isEmpty( self.manifest.sbplus_google_tracking_id ) && ( self.xml.settings.analytics === 'on' || self.xml.settings.analytics === 'true' ) ) {
-
-            window.dataLayer = window.dataLayer || [];
-
-            switch ( event ) {
-
-                case 'splash_screen_view':
-
-                    window.dataLayer.push( {
-                        'event': 'splash_screen_view',
-                        'screenName': context
-                    } );
-
-                break;
-
-                case 'presentation_screen_view':
-
-                    window.dataLayer.push( {
-                        'event': 'presentation_screen_view',
-                        'screenName': context
-                    } );
-
-                break;
-            }
-            
-        }
-        
-    },
-    
-    /**
-     * clear Google Analytics time intervals for video progress check
-     **/
-    clearGATimeout: function() {
-
-        const self = this;
-        
-        if ( this.xml.settings.analytics === 'on' ) {
-            
-            if ( self.gaTimeouts.start !== null ) {
-                clearTimeout( self.gaTimeouts.start );
-            }
-            
-            if ( self.gaTimeouts.halfway !== null ) {
-                clearTimeout( self.gaTimeouts.halfway );
-            }
-            
-            if ( self.gaTimeouts.completed !== null ) {
-                clearTimeout( self.gaTimeouts.completed );
-            }
-        
-        }
-        
-    },
-    
-
     /**
      * Show an message if the user has not network/Internet connectivity
      **/

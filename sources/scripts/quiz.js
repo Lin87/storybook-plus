@@ -509,9 +509,6 @@ Quiz.prototype.renderQuiz = function() {
             }
             
         } );
-        
-        const label = SBPLUS.getCourseDirectory() + ':quiz:page' + SBPLUS.targetPage.data( 'count' );
-        SBPLUS.sendToGA( 'Quiz', 'completed', label, 3, 0 );
     
 };
 

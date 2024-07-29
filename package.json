@@ -1,6 +1,6 @@
 {
   "name": "sbplus",
-  "version": "3.5.8",
+  "version": "3.5.9",
   "description": "Storybook Plus is a web application that uses HTML5, JavaScript, CSS3, and web storage to deliver multimedia presentations.",
   "private": true,
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Lin87/excelsior-sbplus-v3.git"
+    "url": "git+https://github.com/excelsior-university-web-systems/sbplus-v3.git"
   },
   "keywords": [
     "multimedia",
@@ -20,9 +20,9 @@
   "author": "Ethan Lin",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/Lin87/excelsior-sbplus-v3/issues"
+    "url": "https://github.com/excelsior-university-web-systems/sbplus-v3/issues"
   },
-  "homepage": "https://github.com/Lin87/excelsior-sbplus-v3#readme",
+  "homepage": "https://github.com/excelsior-university-web-systems/sbplus-v3#readme",
   "devDependencies": {
     "@babel/core": "^7.23.9",
     "@babel/preset-env": "^7.23.9",
