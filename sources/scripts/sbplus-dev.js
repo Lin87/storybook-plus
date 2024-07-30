@@ -75,6 +75,7 @@ const SBPLUS = {
     beforeXMLLoadingDone: false,
     xmlLoaded: false,
     xmlParsed: false,
+    gtmLoaded: false,
     presentationStarted: false,
     hasError: false,
     kalturaLoaded: false,
@@ -629,7 +630,7 @@ const SBPLUS = {
             }
             
             // if analytics ID is specified, get and set Google analytics tracking
-            if ( !self.isEmpty( self.manifest.sbplus_google_tracking_id ) ) {
+            if ( self.manifest.sbplus_ga_tracking && !self.isEmpty( self.manifest.sbplus_ga_tracking.measurement_id ) ) {
 
                 /* Google Analytics gtag.js */
                 const head = document.getElementsByTagName( 'head' )[0];
@@ -637,7 +638,7 @@ const SBPLUS = {
 
                 gtagScript.type = "text/javascript";
                 gtagScript.setAttribute( 'async', true );
-                gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + self.manifest.sbplus_google_tracking_id;
+                gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + self.manifest.sbplus_ga_tracking.measurement_id;
 
                 head.appendChild( gtagScript );
 
@@ -648,7 +649,30 @@ const SBPLUS = {
                 }
 
                 gtag('js', new Date());
-                gtag('config', self.manifest.sbplus_google_tracking_id);
+                gtag('config', self.manifest.sbplus_ga_tracking.measurement_id);
+
+                if ( !self.isEmpty( self.manifest.sbplus_ga_tracking.gTag_id ) ) {
+
+                    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                        })(window,document,'script','dataLayer',self.manifest.sbplus_ga_tracking.gTag_id );
+                        
+                    const noscript = document.getElementsByTagName( 'noscript' )[0];
+                    const gtagIframe = document.createElement( 'iframe' );
+            
+                    gtagIframe.src = 'https://www.googletagmanager.com/ns.html?id=' + self.manifest.sbplus_ga_tracking.gTag_id;
+                    gtagIframe.width = 0;
+                    gtagIframe.height = 0;
+                    gtagIframe.style.display = 'none';
+                    gtagIframe.style.visibility = 'hidden';
+            
+                    noscript.appendChild( gtagIframe );
+
+                    self.gtmLoaded = true;
+    
+                }
 
             }
 
@@ -753,6 +777,16 @@ const SBPLUS = {
             self.showSplashScreen(); // show the splash screen
             self.resize(); // "refresh the UI"
             self.scheduleOnlineStatusCheck(); // schedule online connectivity status check
+            
+            // send additional data to GTM about the environment
+            if ( self.gtmLoaded ) {
+                dataLayer.push({
+                    event: 'mediaPlayerLoaded',
+                    iframe: window.self !== window.to,
+                    referrer: document.referrer,
+                    full_url: window.location.href
+                });
+            }
 
         }
         
