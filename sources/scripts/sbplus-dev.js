@@ -996,7 +996,7 @@ const SBPLUS = {
 
                 self.downloads[fileLabel] = { fileName: fileName, fileFormat: file.format, url: this.url };
 
-                $( self.splash.downloadBar ).append('<a href="' + this.url + '" tabindex="1" download="' + fileName + "." + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + "</a>");
+                $( self.splash.downloadBar ).append('<a href="' + this.url + '" tabindex="0" download="' + fileName + "." + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + "</a>");
 
             } ).always( function () {
 
@@ -1195,15 +1195,15 @@ const SBPLUS = {
                     }
                     
                     // append section head HTML to DOM
-                    sectionHTML += '<div class="header">';
-                    sectionHTML += '<div class="title">';
-                    sectionHTML += sectionHead +'</div>';
-                    sectionHTML += '<div class="icon"><span class="icon-collapse"></span></div></div>';
+                    sectionHTML += '<div class="header" >';
+                    sectionHTML += '<button class="title" tabindex="0" aria-expanded="true" aria-controls="toc-section-'+i+'">';
+                    sectionHTML += sectionHead +'<div class="icon"><span class="icon-collapse"></span></div></button>';
+                    sectionHTML += '</div>';
                     
                 }
                 
                 // append pages (opening list tag) HTML to DOM
-                sectionHTML += '<ul class="list">';
+                sectionHTML += '<ul id="toc-section-'+i+'" class="list" role="tablist" aria-controls="sbplus_left_col">';
                 
                 // for each page
                 $.each( pages, function( j ) {
@@ -1214,8 +1214,8 @@ const SBPLUS = {
                     const pageType = $( this ).attr( 'type' );
 
                     // append opening list item tag to DOM
-                    sectionHTML += '<li class="item" data-count="';
-                    sectionHTML += self.totalPages + '" data-page="' + i + ',' + j + '">';
+                    sectionHTML += '<li class="item" role="tab" aria-selected="false" data-count="';
+                    sectionHTML += self.totalPages + '" data-page="' + i + ',' + j + '" tabindex="0">';
                     
                     // if page is quiz
                     if ( pageType === 'quiz' ) {
@@ -1538,6 +1538,7 @@ const SBPLUS = {
         const icon = obj.find( '.icon' );
         
         // slide up (hide) the list
+        $(target.siblings()[0]).find( 'button.title' ).attr( 'aria-expanded', false );
         target.slideUp();
             
         // update the icon to open icon
@@ -1559,6 +1560,7 @@ const SBPLUS = {
         const icon = obj.find( '.icon' );
         
         // slide down (show) the list
+        $(target.siblings()[0]).find( 'button.title' ).attr( 'aria-expanded', true );
         target.slideDown();
         
         // update the icon to collapse icon
@@ -1626,9 +1628,11 @@ const SBPLUS = {
             
             // remove sb_selected class from all pages
             allPages.removeClass( 'sb_selected' );
+            allPages.attr( 'aria-selected', false );
             
             // add sb_selected class to targeted page
             self.targetPage.addClass( 'sb_selected' );
+            self.targetPage.attr( 'aria-selected', true );
             
             // call the getPage function with targeted page data as parameter
             self.getPage( self.targetPage.data('page') );

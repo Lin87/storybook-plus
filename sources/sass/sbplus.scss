@@ -119,8 +119,8 @@ body {
         box-sizing: border-box;
     }
     
-    *:focus {
-        outline: 1px dotted $default-accent;
+    *:focus-visible {
+        outline: 2px dashed $default-accent;
     }
     
     #sbplus_loading_screen {
@@ -1590,25 +1590,26 @@ body {
                         
                         .header {
                             
-                            display: flex;
-                            flex-flow: row nowrap;
-                            align-items: center;
                             height: 40px;
                             background-color: #ececed;
                             border-top: 1px solid $border-color;
                             cursor: pointer;
                             
                             .title {
+                                width: 100%;
+                                display: flex;
+                                flex-grow: 1;
+                                align-items: center;
+                                justify-content: space-between;
+                                text-align: left;
                                 font-weight: bold;
                                 padding: 5px 10px;
                                 line-height: 1;
                                 flex: 2 0 89.5%;
                             }
-                            
-                            .icon {
-                                flex: 1 0 10.5%;
-                                padding: 0 10px 0 0;
-                                text-align: right;
+
+                            &:focus-visible {
+                                outline: 2px dashed $default-accent;
                             }
                             
                         }
