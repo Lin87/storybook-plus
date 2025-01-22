@@ -523,9 +523,9 @@ Quiz.prototype.renderFeedback = function() {
     if ( self.quiz.type !== 'shortanswer' ) {
         
         if ( quizTracker[self.qIndex].correct ) {
-            html += '<div class="quiz_correct"><span class="icon-check"></span> Correct!</div>';
+            html += '<div class="quiz_correct" role="alert"><span class="icon-check"></span> Correct!</div>';
         } else {
-            html += '<div class="quiz_incorrect"><span class="icon-warning"></span> Incorrect!</div>';
+            html += '<div class="quiz_incorrect" role="alert"><span class="icon-warning"></span> Incorrect!</div>';
         }
         
     } 
