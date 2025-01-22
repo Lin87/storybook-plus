@@ -32,4 +32,4 @@ See [CHANGELOG](https://github.com/excelsior-university-web-systems/sbplus-v3/bl
 
 ---
 ## License & Copyright
-Storybook Plus (SB+) is licensed under [GNU v3](https://github.com/excelsior-university-web-systems/sbplus-v3/blob/master/LICENSE) license. (c) 2013-2024. Ethan Lin and [Excelsior University](https://excelsior.edu). All rights reserved.
+Storybook Plus (SB+) is licensed under [GNU v3](https://github.com/excelsior-university-web-systems/sbplus-v3/blob/master/LICENSE) license. (c) 2013-2025. Ethan Lin and [Excelsior University](https://excelsior.edu). All rights reserved.
