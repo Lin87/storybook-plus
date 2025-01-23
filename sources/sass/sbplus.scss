@@ -247,7 +247,7 @@ body {
         height: 100%;
 
         #sbplus_main_screen {
-            
+
             width: 100%;
             height: 100%;
            
@@ -1329,10 +1329,19 @@ body {
                         padding: 0 10px 5px;
                         
                         label {
+
                             display: block;
                             margin-bottom: 8px;
                             text-indent: -17px;
                             padding-left: 23px;
+
+                            &.for_text {
+                                font-size: 90%;
+                                font-style: italic;
+                                margin-bottom: 4px;
+                                padding-left: 18px;
+                            }
+
                         }
                         
                         .img_val {

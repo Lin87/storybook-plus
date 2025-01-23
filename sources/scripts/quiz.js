@@ -350,13 +350,13 @@ Quiz.prototype.renderQuiz = function() {
                 
                 case 'shortanswer':
                 
-                    $( '.sbplus_quiz_input' ).html( '<textarea></textarea>' );
+                    $( '.sbplus_quiz_input' ).html( '<label class="for_text" for="quiz_response">Enter your response</label><textarea id="quiz_response"></textarea>' );
                 
                 break;
                 
                 case 'fillintheblank':
                 
-                    $( '.sbplus_quiz_input' ).html( '<input type="text" />' );
+                    $( '.sbplus_quiz_input' ).html( '<label class="for_text" for="quiz_response">Enter your response</label><input id="quiz_response" type="text" />' );
                 
                 break;
                 
