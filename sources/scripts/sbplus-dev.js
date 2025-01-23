@@ -107,6 +107,7 @@ const SBPLUS = {
             html: 'html',
             wrapper: '.sbplus_wrapper',
             sbplus: '#sbplus',
+            mainScreen: '#sbplus_main_screen',
             errorScreen: '#sbplus_error_screen',
             widget: '#sbplus_widget',
             media: '#sbplus_media_wrapper',
@@ -960,6 +961,7 @@ const SBPLUS = {
             $( self.splash.screen ).addClass( 'fadeOut' ).one( 'webkitAnimationEnd mozAnimationEnd animationend', function() {
 
                     $( this ).removeClass( 'fadeOut' ).hide();
+                    $( self.layout.mainScreen ).removeAttr( 'aria-hidden' ).removeClass( 'hide' );
                     $( this ).off();
 
                 }

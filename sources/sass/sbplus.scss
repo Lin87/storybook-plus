@@ -245,6 +245,17 @@ body {
         flex-flow: column nowrap;
         position: relative;
         height: 100%;
+
+        #sbplus_main_screen {
+            
+            width: 100%;
+            height: 100%;
+           
+            &.hide {
+                display: none;
+            }
+
+        }
         
         #sbplus_splash_screen {
             
@@ -1938,7 +1949,7 @@ body {
                     min-height: 25px;
                     padding: 0 10px;
                     color: #fff;
-                    background-color: #ff3c3c;
+                    background-color: #B30000;
                     font-size: 75%;
                     text-transform: uppercase;
                     
