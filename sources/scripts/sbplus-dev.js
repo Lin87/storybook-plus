@@ -600,7 +600,6 @@ const SBPLUS = {
             self.getAuthorProfile(); // get author profile
             self.setAccent(); // set accent color
             self.setCopyright(); // set the copyright info
-            self.preloadPresentationImages(); // preload images
             
             // if mathjax if turned on
             if (self.xml.settings.mathjax === "on" || self.xml.settings.mathjax === "true") {
@@ -679,6 +678,9 @@ const SBPLUS = {
             /* finished setup; ready to render the splash screen */
 
             self.renderSplashscreen();
+
+            /* preload slide images from asset */
+            self.preloadPresentationImages();
             
         }
         
@@ -1091,10 +1093,8 @@ const SBPLUS = {
 
                 linkObj.rel = "prefetch";
                 linkObj.href = imagePath;
-                linkObj.setAttribute( 'aria-hidden', true );
-                linkObj.style = "position: fixed; width: 1px; height: 1px; opacity: 0;";
 
-                document.getElementsByTagName( "body" )[0].appendChild( linkObj );
+                document.head.appendChild( linkObj );
                 
             } );
 
