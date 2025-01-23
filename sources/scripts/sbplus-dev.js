@@ -2053,8 +2053,8 @@ const SBPLUS = {
         
         if ( self.hasWidgetContent() ) {
             
-            $( self.layout.widget ).removeClass('noSegments');
-            $( self.widget.content ).css( 'background-image', '' );
+            $( self.layout.widget ).removeClass('noSegments').removeAttr( 'aria-hidden' );
+            $( self.widget.content ).css( 'background-image', '' ).removeAttr( 'aria-hidden' );
             $( self.screenReader.hasNotes ).html( 'This page contains notes.' );
             $( self.button.notes ).prop( 'disabled', false );
             $( self.button.notes ).attr( 'title', 'View Notes' );
@@ -2100,10 +2100,11 @@ const SBPLUS = {
         } else {
             
             $( self.screenReader.hasNotes ).empty();
-            $( self.layout.widget ).addClass('noSegments');
+            $( self.layout.widget ).addClass('noSegments').attr( 'aria-hidden', true );
             $( self.button.notes ).prop( 'disabled', true );
             $( self.button.notes ).attr( 'title', '' );
             $( self.button.notes ).attr( 'aria-label', '' );
+            $( self.widget.content ).attr( 'aria-hidden', true );
 
             // show logo
             if ( !self.isEmpty( self.logo ) ) {
@@ -2136,7 +2137,7 @@ const SBPLUS = {
     addSegment: function( str ) {
         
         const self = this;
-        const btn = '<button id="sbplus_' + self.sanitize( str ) + '">' + str + '</button>';
+        const btn = '<button role="tab" id="sbplus_' + self.sanitize( str ) + '" aria-controls="widget_content">' + str + '</button>';
         
         self.widget.segments.push( str );
         

@@ -104,13 +104,13 @@
                 <div class="sbplus_media_content animated" tabindex="0"></div>
             </div>
             
-            <div id="sbplus_widget" tabindex="-1">
+            <div id="sbplus_widget">
                 
                 <div class="widget_controls_bar">
-                    <div class="tab_segment"></div>
+                    <div class="tab_segment" role="tablist"></div>
                 </div>
                 
-                <div class="segment_content"></div>
+                <div id="widget_content" class="segment_content" role="tabpanel"></div>
                 
             </div>
             
