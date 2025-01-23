@@ -85,7 +85,6 @@ let Quiz = function( obj, data ) {
                 
                 if ( !SBPLUS.isEmpty( $( this ).attr( 'image' ) ) ) {
                     answer.img = SBPLUS.noScript( $( this ).attr( 'image' ).trim() );
-                    answer.value = answer.img;
                 }
                 
                 if ( !SBPLUS.isEmpty( $( this ).attr( 'audio' ) ) ) {
@@ -158,7 +157,6 @@ let Quiz = function( obj, data ) {
                 
                 if ( !SBPLUS.isEmpty( $( this ).attr( 'image' ) ) ) {
                     answer.img = SBPLUS.noScript( $( this ).attr( 'image' ).trim() );
-                    answer.value = answer.img;
                 }
                 
                 if ( !SBPLUS.isEmpty( $( this ).attr( 'audio' ) ) ) {
@@ -299,7 +297,7 @@ Quiz.prototype.renderQuiz = function() {
                         
                         if ( !SBPLUS.isEmpty( self.quiz.answers[i].img ) ) {
                             cleanMSValue = SBPLUS.sanitize( self.quiz.answers[i].img );
-                            msInput += '<label class="img_val" for="' + cleanMSValue + '"><input type="radio" id="' + cleanMSValue +'" name="ms" value="' + i + '" /><img src="assets/images/' + self.quiz.answers[i].img + '"/ ></label>';
+                            msInput += '<label class="img_val" for="' + cleanMSValue + '"><input type="radio" id="' + cleanMSValue +'" name="ms" value="' + i + '" /><img src="assets/images/' + self.quiz.answers[i].img + '" alt="'+self.quiz.answers[i].value+'"/ ></label>';
                             return true;
                         }
                         
@@ -332,7 +330,7 @@ Quiz.prototype.renderQuiz = function() {
                         
                         if ( !SBPLUS.isEmpty( self.quiz.answers[i].img ) ) {
                             cleanMMValue = SBPLUS.sanitize( self.quiz.answers[i].img );
-                            mmInput += '<label class="img_val" for="' + cleanMMValue + '"><input type="checkbox" id="' + cleanMMValue +'" name="mm" value="' + i + '" /><img src="assets/images/' + self.quiz.answers[i].img + '" /></label>';
+                            mmInput += '<label class="img_val" for="' + cleanMMValue + '"><input type="checkbox" id="' + cleanMMValue +'" name="mm" value="' + i + '" /><img src="assets/images/' + self.quiz.answers[i].img + '" alt="' + self.quiz.answers[i].value + '"/></label>';
                             return true;
                         }
                         
@@ -591,11 +589,11 @@ Quiz.prototype.renderFeedback = function() {
             if ( !SBPLUS.isEmpty( msAnswerAudio ) ) {
                 msAnswerType = 'audio';
             }
-            
+
             switch ( msAnswerType ) {
                         
                 case 'img':
-                    html += '<p><strong>Your answer:</strong><br><img src="assets/images/' + msAnswerNode.img + '" /></p>';
+                    html += '<p><strong>Your answer:</strong><br><img src="assets/images/' + msAnswerNode.img + '" alt="'+ msAnswerNode.value +'" /></p>';
                 break;
                 
                 case 'audio':
@@ -617,7 +615,7 @@ Quiz.prototype.renderFeedback = function() {
                     switch ( msAnswerType ) {
                         
                         case 'img':
-                            output = '<img src="assets/images/' + self.quiz.answers[i].value + '" />';
+                            output = '<img src="assets/images/' + self.quiz.answers[i].img + '" alt="'+ self.quiz.answers[i].value +'" />';
                         break;
                         
                         case 'audio':
@@ -675,7 +673,7 @@ Quiz.prototype.renderFeedback = function() {
                 switch ( mmAnswerType ) {
                             
                     case 'img':
-                        html += '<img src="assets/images/' + self.quiz.answers[saIndex].value + '" /><br>';
+                        html += '<img src="assets/images/' + self.quiz.answers[saIndex].img + '" alt="' + self.quiz.answers[saIndex].value + '" /><br>';
                     break;
                     
                     case 'audio':
@@ -756,7 +754,7 @@ function displayCorrectMultipleAnswers( answers ) {
             switch ( aType ) {
                     
                 case 'img':
-                    result += '<img src="assets/images/' + this.value + '" /><br>';
+                    result += '<img src="assets/images/' + this.img + '" alt="' + this.value + '" /><br>';
                 break;
                 
                 case 'audio':

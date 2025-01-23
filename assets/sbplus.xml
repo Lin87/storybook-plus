@@ -275,27 +275,27 @@
                 <choices>
                     
                     <answer image="pikachu.gif" audio="" correct="yes">
-                        <value></value>
+                        <value>pickachu</value>
                     </answer>
                     
                     <answer image="mewtwo.gif" audio="" correct="yes">
-                        <value></value>
+                        <value>mewtwo</value>
                     </answer>
                     
                     <answer image="mew.gif" audio="">
-                        <value></value>
+                        <value>mew</value>
                     </answer>
                     
                     <answer image="rattata.gif" audio="">
-                        <value></value>
+                        <value>rattata</value>
                     </answer>
                     
                     <answer image="krabby.gif" audio="">
-                        <value></value>
+                        <value>krabby</value>
                     </answer>
                     
                     <answer image="rayquaza.gif" audio="">
-                        <value></value>
+                        <value>rayquaza</value>
                     </answer>
                     
                 </choices>
@@ -343,7 +343,7 @@
                 <choices>
                     
                     <answer image="" audio="">
-                        <value>Mew </value>
+                        <value>Mew</value>
                         <feedback>Are you sure? Refresh and answer again.</feedback>
                     </answer>
                     
@@ -394,17 +394,17 @@
                 <choices>
                     
                     <answer image="mew.gif" audio="" correct="yes">
-                        <value />
+                        <value>mew</value>
                         <feedback>Congratulation! You can't have it.</feedback>
                     </answer>
                     
                     <answer image="mewtwo.gif" audio="">
-                        <value />
+                        <value>mewtwo</value>
                         <feedback>Close</feedback>
                     </answer>
                     
                     <answer image="rattata.gif" audio="">
-                        <value />
+                        <value>rattata</value>
                         <feedback>It is not a rat!</feedback>
                     </answer>
                     
