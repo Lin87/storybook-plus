@@ -36,7 +36,7 @@
         
     </div> <!-- Splash screen END -->
     
-    <div class="sr-page-status" tabindex="0">
+    <div class="sr-page-status" tabindex="0" aria-live="assertive">
         You are currently on slide 
         <span class="sr-current-page" >#</span> of <span class="sr-total-pages">#</span>: 
         <span class="sr-page-title">Slide title</span>. <span class="sr-has-notes"></span>
@@ -140,15 +140,15 @@
 
                 <div class="controls">
 
-                    <button id="sbplus_previous_btn" title="Previous" tabindex="0" aria-label="Previous">
+                    <button id="sbplus_previous_btn" title="Previous" tabindex="0" aria-label="Previous" aria-controls="sbplus_left_col">
                     <span class="icon-left"></span>
                     </button>
                     
-                    <button id="sbplus_next_btn" title="Next" tabindex="0" aria-label="Next">
+                    <button id="sbplus_next_btn" title="Next" tabindex="0" aria-label="Next" aria-controls="sbplus_left_col">
                         <span class="icon-right"></span>
                     </button>
 
-                    <button id="mobile_toc_toggle_btn" title="Toggle Table of Contents" tabindex="0" aria-label="Toggle Table of Contents">
+                    <button id="mobile_toc_toggle_btn" title="Toggle Table of Contents" tabindex="0" aria-label="Toggle Table of Contents" aria-controls="sbplus_table_of_contents_wrapper">
                         <span class="icon-contents"></span>
                     </button>
                     
