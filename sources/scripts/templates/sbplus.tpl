@@ -31,7 +31,7 @@
  
         </div>
         
-        <div id="sb_splash_logo"></div>
+        <div id="sb_splash_logo" aria-hidden="true"></div>
         <div id="sb_splash_bg" class="animated"></div>
         
     </div> <!-- Splash screen END -->

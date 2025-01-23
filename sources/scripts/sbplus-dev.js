@@ -331,6 +331,7 @@ const SBPLUS = {
         const logo = document.createElement( 'img' );
         
         logo.src = path;
+        logo.alt = "";
         splashLogo.appendChild( logo );
 
     },
