@@ -14,16 +14,16 @@
         
         <div id="sbplus_presentation_info">
             
-            <h1 class="sb_title" tabindex="h1"></h1>
-            <h2 class="sb_subtitle" tabindex="0"></h2>
-            <p class="sb_author" tabindex="0"></p>
+            <h1 class="sb_title"></h1>
+            <h2 class="sb_subtitle"></h2>
+            <p class="sb_author"></p>
 
             <div class="sb_context">
 
-                <p class="sb_duration" tabindex="0"></p>
+                <p class="sb_duration"></p>
                 <p id="splash_cta" class="sb_cta">
-                    <button id="sbplus_start_btn" tabindex="0" aria-label="Start presentation">Start</button>
-                    <button id="sbplus_resume_btn" tabindex="0" aria-label="Resume presentation">Resume</button>
+                    <button id="sbplus_start_btn" aria-label="Start presentation">Start</button>
+                    <button id="sbplus_resume_btn" aria-label="Resume presentation">Resume</button>
                 </p>
                 <p class="sb_downloads"></p>
 
@@ -38,18 +38,18 @@
     
     <!-- Banner (black title) bar -->
     <div id="sbplus_main_screen" class="hide" aria-hidden="true">
-        <div class="sr-page-status" tabindex="0" aria-live="assertive">
+        <div class="sr-page-status" aria-live="assertive">
             You are currently on slide 
             <span class="sr-current-page" >#</span> of <span class="sr-total-pages">#</span>: 
             <span class="sr-page-title">Slide title</span>. <span class="sr-has-notes"></span>
         </div>
         <div id="sbplus_banner_bar">
             
-            <div id="sbplus_lesson_title" tabindex="-1"></div>
+            <div id="sbplus_lesson_title"></div>
             
             <div id="sbplus_menu_area">
                 
-                <button id="sbplus_author_name" tabindex="-1"></button>
+                <button id="sbplus_author_name"></button>
                 
                 <div id="sbplus_menu_btn_wrapper">
                     
@@ -99,9 +99,9 @@
             <div id="sbplus_left_col" aria-live="polite" aria-atomic="true">
                 
                 <div id="sbplus_media_wrapper">
-                    <div class="sbplus_media_error" tabindex="0"></div>
-                    <div class="sbplus_media_msg hide" tabindex="0"></div>
-                    <div class="sbplus_media_content animated" tabindex="0"></div>
+                    <div class="sbplus_media_error"></div>
+                    <div class="sbplus_media_msg hide"></div>
+                    <div class="sbplus_media_content animated"></div>
                 </div>
                 
                 <div id="sbplus_widget">
@@ -119,20 +119,20 @@
             <div id="sbplus_right_col">
                 
                 <div id="sbplus_sub_bar">
-                    <div class="title" tabindex="-1">Contents</div>
+                    <div class="title">Contents</div>
                 </div>
                 
-                <nav id="sbplus_table_of_contents_wrapper" tabindex="0"></nav>
+                <nav id="sbplus_table_of_contents_wrapper"></nav>
 
                 <!-- control bar -->
                 <div id="sbplus_control_bar">
             
-                    <button id="sbplus_new_note_btn" title="View Notes" tabindex="0" aria-label="View Notes">
+                    <button id="sbplus_new_note_btn" title="View Notes" aria-label="View Notes">
                         <span class="icon-notes"></span> View Notes
                     </button>
 
                     <div id="sbplus_page_status">
-                        <div tabindex="0">
+                        <div>
                             Slide <span class="current">#</span> of 
                             <span class="total">#</span>
                         </div>
@@ -140,15 +140,15 @@
 
                     <div class="controls">
 
-                        <button id="sbplus_previous_btn" title="Previous" tabindex="0" aria-label="Previous" aria-controls="sbplus_left_col">
+                        <button id="sbplus_previous_btn" title="Previous" aria-label="Previous" aria-controls="sbplus_left_col">
                         <span class="icon-left"></span>
                         </button>
                         
-                        <button id="sbplus_next_btn" title="Next" tabindex="0" aria-label="Next" aria-controls="sbplus_left_col">
+                        <button id="sbplus_next_btn" title="Next" aria-label="Next" aria-controls="sbplus_left_col">
                             <span class="icon-right"></span>
                         </button>
 
-                        <button id="mobile_toc_toggle_btn" title="Toggle Table of Contents" tabindex="0" aria-label="Toggle Table of Contents" aria-controls="sbplus_table_of_contents_wrapper">
+                        <button id="mobile_toc_toggle_btn" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sbplus_table_of_contents_wrapper">
                             <span class="icon-contents"></span>
                         </button>
                         
@@ -173,7 +173,7 @@
         
         </div>
         
-        <div id="menu_item_content" class="animated" tabindex="-1">
+        <div id="menu_item_content" class="animated">
             <div class="sbplus_menu_title_bar">
                 <div class="title"></div>
                 <button id="sbplus_menu_close_btn"><span class="icon-close"></span> Close</button>
