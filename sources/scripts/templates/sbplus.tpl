@@ -14,8 +14,8 @@
         
         <div id="sbplus_presentation_info">
             
-            <p class="sb_title" tabindex="0"></p>
-            <p class="sb_subtitle" tabindex="0"></p>
+            <h1 class="sb_title" tabindex="h1"></h1>
+            <h2 class="sb_subtitle" tabindex="0"></h2>
             <p class="sb_author" tabindex="0"></p>
 
             <div class="sb_context">
