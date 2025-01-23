@@ -1203,7 +1203,7 @@ const SBPLUS = {
                 }
                 
                 // append pages (opening list tag) HTML to DOM
-                sectionHTML += '<ul id="toc-section-'+i+'" class="list" role="tablist" aria-controls="sbplus_left_col">';
+                sectionHTML += '<ul id="toc-section-'+i+'" class="list" role="tablist">';
                 
                 // for each page
                 $.each( pages, function( j ) {
@@ -1212,10 +1212,11 @@ const SBPLUS = {
                     ++self.totalPages;
                     
                     const pageType = $( this ).attr( 'type' );
+                    const title = $( this ).attr( 'title' );
 
                     // append opening list item tag to DOM
-                    sectionHTML += '<li class="item" role="tab" aria-selected="false" data-count="';
-                    sectionHTML += self.totalPages + '" data-page="' + i + ',' + j + '" tabindex="0">';
+                    sectionHTML += '<li class="item" aria-selected="false" data-count="' + self.totalPages + '" data-page="' + i + ',' + j + '">';
+                    sectionHTML += '<button role="tab" aria-controls="sbplus_left_col" aria-label="Slide ' + self.totalPages + ', ' + self.escapeHTMLAttribute(title) +'">';
                     
                     // if page is quiz
                     if ( pageType === 'quiz' ) {
@@ -1231,7 +1232,7 @@ const SBPLUS = {
                     }
                     
                     // append page title and close the list item tag
-                    sectionHTML += $( this ).attr( 'title' ) + '</li>';
+                    sectionHTML += title + '</button></li>';
                     
                 } );
                 
@@ -2475,6 +2476,19 @@ const SBPLUS = {
         
         return str === undefined || str === null || !str.trim() || str.trim().length === 0;
         
+    },
+
+    /**
+     * escape string to be HTML attribute safe
+     * @param string
+     **/
+    escapeHTMLAttribute( str ) {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
     },
     
     /**

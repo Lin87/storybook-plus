@@ -1563,17 +1563,21 @@ body {
                         min-height: 35px;
                         padding: 5px ($gutter + 5);
                         border-bottom: 1px solid #e8e8e8;
-                        cursor: pointer;
+                        // cursor: pointer;
                     }
                     
                     .item:hover {
-                        color: #fff;
-                        background-color: $default-accent-hover;
+                        button {
+                            color: #fff;
+                            background-color: $default-accent-hover;
+                        }
                     }
                     
                     .sb_selected {
-                        color: #fff;
-                        background-color: $default-accent;
+                        button {
+                            color: #fff;
+                            background-color: $default-accent;
+                        }
                     }
                     
                 }
@@ -1630,22 +1634,32 @@ body {
                                 
                                 position: relative;
                                 display: block;
-                                text-indent: -35px;
-                                padding: 10px 10px 10px 35px;
+                                padding: 0;
                                 
-                                [class^="icon-"],
-                                .numbering {
-                                    display: inline-block;
-                                    width: 20px;
-                                    margin: 0 0 0 10px;
-                                    text-align: right;
+                                button {
+
+                                    display: block;
+                                    width: 100%;
+                                    height: 100%;
+                                    text-indent: -35px;
+                                    text-align: left;
+                                    padding: 10px 10px 10px 35px;
+
+                                    [class^="icon-"],
+                                    .numbering {
+                                        display: inline-block;
+                                        width: 20px;
+                                        margin: 0 0 0 10px;
+                                        text-align: right;
+                                    }
+                                    
+                                    [class^="icon-"] {
+                                        margin: 0 5px 0 10px;
+                                        padding-right: 4px;
+                                    }
+
                                 }
-                                
-                                [class^="icon-"] {
-                                    margin: 0 5px 0 10px;
-                                    padding-right: 4px;
-                                }
-                                
+
                             }
                             
                             .item:first-child {

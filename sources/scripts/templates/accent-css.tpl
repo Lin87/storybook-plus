@@ -4,8 +4,8 @@
 .sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button:hover{background-color:--var-hover}
 .sbplus_wrapper #sbplus #menu_item_content .sbplus_menu_title_bar {background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_banner_bar{background-color:--var-accent;color:--var-textColor}
-.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .item:hover{color:--var-textColor;background-color:--var-hover}
-.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .sb_selected{color:--var-textColor;background-color:--var-accent}
+.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .item button:hover{color:--var-textColor;background-color:--var-hover}
+.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .sb_selected button {color:--var-textColor;background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col #sbplus_table_of_contents_wrapper .section .current{border-left-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:hover,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:hover{background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper #sbplus_download_btn .menu-parent .menu .menu-item:hover a,.sbplus_wrapper #sbplus #sbplus_control_bar .controls #sbplus_download_btn_wrapper .root-level .menu-parent .menu .menu-item:hover a{color:--var-textColor}
