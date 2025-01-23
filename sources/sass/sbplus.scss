@@ -1328,7 +1328,7 @@ body {
                         
                         padding: 0 10px 5px;
                         
-                        label {
+                        label, legend {
 
                             display: block;
                             margin-bottom: 8px;
@@ -1342,6 +1342,11 @@ body {
                                 padding-left: 18px;
                             }
 
+                        }
+
+                        legend {
+                            font-size: 90%;
+                            font-style: italic;
                         }
                         
                         .img_val {

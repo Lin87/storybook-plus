@@ -275,8 +275,8 @@ Quiz.prototype.renderQuiz = function() {
         questionAudio = '<p><audio controls><source src="assets/audio/' + self.quiz.questionAudio + '" type="audio/mpeg" /></audio></p>';
     }
     
-    html += '<div class="sbplus_quiz_question">' + questionImg + questionAudio + self.quiz.question + '</div>';
-    html += '<div class="sbplus_quiz_input"></div>';
+    html += '<div id="quiz-question" class="sbplus_quiz_question">' + questionImg + questionAudio + self.quiz.question + '</div>';
+    html += '<div class="sbplus_quiz_input" role="group" aria-labelledby="quiz-question"></div>';
     html += '<button class="sbplus_quiz_submit_btn">Submit</button>';
     
     $( self.quizContainer ).html( html ).promise().done( function() {
@@ -285,7 +285,7 @@ Quiz.prototype.renderQuiz = function() {
                 
                 case 'multiplechoicesingle':
                     
-                    let msInput = '';
+                    let msInput = '<fieldset><legend>Choose your answer:</legend>';
                     
                     if ( self.quiz.random ) {
                         shuffle( self.quiz.answers );
@@ -310,6 +310,8 @@ Quiz.prototype.renderQuiz = function() {
                         msInput += '<label for="'+cleanMSValue+'"><input type="radio" id="'+cleanMSValue+'" name="ms" value="' + i + '" /> ' + self.quiz.answers[i].value + '</label>'
                         
                     } );
+
+                    msInput += "</fieldset>";
                     
                     $( '.sbplus_quiz_input' ).html( msInput );
                     
@@ -318,7 +320,7 @@ Quiz.prototype.renderQuiz = function() {
                 
                 case 'multiplechoicemultiple':
                 
-                    let mmInput = '';
+                    let mmInput = '<fieldset><legend>Choose your answers:</legend>';
                     
                     if ( self.quiz.random ) {
                         shuffle( self.quiz.answers );
@@ -343,6 +345,8 @@ Quiz.prototype.renderQuiz = function() {
                         mmInput += '<label for="'+cleanMMValue+'"><input type="checkbox" id="'+cleanMMValue+'" name="mm" value="' + i + '" /> ' + self.quiz.answers[i].value + '</label>'
                         
                     } );
+
+                    mmInput += '</fieldset>';
                     
                     $( '.sbplus_quiz_input' ).html( mmInput );
                     
