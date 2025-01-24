@@ -110,6 +110,7 @@ const SBPLUS = {
             mainScreen: '#sbplus_main_screen',
             errorScreen: '#sbplus_error_screen',
             widget: '#sbplus_widget',
+            contentWrapper: '#sbplus_content_wrapper',
             media: '#sbplus_media_wrapper',
             mediaContent: '#sbplus_media_wrapper .sbplus_media_content',
             mediaError: '#sbplus_media_wrapper .sbplus_media_error',
@@ -177,7 +178,7 @@ const SBPLUS = {
         
         // set HTML menu classes and IDs
         this.menu = {
-            menuList: '#sbplus_menu_btn_wrapper .menu',
+            menuList: '#sbplus_menu_list',
             menuContentList: '#menu_item_content .menu',
             menuBarTitle: '#menu_item_content .sbplus_menu_title_bar .title',
             menuContentWrapper: '#menu_item_content',
@@ -274,8 +275,6 @@ const SBPLUS = {
                     return false; // EXIT & STOP FURTHER SCRIPT EXECUTION
                 }
 
-                $( self.menu.versionContainer ).html( 'v' + self.version );
-                
                 // execute tasks before loading external XML data
                 self.beforeXMLLoading();
                 
@@ -439,7 +438,7 @@ const SBPLUS = {
                     const sanitizedName = self.sanitize( name );
                     
                     // set the HTML LI tag
-                    const item = '<li tabindex="-1" role="menuitem" aria-live="polite" class="menu-item sbplus_' + sanitizedName + '"><a href="javascript:void(0);" onclick="SBPLUS.openMenuItem(\'sbplus_' + sanitizedName + '\');"><span class="icon-' + sanitizedName + '"></span> ' + name + '</a></li>';
+                    const item = '<li role="menuitem" class="menu-item sbplus_' + sanitizedName + '"><button onclick="SBPLUS.openMenuItem(\'sbplus_' + sanitizedName + '\');" aria-controls="menu_item_content" role="menuitem"><span class="icon-' + sanitizedName + '"></span> ' + name + '</a></li>';
                     
                     // append the HTML LI tag to the menu list
                     $( self.menu.menuList ).append( item );
@@ -1277,7 +1276,28 @@ const SBPLUS = {
             $( self.widget.segment ).on( 'click', 'button', self.selectSegment.bind( self ) );
             
             // add main menu button
-            self.layout.mainMenu = new MenuBar( $( self.button.menu )[0].id, false );
+            //self.layout.mainMenu = new MenuBar( $( self.button.menu )[0].id, false );
+            // const nav = document.querySelector("#sbplus_menu_btn_wrapper");
+            // const menu = document.querySelector("#sbplus_menu_btn_wrapper ul");
+            // const toggle = document.querySelector("#sbplus_menu_btn_wrapper button");
+            // self.layout.mainMenu = new Menubar( {
+            //     menuElement: menu,
+            //     containerElement: nav,
+            //     controllerElement: toggle,
+            // } );
+
+            $( self.button.menu ).on( 'click', function( e ) {
+
+                const menuBtn = $( e.currentTarget );
+                const expanded = menuBtn.attr( 'aria-expanded' );
+
+                if ( expanded === 'false' ) {
+                    self.openMenu();
+                } else {
+                    self.closeMenu();
+                }
+
+            } );
             
             // hide general info under main menu if empty
             if ( self.isEmpty( self.xml.setup.generalInfo ) ) {
@@ -1317,7 +1337,7 @@ const SBPLUS = {
             }
             
             // easter egg event listener
-            $( "#sbplus_menu_btn .menu-parent" ).on( 'click', self.burgerBurger.bind( self ) );
+            $( "#sbplus_menu_btn" ).on( 'click', self.burgerBurger.bind( self ) );
             
             this.presentationRendered = true;
             
@@ -1471,7 +1491,237 @@ const SBPLUS = {
         $( self.layout.pageStatus ).find( 'span.current' ).html( num );
         
     }, // end updatePageStatus function
+
+    /**************************************************************************
+        MENU FUNCTIONS
+    **************************************************************************/
+    openMenu: function() {
+
+        const menuBtn = $( this.button.menu );
+        const menuList = $( this.menu.menuList );
+        
+        menuBtn.attr( 'aria-expanded', true ).addClass( 'active' );
+        menuList.addClass( 'active' );
+        
+    },
+
+    closeMenu: function() {
+
+        const menuBtn = $( this.button.menu );
+        const menuList = $( this.menu.menuList );
+
+        menuBtn.attr( 'aria-expanded', false ).removeClass( 'active' );
+        menuList.removeClass( 'active' );
+
+    },
+
+    /**
+     * open a menu item under the menu
+     * @param string
+     **/
+    openMenuItem: function( id ) {
+        
+        const self = this;
+
+        if ( self.currentPage.mediaPlayer != null ) {
+            
+            if (!self.currentPage.mediaPlayer.paused()) {
+                self.currentPage.mediaPlayer.pause();
+            }
+            
+        }
+        
+        const itemId = id;
+        let content = "";
+        
+        const sbplusBanner = $( self.banner.bar );
+        const sbplusContentWrapper = $( self.layout.contentWrapper );
+        const menuContentWrapper = $( self.menu.menuContentWrapper );
+        const menuContent = $( self.menu.menuContent );
+        const menuTitle = $( self.menu.menuBarTitle );
+        
+        menuContent.empty();
+        self.closeMenu();
+        sbplusBanner.attr( "aria-hidden", true ).css( 'display', 'none' );
+        sbplusContentWrapper.attr( "aria-hidden", true ).css( 'display', 'none' );
+        
+        $( self.menu.menuContentList + ' li' ).removeClass( 'active' ).removeAttr( 'aria-selected' );
+        $( self.menu.menuContentList + ' .' + itemId ).addClass( 'active' ).attr( 'aria-selected', true );
+        
+        switch ( itemId ) {
+                    
+            case 'sbplus_author_profile':
+            
+                menuTitle.html( 'Author Profile' );
+                
+                if ( self.xml.setup.author.length ) {
+                    
+                    menuContent.append( '<div class="profileImg"></div>' );
+                    
+                    const author = self.xml.setup.author;
+                    const sanitizedAuthor = self.sanitize( author );
+
+                    const photoUrl = self.assetsPath + sanitizedAuthor + '.jpg';
+
+                    $.ajax( {
+                
+                        type: 'HEAD',
+                        url: photoUrl
+                        
+                    } ).done( function() {
+                        
+                        $( '.profileImg' ).html( '<img src="' + this.url + '" alt="Photo of ' + author + '" crossorigin="Anonymous" />' );
+                        
+                    } ).fail( function() {
+                        
+                        if ( !self.isEmpty( self.manifest.sbplus_author_directory ) ) {
+
+                            $.ajax( {
+                            
+                                type: 'HEAD',
+                                url: self.manifest.sbplus_author_directory + sanitizedAuthor + '.jpg'
+                            
+                            } ).done( function() {
+                                
+                                $( '.profileImg' ).html( '<img src="' + this.url + '" alt="Photo of ' + author + '" crossorigin="Anonymous" />' );
+                                
+                            } );
+                            
+                        }
+                        
+                    } );
+                    
+                    content = '<p class="name">' + self.xml.setup.author + '</p>';
+                    content += self.noScript( self.xml.setup.profile );
+                    
+                } else {
+
+                    content = 'No author profile available.';
+
+                }
+            
+            break;
+            
+            case 'sbplus_general_info':
+
+                menuTitle.html( 'General Info' );
+                
+                if ( self.isEmpty( self.xml.setup.generalInfo ) ) {
+                    content = 'No general information available.';
+                } else {
+                    content = self.xml.setup.generalInfo;
+                }
+            
+            break;
+            
+            case 'sbplus_settings':
+                
+                menuTitle.html( 'Settings' );
+                
+                if ( Modernizr.localstorage && Modernizr.sessionstorage ) {
+                    
+                    if ( self.hasStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', true ) === false ) {
+                    
+                        $.get( self.manifest.sbplus_root_directory + 'scripts/templates/settings.tpl', function( data ) {
+                        
+                            self.settings = data;
+                            self.setStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', 1, true );
+                            menuContent.append( data );
+                            self.afterSettingsLoaded();
+                            $( self.menu.versionContainer ).html( 'version ' + self.version );
+                            
+                        } );
+                        
+                    } else {
+                        
+                        menuContent.append( self.settings );
+                        $( self.menu.versionContainer ).html( 'version ' + self.version );
+                        self.afterSettingsLoaded();
+                        
+                    }
+                    
+                } else {
+                    
+                    content = 'Settings require web browser\'s local storage and session storage support. ';
+                    content += 'Your web browser does not support local and session storage or is in private mode.';
+                    
+                }
+                
+                
+            break;
+            
+            default:
+
+                const customMenuItems = self.manifest.sbplus_custom_menu_items;
+
+                for ( let key in customMenuItems ) {
+
+                    const menuId = 'sbplus_' + self.sanitize( customMenuItems[key].name );
+
+                    if ( itemId === menuId ) {
+                        menuTitle.html( customMenuItems[key].name );
+                        content = customMenuItems[key].content;
+                        break;
+                    }
+
+                }
+            break;
+            
+        }
+        
+        menuContentWrapper.removeAttr( 'aria-hidden' ).attr( { 'aria-live': 'polite', 'aria-atomic': true } ).show();
+        menuContent.append( content )
+        document.querySelector( self.menu.menuContent ).focus();
+        
+        $( self.button.menuClose ).on( 'click', self.closeMenuContent.bind( self ) );
+        
+        if ( self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true' ) {
+            MathJax.Hub.Queue( ['Typeset', MathJax.Hub] );
+        }
+            
+    },
     
+    /**
+     * Close the menu and its content
+     **/
+    closeMenuContent: function() {
+        
+        const self = this;
+        const sbplusBanner = $( self.banner.bar );
+        const sbplusContentWrapper = $( self.layout.contentWrapper );
+        const menuContentWrapper = $( self.menu.menuContentWrapper );
+        const menuContent = $( self.menu.menuContent );
+        
+        menuContent.empty();
+        menuContentWrapper.removeAttr( 'aria-live aria-atomic' ).attr( 'aria-hidden', true ).hide();
+
+        sbplusBanner.removeAttr( "aria-hidden" ).css( 'display', 'flex' );
+        sbplusContentWrapper.removeAttr( "aria-hidden" ).css( 'display', 'flex' );
+        document.querySelector( self.button.menu ).focus();
+        
+        $( this.button.menuClose ).off( 'click' );
+        
+    },
+    
+    /**
+     * an easter egg to change the menu icon to a hamburger emoji
+     **/
+    burgerBurger: function() {
+        
+        const self = this;
+        const menuIcon = $( 'span.menu-icon' );
+            
+        self.clickCount++;
+        
+        if ( self.clickCount === self.randomNum ) {
+            menuIcon.removeClass('icon-menu').html('🍔');
+            self.clickCount = 0;
+            self.randomNum = Math.floor((Math.random() * 6) + 5);
+        } else {
+            menuIcon.addClass('icon-menu').empty();
+        }
+        
+    },
     /**************************************************************************
         TABLE OF CONTENT (SIDEBAR) FUNCTIONS
     **************************************************************************/
@@ -1824,203 +2074,7 @@ const SBPLUS = {
         }
         
     }, // end updateScroll function
-    
-    /**************************************************************************
-        MENU FUNCTIONS
-    **************************************************************************/
-    
-    /**
-     * open a menu item under the menu
-     * @param string
-     **/
-    openMenuItem: function( id ) {
-        
-        const self = this;
 
-        if ( self.currentPage.mediaPlayer != null ) {
-            
-            if (!self.currentPage.mediaPlayer.paused()) {
-                self.currentPage.mediaPlayer.pause();
-            }
-            
-        }
-        
-        const itemId = id;
-        let content = "";
-        const menuContentWrapper = $( self.menu.menuContentWrapper );
-        const menuContent = $( self.menu.menuContent );
-        const menuTitle = $( self.menu.menuBarTitle );
-        
-        menuContent.empty();
-        
-        $( self.menu.menuContentList + ' li' ).removeClass( 'active' );
-        $( self.menu.menuContentList + ' .' + itemId ).addClass( 'active' );
-        
-        switch ( itemId ) {
-                    
-            case 'sbplus_author_profile':
-            
-                menuTitle.html( 'Author Profile' );
-                
-                if ( self.xml.setup.author.length ) {
-                    
-                    menuContent.append( '<div class="profileImg"></div>' );
-                    
-                    const author = self.xml.setup.author;
-                    const sanitizedAuthor = self.sanitize( author );
-
-                    const photoUrl = self.assetsPath + sanitizedAuthor + '.jpg';
-
-                    $.ajax( {
-                
-                        type: 'HEAD',
-                        url: photoUrl
-                        
-                    } ).done( function() {
-                        
-                        $( '.profileImg' ).html( '<img src="' + this.url + '" alt="Photo of ' + author + '" crossorigin="Anonymous" />' );
-                        
-                    } ).fail( function() {
-                        
-                        if ( !self.isEmpty( self.manifest.sbplus_author_directory ) ) {
-
-                            $.ajax( {
-                            
-                                type: 'HEAD',
-                                url: self.manifest.sbplus_author_directory + sanitizedAuthor + '.jpg'
-                            
-                            } ).done( function() {
-                                
-                                $( '.profileImg' ).html( '<img src="' + this.url + '" alt="Photo of ' + author + '" crossorigin="Anonymous" />' );
-                                
-                            } );
-                            
-                        }
-                        
-                    } );
-                    
-                    content = '<p class="name">' + self.xml.setup.author + '</p>';
-                    content += self.noScript( self.xml.setup.profile );
-                    
-                } else {
-
-                    content = 'No author profile available.';
-
-                }
-            
-            break;
-            
-            case 'sbplus_general_info':
-
-                menuTitle.html( 'General Info' );
-                
-                if ( self.isEmpty( self.xml.setup.generalInfo ) ) {
-                    content = 'No general information available.';
-                } else {
-                    content = self.xml.setup.generalInfo;
-                }
-            
-            break;
-            
-            case 'sbplus_settings':
-                
-                menuTitle.html( 'Settings' );
-                
-                if ( Modernizr.localstorage && Modernizr.sessionstorage ) {
-                    
-                    if ( self.hasStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', true ) === false ) {
-                    
-                        $.get( self.manifest.sbplus_root_directory + 'scripts/templates/settings.tpl', function( data ) {
-                        
-                            self.settings = data;
-                            self.setStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', 1, true );
-                            menuContent.append( data );
-                            self.afterSettingsLoaded();
-                            
-                        } );
-                        
-                    } else {
-                        
-                        menuContent.append( self.settings );
-                        self.afterSettingsLoaded();
-                        
-                    }
-                    
-                } else {
-                    
-                    content = 'Settings require web browser\'s local storage and session storage support. ';
-                    content += 'Your web browser does not support local and session storage or is in private mode.';
-                    
-                }
-                
-            break;
-            
-            default:
-
-                const customMenuItems = self.manifest.sbplus_custom_menu_items;
-
-                for ( let key in customMenuItems ) {
-
-                    const menuId = 'sbplus_' + self.sanitize( customMenuItems[key].name );
-
-                    if ( itemId === menuId ) {
-                        menuTitle.html( customMenuItems[key].name );
-                        content = customMenuItems[key].content;
-                        break;
-                    }
-
-                }
-            break;
-            
-        }
-        
-        menuContentWrapper.show();
-        menuContent.append( content );
-        
-        $( self.button.menuClose ).on( 'click', self.closeMenuContent.bind( self ) );
-        
-        if ( self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true' ) {
-            MathJax.Hub.Queue( ['Typeset', MathJax.Hub] );
-        }
-            
-    },
-    
-    /**
-     * Close the menu and its content
-     **/
-    closeMenuContent: function() {
-        
-        const self = this;
-        const menuContentWrapper = $( self.menu.menuContentWrapper );
-        const menuContent = $( self.menu.menuContent );
-        
-        menuContent.empty();
-        menuContentWrapper.hide();
-        
-        $( this.button.menuClose ).off( 'click' );
-        
-    },
-    
-    /**
-     * an easter egg to change the menu icon to a hamburger emoji
-     **/
-    burgerBurger: function() {
-        
-        const self = this;
-        const menuIcon = $( 'span.menu-icon' );
-            
-        self.clickCount++;
-        
-        if ( self.clickCount === self.randomNum ) {
-            menuIcon.removeClass('icon-menu').html('🍔');
-            self.clickCount = 0;
-            self.randomNum = Math.floor((Math.random() * 6) + 5);
-        } else {
-            menuIcon.addClass('icon-menu').empty();
-        }
-        
-    },
-    
     /**************************************************************************
         WIDGET FUNCTIONS
     **************************************************************************/

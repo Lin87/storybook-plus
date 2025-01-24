@@ -36,59 +36,51 @@
         
     </div> <!-- Splash screen END -->
     
-    <!-- Banner (black title) bar -->
     <div id="sbplus_main_screen" class="hide" aria-hidden="true">
         <div class="sr-page-status" aria-live="assertive">
             You are currently on slide 
             <span class="sr-current-page" >#</span> of <span class="sr-total-pages">#</span>: 
             <span class="sr-page-title">Slide title</span>. <span class="sr-has-notes"></span>
         </div>
+        <!-- Banner (black title) bar -->
         <div id="sbplus_banner_bar">
             
             <div id="sbplus_lesson_title"></div>
             
             <div id="sbplus_menu_area">
                 
-                <button id="sbplus_author_name"></button>
+                <button id="sbplus_author_name" aria-label="Show author profile button"></button>
                 
-                <div id="sbplus_menu_btn_wrapper">
-                    
-                    <ul id="sbplus_menu_btn" class="root-level" role="menubar" title="Menu">
+                <nav id="sbplus_menu_btn_wrapper">
+                    <button id="sbplus_menu_btn" aria-label="Toggle Menu" aria-expanded="false" aria-controls="sbplus_menu_list">
+                        <span class="icon-menu menu-icon"></span>
+                    </button>
+                    <ul id="sbplus_menu_list" class="menu" aria-hidden="false" role="menu">
+    
+                        <li class="menu-item sbplus_author_profile" role="menuitem">
+                            <button onclick="SBPLUS.openMenuItem('sbplus_author_profile');" aria-controls="menu_item_content">
+                                <span class="icon-profile"></span>
+                                Author Profile
+                            </button>
+                        </li>
                         
-                        <li class="menu-parent" role="menuitem" aria-label="Menu" tabindex="0" aria-haspopup="true" aria-expanded="false">
-                            <span class="icon-menu menu-icon"></span>
-                            <ul class="menu" role="menu" aria-hidden="true" aria-expanded="false">
-                                
-                                <li tabindex="-1" role="menuitem" aria-live="polite" class="menu-item sbplus_author_profile">
-                                    <a href="javascript:void(0);" onclick="SBPLUS.openMenuItem('sbplus_author_profile');">
-                                        <span class="icon-profile"></span>
-                                        Author Profile
-                                    </a>
-                                </li>
-                                
-                                <li tabindex="-1" role="menuitem" aria-live="polite" class="menu-item sbplus_general_info">
-                                    <a href="javascript:void(0);" onclick="SBPLUS.openMenuItem('sbplus_general_info');">
-                                        <span class="icon-info"></span>
-                                        General Info
-                                    </a>
-                                </li>
-                                
-                                <li tabindex="-1" role="menuitem" aria-live="polite" class="menu-item sbplus_settings">
-                                    <a href="javascript:void(0);" onclick="SBPLUS.openMenuItem('sbplus_settings');">
-                                        <span class="icon-settings"></span>
-                                        Settings
-                                    </a>
-                                </li>
-
-                                <li id="sbplus_version" tabindex="-1"></li>
-                                
-                            </ul>
-                            
+                        <li class="menu-item sbplus_general_info" role="menuitem">
+                            <button onclick="SBPLUS.openMenuItem('sbplus_general_info');" aria-controls="menu_item_content">
+                                <span class="icon-info"></span>
+                                General Info
+                            </button>
+                        </li>
+                        
+                        <li class="menu-item sbplus_settings" role="menuitem">
+                            <button onclick="SBPLUS.openMenuItem('sbplus_settings');" aria-controls="menu_item_content">
+                                <span class="icon-settings"></span>
+                                Settings
+                            </button>
                         </li>
                         
                     </ul>
                     
-                </div>
+                </nav>
                 
             </div>
             
@@ -173,18 +165,18 @@
         
         </div>
         
-        <div id="menu_item_content" class="animated">
+        <div id="menu_item_content" class="animated" aria-live="polite" aria-atomic="true">
             <div class="sbplus_menu_title_bar">
                 <div class="title"></div>
                 <button id="sbplus_menu_close_btn"><span class="icon-close"></span> Close</button>
             </div>
             <div class="container">
-                <div class="content"></div>
-                <div class="side_menu">
+                <div class="content" tabindex="0"></div>
+                <nav class="side_menu">
                     <ul class="menu" role="menu">
                         
                     </div>
-                </div>
+                </nav>
             </div>
         </div>
 

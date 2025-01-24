@@ -4,6 +4,8 @@
 .sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button:hover{background-color:--var-hover}
 .sbplus_wrapper #sbplus #menu_item_content .sbplus_menu_title_bar {background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_banner_bar{background-color:--var-accent;color:--var-textColor}
+.sbplus_wrapper #sbplus #sbplus_banner_bar #sbplus_menu_area #sbplus_menu_btn_wrapper #sbplus_menu_btn {background-color:--var-accent;color:--var-textColor}
+.sbplus_wrapper #sbplus #sbplus_banner_bar #sbplus_menu_area #sbplus_menu_btn_wrapper #sbplus_menu_btn.active {color:--var-textColor;background-color:--var-hover}
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .item button:hover{color:--var-textColor;background-color:--var-hover}
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col .list .sb_selected button {color:--var-textColor;background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_right_col #sbplus_table_of_contents_wrapper .section .current{border-left-color:--var-accent}

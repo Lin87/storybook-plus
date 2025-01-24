@@ -120,7 +120,8 @@ body {
     }
     
     *:focus-visible {
-        outline: 2px dashed $default-accent;
+        outline: 2px dashed $default-accent-hover;
+        box-shadow: 0 0 6px #fff;
     }
     
     #sbplus_loading_screen {
@@ -427,108 +428,98 @@ body {
                 
                 #sbplus_author_name {
                     display: none;
-                    flex: 2 1 auto;
+                    flex-grow: 1;
                     color: inherit;
                 }
                 
                 #sbplus_menu_btn_wrapper {
                     
-                    margin: 0;
-                    padding: 0 $gutter 0 0;
-                    
-                    #sbplus_menu_btn,
-                    .root-level {
-                        
-                        min-width: 30px;
-                        margin: 0;
-                        padding: 0;
-                        color: inherit;
-                        font-size: 28px;
-                        list-style: none;
-                        height: 100%;
-                        line-height: 1;
-                    
-                        .menu-parent {
-                            
-                            display: flex;
-                            align-items: center;
-                            position: relative;
-                            height: 100%;
-                            cursor: pointer;
-                            
-                            .menu {
-                            
-                                position: absolute;
-                                width: 260px;
-                                right: -9px;
-                                top: 29px;
-                                list-style: none;
-                                margin: 0;
-                                padding: 0;
-                                border-top: none;
-                                background-color: #5f5d5d;
-                                box-shadow: -4px 4px 4px #8d8d8d;
-                                z-index: 11;
-                                
-                                .menu-item {
-                                    
-                                    a { 
-                                        
-                                        display: flex;
-                                        flex-flow: row nowrap;
-                                        align-items: center;
-                                        width: 100%;
-                                        height: 35px;
-                                        padding: 0 ($gutter + 5);
-                                        font-size: 14px;
-                                        font-weight: normal;
-                                        color: #fff;
-                                        text-decoration: none;
-                                        
-                                        span {
-                                            display: inline-block;
-                                            margin-right: 5px;
-                                        }
-                                        
-                                    }
-                                    
-                                }
-                                
-                                .menu-item:hover {
-                                    
-                                    background-color: $default-accent-hover;
-                                    
-                                    a {
-                                        color: #fff;
-                                    }
-                                    
-                                }
-                                
-                                .menu-item:focus {
-                                    
-                                    background-color: $default-accent;
-                                    
-                                    a {
-                                        color: #fff;
-                                    }
-                                    
-                                }
+                    position: relative;
+                    height: 100%;
 
-                                #sbplus_version {
-                                    text-align: center;
-                                    font-size: 10px;
-                                    color: #8f8f8f;
-                                    cursor: default;
-                                    padding: $gutter ($gutter + 5);
-                                    margin: 0;
+                    #sbplus_menu_btn {
+
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #fff;
+                        height: 100%;
+                        background-color: $default-accent;
+
+                        &.active {
+                            background-color: $default-accent-hover;
+                        }
+
+                    }
+                    
+                    #sbplus_menu_list {
+                        
+                        display: none;
+
+                        &.menu {
+                            
+                            position: absolute;
+                            width: 260px;
+                            right: 0;
+                            list-style: none;
+                            font-size: 28px;
+                            line-height: 1;
+                            margin: 0;
+                            padding: 0;
+                            border-top: none;
+                            background-color: #444;
+                            box-shadow: -4px 4px 4px #8d8d8d;
+                            z-index: 11;
+                            
+                            .menu-item {
+                                
+                                button { 
+                                    
+                                    display: flex;
+                                    flex-flow: row nowrap;
+                                    align-items: center;
+                                    width: 100%;
+                                    height: 35px;
+                                    padding: 0 ($gutter + 5);
+                                    font-size: 14px;
+                                    font-weight: normal;
+                                    color: #fff;
+                                    text-decoration: none;
+                                    cursor: pointer;
+                                    
+                                    span {
+                                        display: inline-block;
+                                        margin-right: 5px;
+                                    }
+                                    
                                 }
-                                                                    
+                                
                             }
                             
+                            .menu-item:hover {
+                                
+                                background-color: $default-accent-hover;
+                                
+                                a {
+                                    color: #fff;
+                                }
+                                
+                            }
+                            
+                            .menu-item:focus {
+                                
+                                background-color: $default-accent;
+                                
+                                a {
+                                    color: #fff;
+                                }
+                                
+                            }
+                                                                
                         }
                         
-                        .active {
-                            color: #ff3c3c;
+                        &.active {
+                            display: block;
                         }
                         
                     }
@@ -1182,12 +1173,18 @@ body {
                         .vjs-has-started {
                             
                             .vjs-poster {
+
                                 @include calc( height, '100% - ' + 33px );
                                 display: flex;
                                 align-items: center;
                                 justify-content: center;
                                 z-index: 1;
                                 cursor: default;
+
+                                img {
+                                    object-fit: cover !important;
+                                }
+
                             }
                             
                         }
@@ -1639,7 +1636,8 @@ body {
                             }
 
                             &:focus-visible {
-                                outline: 2px dashed $default-accent;
+                                outline: 2px dashed $default-accent-hover;
+                                box-shadow: 0 0 6px #fff;
                             }
                             
                         }
@@ -1933,6 +1931,14 @@ body {
             animation-duration: 0.5s;
             background: #f2f2f2;
             z-index: 11;
+
+            #sbplus_version {
+                display: block;
+                text-align: right;
+                font-size: 75%;
+                color: #707070;
+                margin-top: 10px;
+            }
             
             .sbplus_menu_title_bar {
                 
@@ -2128,7 +2134,7 @@ body {
                         
                         .menu-item {
                             
-                            a { 
+                            button { 
                                 
                                 display: flex;
                                 flex-flow: row nowrap;
@@ -2750,103 +2756,102 @@ body {
                         cursor: default;
                     }
                     
-                    #sbplus_menu_btn_wrapper {
+                    // #sbplus_menu_btn_wrapper {
                     
-                        flex: 1 0 auto;
+                    //     flex: 1 0 auto;
                         
-                        #sbplus_menu_btn,
-                        .root-level {
+                    //     #sbplus_menu_list {
                             
-                            min-width: 28px;
-                            margin: 0;
-                            padding: 0;
-                            color: inherit;
-                            font-size: 28px;
-                            list-style: none;
-                            height: 100%;
-                            line-height: 1;
+                    //         min-width: 28px;
+                    //         margin: 0;
+                    //         padding: 0;
+                    //         color: inherit;
+                    //         font-size: 28px;
+                    //         list-style: none;
+                    //         height: 100%;
+                    //         line-height: 1;
                         
-                            .menu-parent {
+                    //         .menu-parent {
                                 
-                                display: flex;
-                                align-items: center;
-                                position: relative;
-                                height: 100%;
-                                cursor: pointer;
+                    //             display: flex;
+                    //             align-items: center;
+                    //             position: relative;
+                    //             height: 100%;
+                    //             cursor: pointer;
                                 
-                                .menu {
+                    //             .menu {
                                 
-                                    position: absolute;
-                                    width: 260px;
-                                    right: -9px;
-                                    top: 29px;
-                                    list-style: none;
-                                    margin: 0;
-                                    padding: 0;
-                                    border-top: none;
-                                    background-color: #5f5d5d;
-                                    //box-shadow: 0 6px 4px 2px #fff;
-                                    z-index: 11;
+                    //                 position: absolute;
+                    //                 width: 260px;
+                    //                 right: -9px;
+                    //                 top: 29px;
+                    //                 list-style: none;
+                    //                 margin: 0;
+                    //                 padding: 0;
+                    //                 border-top: none;
+                    //                 background-color: #5f5d5d;
+                    //                 //box-shadow: 0 6px 4px 2px #fff;
+                    //                 z-index: 11;
                                     
-                                    .menu-item {
+                    //                 .menu-item {
                                         
-                                        a { 
+                    //                     a { 
                                             
-                                            display: flex;
-                                            flex-flow: row nowrap;
-                                            align-items: center;
-                                            width: 100%;
-                                            height: 35px;
-                                            padding: 0 ($gutter + 5);
-                                            font-size: 14px;
-                                            font-weight: normal;
-                                            color: #fff;
-                                            text-decoration: none;
+                    //                         display: flex;
+                    //                         flex-flow: row nowrap;
+                    //                         align-items: center;
+                    //                         width: 100%;
+                    //                         height: 35px;
+                    //                         padding: 0 ($gutter + 5);
+                    //                         font-size: 14px;
+                    //                         font-weight: normal;
+                    //                         color: #fff;
+                    //                         text-decoration: none;
                                             
-                                            span {
-                                                display: inline-block;
-                                                margin-right: 5px;
-                                            }
+                    //                         span {
+                    //                             display: inline-block;
+                    //                             margin-right: 5px;
+                    //                         }
                                             
-                                        }
+                    //                     }
                                         
-                                    }
+                    //                 }
                                     
-                                    .menu-item:hover {
+                    //                 .menu-item:hover {
                                         
-                                        background-color: $default-accent-hover;
+                    //                     background-color: $default-accent-hover;
                                         
-                                        a {
-                                            color: #fff;
-                                        }
+                    //                     a {
+                    //                         color: #fff;
+                    //                     }
                                         
-                                    }
+                    //                 }
                                     
-                                    .menu-item:focus {
+                    //                 .menu-item:focus {
                                         
-                                        background-color: $default-accent;
+                    //                     background-color: $default-accent;
                                         
-                                        a {
-                                            color: #fff;
-                                        }
+                    //                     a {
+                    //                         color: #fff;
+                    //                     }
                                         
-                                    }
+                    //                 }
                                                                         
-                                }
+                    //             }
                                 
-                            }
+                    //         }
                             
-                            .active {
-                                color: #ff3c3c;
-                            }
+                    //         .active {
+                    //             color: #ff3c3c;
+                    //         }
                             
-                        }
+                    //     }
                         
-                        ul[aria-hidden="true"] {
-                            display: none;
-                        }
+                    //     ul[aria-hidden="true"] {
+                    //         display: none;
+                    //     }
                         
-                    }
+                    // }
                     
                 }
                 

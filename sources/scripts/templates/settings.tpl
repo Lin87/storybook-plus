@@ -79,3 +79,4 @@
     </div>
     
 </form>
+<span id="sbplus_version" tabindex="-1"></span>
