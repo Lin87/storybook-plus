@@ -115,8 +115,8 @@ const SBPLUS = {
             mediaContent: '#sbplus_media_wrapper .sbplus_media_content',
             mediaError: '#sbplus_media_wrapper .sbplus_media_error',
             mediaMsg: '#sbplus_media_wrapper .sbplus_media_msg',
-            leftCol: '#sbplus_left_col',
-            sidebar: '#sbplus_right_col',
+            mainContentCol: '#sbplus_main_content_col',
+            sidebar: '#sbplus_side_content_col',
             pageStatus: '#sbplus_page_status',
             quizContainer: '#sbplus_quiz_wrapper',
             mainControl: '#sbplus_control_bar',
@@ -331,6 +331,8 @@ const SBPLUS = {
         
         logo.src = path;
         logo.alt = "";
+        logo.width = "385px";
+        logo.height = "87px";
         splashLogo.appendChild( logo );
 
     },
@@ -1151,6 +1153,9 @@ const SBPLUS = {
                 
                 // select the page that was set in the local storage data
                 self.selectPage( self.getStorageItem( 'sbplus-' + self.presentationId ) );
+                window.setTimeout( function() {
+                    self.updateScroll( self.targetPage[0] );
+                }, 1000 );
                 
             } );
             
@@ -1218,7 +1223,7 @@ const SBPLUS = {
 
                     // append opening list item tag to DOM
                     sectionHTML += '<li class="item" aria-selected="false" data-count="' + self.totalPages + '" data-page="' + i + ',' + j + '">';
-                    sectionHTML += '<button role="tab" aria-controls="sbplus_left_col" aria-label="Slide ' + self.totalPages + ', ' + self.escapeHTMLAttribute(title) +'">';
+                    sectionHTML += '<button role="tab" aria-controls="sbplus_main_content_col" aria-label="Slide ' + self.totalPages + ', ' + self.escapeHTMLAttribute(title) +'">';
                     
                     // if page is quiz
                     if ( pageType === 'quiz' ) {
@@ -1933,11 +1938,9 @@ const SBPLUS = {
             // update screen reader status
             $( self.screenReader.currentPage ).html( self.targetPage.data( 'count' ) );
             
-            // update the scroll bar to targeted page
+            // update the scroll bar to targeted page with a 1
             if ( $( self.layout.sidebar ).is( ':visible' ) ) {
-                
                 self.updateScroll( self.targetPage[0] );
-                
             }
 
             // hide table of content in mobile view

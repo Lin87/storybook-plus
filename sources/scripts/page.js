@@ -56,7 +56,7 @@ let Page = function ( obj, data ) {
     };
     this.kalturaSrc = {};
     
-    this.leftCol = SBPLUS.layout.leftCol;
+    this.mainContentCol = SBPLUS.layout.mainContentCol;
     this.mediaContent = SBPLUS.layout.mediaContent;
     this.quizContainer = SBPLUS.layout.quizContainer;
     this.mediaError = SBPLUS.layout.mediaError;
@@ -316,7 +316,7 @@ Page.prototype.getPageMedia = function() {
         
         case 'quiz':
             
-            $( self.leftCol ).append( '<div id="sbplus_quiz_wrapper"></div>' )
+            $( self.mainContentCol ).append( '<div id="sbplus_quiz_wrapper"></div>' )
                 .promise().done( function() {
             
                     const qObj = {
@@ -407,6 +407,11 @@ Page.prototype.getPageMedia = function() {
         
     }
     
+    window.setTimeout( function() {
+        document.activeElement.blur();
+        document.querySelector( SBPLUS.layout.mainContentCol ).focus();
+    }, 1000 );
+
     // add current page index to local storage
     
     window.clearTimeout( self.delayStorage );
@@ -1337,7 +1342,6 @@ function addSecondaryControls( noAudio = false ) {
     expandContractBtn.setAttribute( 'id', 'expand_contract_btn' );
     expandContractBtn.setAttribute( 'title', 'Expand/Contract' );
     expandContractBtn.setAttribute( 'aria-label', 'Expand/Contract' );
-    expandContractBtn.setAttribute( 'tabindex', '1' );
 
     secondaryControlDiv.appendChild(expandContractBtn);
     secondaryControlDiv.addEventListener( 'click', toggleExpandContractView );

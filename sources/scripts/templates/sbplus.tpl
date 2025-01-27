@@ -88,27 +88,7 @@
         
         <div id="sbplus_content_wrapper">
         
-            <div id="sbplus_left_col" aria-live="polite" aria-atomic="true">
-                
-                <div id="sbplus_media_wrapper">
-                    <div class="sbplus_media_error"></div>
-                    <div class="sbplus_media_msg hide"></div>
-                    <div class="sbplus_media_content animated"></div>
-                </div>
-                
-                <div id="sbplus_widget">
-                    
-                    <div class="widget_controls_bar">
-                        <div class="tab_segment" role="tablist"></div>
-                    </div>
-                    
-                    <div id="widget_content" class="segment_content" role="tabpanel"></div>
-                    
-                </div>
-                
-            </div>
-            
-            <div id="sbplus_right_col">
+            <div id="sbplus_side_content_col">
                 
                 <div id="sbplus_sub_bar">
                     <div class="title">Contents</div>
@@ -132,11 +112,11 @@
 
                     <div class="controls">
 
-                        <button id="sbplus_previous_btn" title="Previous" aria-label="Previous" aria-controls="sbplus_left_col">
+                        <button id="sbplus_previous_btn" title="Previous" aria-label="Previous" aria-controls="sbplus_main_content_col">
                         <span class="icon-left"></span>
                         </button>
                         
-                        <button id="sbplus_next_btn" title="Next" aria-label="Next" aria-controls="sbplus_left_col">
+                        <button id="sbplus_next_btn" title="Next" aria-label="Next" aria-controls="sbplus_main_content_col">
                             <span class="icon-right"></span>
                         </button>
 
@@ -152,6 +132,26 @@
                         </div>
 
                     </div>
+                    
+                </div>
+                
+            </div>
+
+            <div id="sbplus_main_content_col" aria-live="polite" aria-atomic="true" tabindex="0">
+                
+                <div id="sbplus_media_wrapper">
+                    <div class="sbplus_media_error"></div>
+                    <div class="sbplus_media_msg hide"></div>
+                    <div class="sbplus_media_content animated"></div>
+                </div>
+                
+                <div id="sbplus_widget">
+                    
+                    <div class="widget_controls_bar">
+                        <div class="tab_segment" role="tablist"></div>
+                    </div>
+                    
+                    <div id="widget_content" class="segment_content" role="tabpanel"></div>
                     
                 </div>
                 

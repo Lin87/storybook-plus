@@ -540,12 +540,13 @@ body {
             flex-flow: column nowrap;
             flex: 2 0 auto;
 
-            #sbplus_left_col {
+            #sbplus_main_content_col {
 
                 display: flex;
                 position: relative;
                 flex-flow: column nowrap;
                 flex: 2 0 auto;
+                order: 1;
 
                 #sbplus_media_wrapper {
 
@@ -1544,8 +1545,10 @@ body {
                 
             }
 
-            #sbplus_right_col {
-                
+            #sbplus_side_content_col {
+
+                order: 2;
+
                 #sbplus_sub_bar {
 
                     display: none;
@@ -2177,7 +2180,7 @@ body {
 
             #sbplus_content_wrapper {
 
-                #sbplus_left_col {
+                #sbplus_main_content_col {
 
                     #sbplus_widget {
                         display: none;
@@ -2185,7 +2188,7 @@ body {
 
                 }
 
-                #sbplus_right_col {
+                #sbplus_side_content_col {
 
                     display: flex;
                     flex-flow: column nowrap;
@@ -2275,7 +2278,7 @@ body {
 
                 #sbplus_content_wrapper {
 
-                    #sbplus_left_col {
+                    #sbplus_main_content_col {
 
                         #sbplus_quiz_wrapper {
 
@@ -2367,7 +2370,7 @@ body {
 
                     }
 
-                    #sbplus_right_col {
+                    #sbplus_side_content_col {
 
                         border-left-color: rgb(73, 80, 87);
 
@@ -2508,7 +2511,7 @@ body {
 
                         #sbplus_content_wrapper {
 
-                            #sbplus_left_col {
+                            #sbplus_main_content_col {
                                 
                                 #sbplus_quiz_wrapper {
                                     border: solid 1px rgb(73, 80, 87);
@@ -2516,7 +2519,7 @@ body {
 
                             }
 
-                            #sbplus_right_col {
+                            #sbplus_side_content_col {
 
                                 #sbplus_control_bar {
 
@@ -2697,7 +2700,7 @@ body {
                 border: 1px solid $border-color;
                 border-top: none;
                 
-                #sbplus_left_col {
+                #sbplus_main_content_col {
                 
                     width: 640px;
                     flex: unset;
@@ -2773,7 +2776,7 @@ body {
                     
                 }
                 
-                #sbplus_right_col {
+                #sbplus_side_content_col {
 
                     width: 258px;
                     border-left: 1px solid $border-color;
@@ -2823,7 +2826,7 @@ body {
 
                 #sbplus_content_wrapper {
     
-                    #sbplus_left_col {
+                    #sbplus_main_content_col {
 
                         position: absolute;
                         width: 100%;
@@ -2861,7 +2864,7 @@ body {
         
                     }
 
-                    #sbplus_left_col {
+                    #sbplus_main_content_col {
 
                         #sbplus_quiz_wrapper {
                             border-bottom: 1px solid $border-color;
@@ -2869,7 +2872,7 @@ body {
 
                     }
 
-                    #sbplus_right_col {
+                    #sbplus_side_content_col {
 
                         position: relative;
                         width: unset;
