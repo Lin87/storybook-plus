@@ -33,7 +33,7 @@ import "../sass/sbplus.scss";
 *******************************************************************************/
 'use strict';
 
-import { MenuBar } from "./menubar";
+// import { MenuBar } from "./menubar";
 import { Page } from "./page";
 
 const SBPLUS = {
@@ -167,7 +167,7 @@ const SBPLUS = {
             notes: '#sbplus_new_note_btn',
             downloadWrapper: '#sbplus_download_btn_wrapper',
             download: '#sbplus_download_btn',
-            downloadMenu: '#sbplus_download_btn .menu-parent .downloadFiles',
+            downloadMenu: '#sbplus_file_list',
             author: '#sbplus_author_name',
             menu: '#sbplus_menu_btn',
             menuClose: '#sbplus_menu_close_btn',
@@ -1000,7 +1000,7 @@ const SBPLUS = {
 
                 self.downloads[fileLabel] = { fileName: fileName, fileFormat: file.format, url: this.url };
 
-                $( self.splash.downloadBar ).append('<a href="' + this.url + '" tabindex="0" download="' + fileName + "." + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + "</a>");
+                $( self.splash.downloadBar ).append('<a href="' + this.url + '" download="' + fileName + "." + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + "</a>");
 
             } ).always( function () {
 
@@ -1170,7 +1170,7 @@ const SBPLUS = {
         if ( self.presentationRendered === false ) {
             
             // remove focus (from the hidden elements)
-            $( self.layout.sbplus ).blur();
+            document.querySelector( self.layout.sbplus ).focus();
             
             // display presentation title and author to the black banner bar
             $( self.banner.title ).html( self.xml.setup.title );
@@ -1276,16 +1276,6 @@ const SBPLUS = {
             $( self.widget.segment ).on( 'click', 'button', self.selectSegment.bind( self ) );
             
             // add main menu button
-            //self.layout.mainMenu = new MenuBar( $( self.button.menu )[0].id, false );
-            // const nav = document.querySelector("#sbplus_menu_btn_wrapper");
-            // const menu = document.querySelector("#sbplus_menu_btn_wrapper ul");
-            // const toggle = document.querySelector("#sbplus_menu_btn_wrapper button");
-            // self.layout.mainMenu = new Menubar( {
-            //     menuElement: menu,
-            //     containerElement: nav,
-            //     controllerElement: toggle,
-            // } );
-
             $( self.button.menu ).on( 'click', function( e ) {
 
                 const menuBtn = $( e.currentTarget );
@@ -1301,24 +1291,29 @@ const SBPLUS = {
             
             // hide general info under main menu if empty
             if ( self.isEmpty( self.xml.setup.generalInfo ) ) {
-
                 $( ".sbplus_general_info" ).hide();
-
             }
             
             // add download button if downloads object is not empty
             if ( !$.isEmptyObject( self.downloads ) ) {
                 
-                self.layout.dwnldMenu = new MenuBar( $( self.button.download )[0].id, false );
-                
+                $( self.button.download ).on( 'click', function( evt ) {
+                    const downloadBtn = $( evt.currentTarget );
+                    if ( downloadBtn.attr( 'aria-expanded') === 'false' ) {
+                        self.openDownloadMenu();
+                    } else {
+                        self.closeDownloadMenu();
+                    }
+                } );
+
                 // set download items
                 for ( let key in self.downloads ) {
                     
                     if ( self.downloads[key] != undefined ) {
                         $( self.button.downloadMenu ).append(
-                            '<li class="menu-item" tabindex="-1" role="menuitem" aria-live="polite"><a download="' + self.downloads[key].fileName + '.' + self.downloads[key].fileFormat + '" href="'
+                            '<li class="menu-item" role="menuitem"><a download="' + self.downloads[key].fileName + '.' + self.downloads[key].fileFormat + '" href="'
                             + self.downloads[key].url +
-                            '" class="sbplus-download-link">' + self.capitalizeFirstLetter( key ) + '</a></li>'
+                            '" class="sbplus-download-link" aria-label="Download '+ self.escapeHTMLAttribute(key) +' file">' + self.capitalizeFirstLetter( key ) + '</a></li>'
                         );
                     }
                     
@@ -1338,6 +1333,29 @@ const SBPLUS = {
             
             // easter egg event listener
             $( "#sbplus_menu_btn" ).on( 'click', self.burgerBurger.bind( self ) );
+
+            // close floating menus when click anywhere on the page
+            $( document ).on( 'click', function ( evt ) {
+
+                const target = evt.target;
+                const downloadBtn = $( self.button.download );
+                const menuBtn = $( self.button.menu );
+            
+                // Check if downloadBtn exists and handle clicks outside it (including descendants)
+                if ( downloadBtn.length && !downloadBtn.is( target ) && !$.contains( downloadBtn[0], target ) ) {
+                    if ( downloadBtn.hasClass( 'active' ) ) {
+                        self.closeDownloadMenu();
+                    }
+                }
+            
+                // Handle clicks outside menuBtn (including descendants)
+                if ( !menuBtn.is( target ) && !$.contains( menuBtn[0], target ) ) {
+                    if ( menuBtn.hasClass( 'active' ) ) {
+                        self.closeMenu();
+                    }
+                }
+
+            } );
             
             this.presentationRendered = true;
             
@@ -1513,6 +1531,24 @@ const SBPLUS = {
         menuBtn.attr( 'aria-expanded', false ).removeClass( 'active' );
         menuList.removeClass( 'active' );
 
+    },
+
+    openDownloadMenu: function() {
+
+        const downloadBtn = $( this.button.download );
+        const downloadMenuList = $( this.button.downloadMenu );
+
+        downloadBtn.attr( 'aria-expanded', true ).addClass( 'active' );
+        downloadMenuList.removeAttr( 'aria-hidden' ).show();
+
+    },
+
+    closeDownloadMenu: function() {
+        const downloadBtn = $( this.button.download );
+        const downloadMenuList = $( this.button.downloadMenu );
+
+        downloadBtn.attr( 'aria-expanded', false ).removeClass( 'active' );
+        downloadMenuList.attr( 'aria-hidden', true ).hide();
     },
 
     /**

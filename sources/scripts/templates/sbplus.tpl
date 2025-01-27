@@ -146,14 +146,8 @@
                         
                         <div id="sbplus_download_btn_wrapper">
                             
-                            <div id="sbplus_download_btn" class="root-level" role="menubar" title="Downloads">
-                                
-                                <div class="menu-parent" role="menuitem" aria-label="Downloads Menu" tabindex="0" aria-haspopup="true" aria-expanded="false">
-                                    <span class="icon-download"></span>
-                                    <ul class="downloadFiles menu" role="menu" aria-hidden="true" aria-expanded="false"></ul>
-                                </div>
-                                
-                            </div>
+                            <button id="sbplus_download_btn" aria-label="Toggle Downloadable Files" aria-expanded="false" aria-haspopup="menu" aria-expanded="false" aria-controls="sbplus_file_list"><span class="icon-download"></span></button>
+                            <ul id="sbplus_file_list" class="downloadFiles menu" role="menu" aria-hidden="true"></ul>
                             
                         </div>
 

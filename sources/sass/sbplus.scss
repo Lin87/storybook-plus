@@ -1154,19 +1154,6 @@ body {
                         }
                         
                     }
-                    
-                    // IE Hack for object fit
-                    // .sbplus_media_content.compat-object-fit {
-
-                    //     background-size: contain;
-                    //     background-position: center center;
-                    //     background-repeat: no-repeat;
-
-                    //     .img_only {
-                    //         display: none;
-                    //     }
-
-                    // }
 
                     .show-vjs-poster {
                         
@@ -1815,100 +1802,75 @@ body {
                 }
                 
                 #sbplus_download_btn_wrapper {
-                        
+                    
+                    position: relative;
                     @extend .button-commons;
                     
-                    #sbplus_download_btn,
-                    .root-level {
+                    #sbplus_download_btn {
 
-                        width: 100%;
-                        height: 100%;
-                        text-align: center;
-                        font-size: 145%;
-                        line-height: 1;
-                        list-style: none;
-                    
-                        .menu-parent {
-                            
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            position: relative;
-                            height: 100%;
-                            cursor: pointer;
-                            
-                            .menu {
-                            
-                                position: absolute;
-                                width: 90%;
-                                left: 5%;
-                                bottom: 100%;
-                                list-style: none;
-                                margin: 0;
-                                padding: 0;
-                                border: 1px solid $border-color;
-                                border-radius: 8px 8px 0 0;
-                                background-color: $control-bg-color;
-                                overflow: hidden;
-                                box-shadow: 0 -3px 6px $border-color;
-                                
-                                .menu-item {
-                                    
-                                    display: flex;
-                                    flex-flow: column nowrap;
-                                    align-items: center;
-                                    justify-content: center;
-                                    height: 30px;
-                                    
-                                    a {
-                                        display: flex;
-                                        font-size: 14px;
-                                        color: #000;
-                                        text-decoration: none;
-                                        width: 100%;
-                                        height: 100%;
-                                        align-items: center;
-                                        justify-content: center;
-                                    }
-                                    
-                                }
-                                
-                                .menu-item:hover {
-                                    
-                                    background-color: $default-accent;
-                                    
-                                    a {
-                                        color: #fff;
-                                    }
-                                    
-                                }
-                                
-                                .menu-item:focus {
-                                    
-                                    background-color: $default-accent;
-                                    
-                                    a {
-                                        color: #fff;
-                                    }
-                                    
-                                }
-                                                                    
-                            }
-                            
-                        }
-
-                        .active {
-                            color: $default-accent-hover;
-                        }
-                        
-                        .menu-parent:hover {
+                        &.active {
                             color: $default-accent-hover;
                         }
                         
                     }
                     
-                    ul[aria-hidden="true"] {
+                    .menu {
+                        
                         display: none;
+                        position: absolute;
+                        width: 150px;
+                        right: 0;
+                        bottom: 100%;
+                        list-style: none;
+                        margin: 0;
+                        padding: 0;
+                        border: 1px solid $border-color;
+                        border-radius: 8px 8px 0 0;
+                        background-color: $control-bg-color;
+                        overflow: hidden;
+                        box-shadow: 0 -3px 6px $border-color;
+                        
+                        .menu-item {
+                            
+                            display: flex;
+                            flex-flow: column nowrap;
+                            align-items: center;
+                            justify-content: center;
+                            height: 30px;
+                            
+                            a {
+                                display: flex;
+                                font-size: 14px;
+                                color: #000;
+                                text-decoration: none;
+                                width: 100%;
+                                height: 100%;
+                                align-items: center;
+                                justify-content: center;
+                            }
+                            
+                        }
+                        
+                        .menu-item:hover {
+                            
+                            background-color: $default-accent;
+                            
+                            a {
+                                color: #fff;
+                            }
+                            
+                        }
+                        
+                        .menu-item:focus {
+                            
+                            background-color: $default-accent;
+                            
+                            a {
+                                color: #fff;
+                            }
+                            
+                        }
+                                                            
                     }
                                             
                 }
@@ -2540,38 +2502,6 @@ body {
                             background-color: #343a40;
                         }
 
-                        .controls {
-                            
-                            #sbplus_download_btn_wrapper {
-
-                                #sbplus_download_btn {
-
-                                    .menu-parent {
-
-                                        .menu {
-
-                                            background-color: #343a40;
-                                            border-color: rgb(73, 80, 87);
-                                            box-shadow: 0 -3px 6px rgb(73, 80, 87);
-
-                                            .menu-item {
-
-                                                a {
-                                                    color: #fff;
-                                                }
-
-                                            }
-
-                                        }
-    
-                                    }
-
-                                }
-                                
-                            }
-
-                        }
-
                     }
 
                     &.sbplus-vjs-expanded {
@@ -2755,104 +2685,7 @@ body {
                     #sbplus_author_name:disabled {
                         cursor: default;
                     }
-                    
-                    // #sbplus_menu_btn_wrapper {
-                    
-                    //     flex: 1 0 auto;
-                        
-                    //     #sbplus_menu_list {
-                            
-                    //         min-width: 28px;
-                    //         margin: 0;
-                    //         padding: 0;
-                    //         color: inherit;
-                    //         font-size: 28px;
-                    //         list-style: none;
-                    //         height: 100%;
-                    //         line-height: 1;
-                        
-                    //         .menu-parent {
-                                
-                    //             display: flex;
-                    //             align-items: center;
-                    //             position: relative;
-                    //             height: 100%;
-                    //             cursor: pointer;
-                                
-                    //             .menu {
-                                
-                    //                 position: absolute;
-                    //                 width: 260px;
-                    //                 right: -9px;
-                    //                 top: 29px;
-                    //                 list-style: none;
-                    //                 margin: 0;
-                    //                 padding: 0;
-                    //                 border-top: none;
-                    //                 background-color: #5f5d5d;
-                    //                 //box-shadow: 0 6px 4px 2px #fff;
-                    //                 z-index: 11;
-                                    
-                    //                 .menu-item {
-                                        
-                    //                     a { 
-                                            
-                    //                         display: flex;
-                    //                         flex-flow: row nowrap;
-                    //                         align-items: center;
-                    //                         width: 100%;
-                    //                         height: 35px;
-                    //                         padding: 0 ($gutter + 5);
-                    //                         font-size: 14px;
-                    //                         font-weight: normal;
-                    //                         color: #fff;
-                    //                         text-decoration: none;
-                                            
-                    //                         span {
-                    //                             display: inline-block;
-                    //                             margin-right: 5px;
-                    //                         }
-                                            
-                    //                     }
-                                        
-                    //                 }
-                                    
-                    //                 .menu-item:hover {
-                                        
-                    //                     background-color: $default-accent-hover;
-                                        
-                    //                     a {
-                    //                         color: #fff;
-                    //                     }
-                                        
-                    //                 }
-                                    
-                    //                 .menu-item:focus {
-                                        
-                    //                     background-color: $default-accent;
-                                        
-                    //                     a {
-                    //                         color: #fff;
-                    //                     }
-                                        
-                    //                 }
-                                                                        
-                    //             }
-                                
-                    //         }
-                            
-                    //         .active {
-                    //             color: #ff3c3c;
-                    //         }
-                            
-                    //     }
-                        
-                    //     ul[aria-hidden="true"] {
-                    //         display: none;
-                    //     }
-                        
-                    // }
-                    
+
                 }
                 
             }
@@ -2980,44 +2813,7 @@ body {
                     
                     #mobile_toc_toggle_btn {
                         display: none;
-                    }
-
-                    #sbplus_download_btn_wrapper {
-                        
-                        #sbplus_download_btn,
-                        .root-level {
-                            
-                            width: 100%;
-                            
-                            .menu-parent {
-                                
-                                display: flex;
-                                align-items: center;
-                                
-                                span {
-                                    display: block;
-                                    margin: 0 auto;
-                                }
-                                
-                                .menu {
-
-                                    width: 140%;
-                                    left: -40%;
-
-                                    .menu-item {
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                    }
-                                    
-                                }
-                                
-                            }
-                            
-                            
-                        }
-                        
-                    }
+                    } 
                     
                 }
                 
