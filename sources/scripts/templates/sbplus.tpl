@@ -52,7 +52,7 @@
                 <button id="sbplus_author_name" aria-label="Show author profile button"></button>
                 
                 <nav id="sbplus_menu_btn_wrapper">
-                    <button id="sbplus_menu_btn" aria-label="Toggle Menu" aria-expanded="false" aria-controls="sbplus_menu_list">
+                    <button id="sbplus_menu_btn" aria-label="Toggle Menu" aria-haspopup="menu" aria-expanded="false" aria-controls="sbplus_menu_list">
                         <span class="icon-menu menu-icon"></span>
                     </button>
                     <ul id="sbplus_menu_list" class="menu" aria-hidden="false" role="menu">
