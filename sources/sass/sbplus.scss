@@ -4,7 +4,7 @@
  * @author: Ethan Lin
  * @url: https://github.com/excelsior-university-web-systems/sbplus-v3
  * @version: 3.5.10
- * Released pending...
+ * Released 01/29/2025
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *

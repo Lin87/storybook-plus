@@ -1,7 +1,8 @@
 ### Version Change Logs
 
-#### 3.5.10 (pending...)
-* 
+#### 3.5.10 (01/29/2025)
+* Accessibility improvements (first pass)
+* Bug fixes and improvements
 
 #### 3.5.9 (07/31/2024)
 * Removed old Google Analytics tracking code. Replaced it with GA4's default tagging code.
