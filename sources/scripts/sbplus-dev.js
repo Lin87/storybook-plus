@@ -3,8 +3,8 @@
  *
  * @author: Ethan Lin
  * @url: https://github.com/excelsior-university-web-systems/sbplus-v3
- * @version: 3.5.10
- * Released 01/29/2025
+ * @version: 3.5.11
+ * Released 02/05/2025
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
@@ -85,7 +85,7 @@ const SBPLUS = {
     playbackrate: 1,
 
     // version number
-    version: '3.5.10',
+    version: '3.5.11',
     
     // easter egg variables
     clickCount: 0,
@@ -1222,8 +1222,8 @@ const SBPLUS = {
                     const title = $( this ).attr( 'title' );
 
                     // append opening list item tag to DOM
-                    sectionHTML += '<li class="item" aria-selected="false" data-count="' + self.totalPages + '" data-page="' + i + ',' + j + '">';
-                    sectionHTML += '<button role="tab" aria-controls="sbplus_main_content_col" aria-label="Slide ' + self.totalPages + ', ' + self.escapeHTMLAttribute(title) +'">';
+                    sectionHTML += '<li class="item" data-count="' + self.totalPages + '" data-page="' + i + ',' + j + '" role="presentation">';
+                    sectionHTML += '<button role="tab" aria-selected="false" aria-controls="sbplus_main_content_col" aria-label="Slide ' + self.totalPages + ', ' + self.escapeHTMLAttribute(title) +'">';
                     
                     // if page is quiz
                     if ( pageType === 'quiz' ) {
@@ -1923,11 +1923,11 @@ const SBPLUS = {
             
             // remove sb_selected class from all pages
             allPages.removeClass( 'sb_selected' );
-            allPages.attr( 'aria-selected', false );
+            $( allPages.find( 'button' ) ).attr( 'aria-selected', false );
             
             // add sb_selected class to targeted page
             self.targetPage.addClass( 'sb_selected' );
-            self.targetPage.attr( 'aria-selected', true );
+            $( self.targetPage.find( 'button' ) ).attr( 'aria-selected', true );
             
             // call the getPage function with targeted page data as parameter
             self.getPage( self.targetPage.data('page') );

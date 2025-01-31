@@ -3,8 +3,8 @@
  *
  * @author: Ethan Lin
  * @url: https://github.com/excelsior-university-web-systems/sbplus-v3
- * @version: 3.5.10
- * Released 01/29/2025
+ * @version: 3.5.11
+ * Released 02/05/2025
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
@@ -88,8 +88,6 @@ body {
     background-color: $body-bg-color;
 }
 
-
-
 .sbplus_pop_full {
     position: relative;
     width: 100%;
@@ -103,6 +101,37 @@ body {
     height: 1px;
     overflow: hidden;
     clip: rect(1px, 1px, 1px, 1px);
+}
+
+.visually-hidden-focusable {
+    text-decoration: none;
+}
+
+.visually-hidden-focusable:focus {
+    position: absolute;
+    z-index: 1;
+    color: #fff;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: $default-accent;
+    bottom: 1%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.visually-hidden-focusable:not(:focus):not(:focus-within):not(caption) {
+    position: absolute !important;
+}
+
+.visually-hidden-focusable:not(:focus):not(:focus-within) {
+    height: 1px !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    width: 1px !important;
+    clip: rect(0, 0, 0, 0) !important;
+    border: 0 !important;
+    white-space: nowrap !important;
 }
 
 /* sbplus */

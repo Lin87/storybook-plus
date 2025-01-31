@@ -154,6 +154,10 @@
                     <div id="widget_content" class="segment_content" role="tabpanel"></div>
                     
                 </div>
+
+                <a class="visually-hidden-focusable" href="#sbplus_previous_btn">Skip to previous slide button</a>
+                <a class="visually-hidden-focusable" href="#sbplus_next_btn">Skip to next slide button</a>
+                <a class="visually-hidden-focusable" href="#sbplus_table_of_contents_wrapper">Skip to Table of Contents</a>
                 
             </div>
         
