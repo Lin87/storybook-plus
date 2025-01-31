@@ -1,5 +1,9 @@
 ### Version Change Logs
 
+#### 3.5.11 (02/05/2025)
+* Added "skip to" shortcut links to the next button, previous button, and the table of contents for keyboard users.
+* Fix table of content aria markup
+
 #### 3.5.10 (01/29/2025)
 * Accessibility improvements (first pass)
 * Bug fixes and improvements
