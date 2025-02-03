@@ -793,7 +793,7 @@ Page.prototype.renderVideoJS = function( src ) {
             if ( self.isAudio && self.hasImage ) {
                 player.poster( SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType );
                 const imgPath = SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType;
-                $('.vjs-poster')[0].innerHTML = "<img src=" + imgPath + " />";
+                $('.vjs-poster')[0].innerHTML = "<img src=" + imgPath + " alt='Content about " + SBPLUS.escapeHTMLAttribute( self.title ) + "' />";
             }
             
             if ( self.isBundle ) {

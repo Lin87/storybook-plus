@@ -8,10 +8,15 @@ module.exports = merge( common, {
     optimization: {
         runtimeChunk: 'single',
     },
+    watchOptions: {
+        aggregateTimeout: 600, // Delay rebuilds after first change
+        poll: true, // Check for changes every second
+        ignored: /node_modules/ // Ignore unnecessary files
+    },
     devServer: {
         static: path.resolve( __dirname, 'dist' ),
         hot: true,
-        liveReload: true,
-        watchFiles: [ 'index.html', './assets/*', './sources/*' ]
+        watchFiles: ['index.html', './assets/**/*', './sources/**/*'],
     }
+    
 } );

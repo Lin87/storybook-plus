@@ -51,7 +51,7 @@
                 
                 <button id="sbplus_author_name" aria-label="Show author profile button"></button>
                 
-                <nav id="sbplus_menu_btn_wrapper">
+                <nav id="sbplus_menu_btn_wrapper" aria-label="Main Menu">
                     <button id="sbplus_menu_btn" aria-label="Toggle Menu" aria-haspopup="menu" aria-expanded="false" aria-controls="sbplus_menu_list">
                         <span class="icon-menu menu-icon"></span>
                     </button>
@@ -94,7 +94,7 @@
                     <div class="title">Contents</div>
                 </div>
                 
-                <nav id="sbplus_table_of_contents_wrapper"></nav>
+                <nav id="sbplus_table_of_contents_wrapper" aria-label="Table of Contents"></nav>
 
                 <!-- control bar -->
                 <div id="sbplus_control_bar">
