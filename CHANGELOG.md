@@ -1,5 +1,8 @@
 ### Version Change Logs
 
+#### 3.5.12 (02/12/2025)
+* 2nd pass through of the Ablr report; corrected partially accessible issues.
+
 #### 3.5.11 (02/05/2025)
 * Added "skip to" shortcut links to the next button, previous button, and the table of contents for keyboard users.
 * Fix table of content aria markup

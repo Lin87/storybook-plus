@@ -3,8 +3,8 @@
  *
  * @author: Ethan Lin
  * @url: https://github.com/excelsior-university-web-systems/sbplus-v3
- * @version: 3.5.11
- * Released 02/05/2025
+ * @version: 3.5.12
+ * Released 02/12/2025
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
@@ -85,7 +85,7 @@ const SBPLUS = {
     playbackrate: 1,
 
     // version number
-    version: '3.5.11',
+    version: '3.5.12',
     
     // easter egg variables
     clickCount: 0,
