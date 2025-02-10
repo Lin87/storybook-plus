@@ -2187,7 +2187,9 @@ const SBPLUS = {
             if ( !target.hasClass( 'active' ) ) {
                 self.currentPage.getWidgetContent( targetId );
                 button.removeClass( 'active' );
+                button.removeAttr( 'aria-selected' );
                 target.addClass( 'active' );
+                target.attr( 'aria-selected', true );
             }
             
             if ( self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true' ) {
