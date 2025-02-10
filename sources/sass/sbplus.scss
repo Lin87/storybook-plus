@@ -151,6 +151,7 @@ body {
     *:focus-visible {
         outline: 2px dashed $default-accent-hover;
         box-shadow: 0 0 6px #fff;
+        z-index: 11;
     }
     
     #sbplus_loading_screen {
@@ -447,6 +448,7 @@ body {
                 align-items: center;
                 padding: 0 $gutter;
                 line-height: 1.25;
+                font-size: 120%;
             }
             
             #sbplus_menu_area {
@@ -1236,6 +1238,10 @@ body {
                     z-index: 10;
                     overflow-x: hidden;
                     overflow-y: auto;
+
+                    &.hidden {
+                        display: none;
+                    }
                     
                     .sbplus_quiz_header {
 
@@ -1244,6 +1250,7 @@ body {
                         height: 20px;
                         padding: 0 8px;
                         @include font-size( 12px );
+                        font-weight: normal;
                         line-height: normal;
                         background-color: $border-color;
 
@@ -1648,6 +1655,7 @@ body {
                                 align-items: center;
                                 justify-content: space-between;
                                 text-align: left;
+                                font-size: rem( 14px );
                                 font-weight: bold;
                                 padding: 5px 10px;
                                 line-height: 1;

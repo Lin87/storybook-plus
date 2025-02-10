@@ -45,7 +45,7 @@
         <!-- Banner (black title) bar -->
         <div id="sbplus_banner_bar">
             
-            <div id="sbplus_lesson_title"></div>
+            <h1 id="sbplus_lesson_title"></h1>
             
             <div id="sbplus_menu_area">
                 
@@ -91,7 +91,7 @@
             <div id="sbplus_side_content_col">
                 
                 <div id="sbplus_sub_bar">
-                    <div class="title">Contents</div>
+                    <h2 class="title">Contents</h2>
                 </div>
                 
                 <nav id="sbplus_table_of_contents_wrapper" aria-label="Table of Contents"></nav>
@@ -144,6 +144,8 @@
                     <div class="sbplus_media_msg hide"></div>
                     <div class="sbplus_media_content animated"></div>
                 </div>
+
+                <div id="sbplus_quiz_wrapper" class="hidden"></div>
                 
                 <div id="sbplus_widget">
                     

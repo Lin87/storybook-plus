@@ -264,8 +264,8 @@ Quiz.prototype.renderQuiz = function() {
     const self = this;
     let questionImg = '';
     let questionAudio = '';
-    let html = '<div class="sbplus_quiz_header"><span class="icon-assessment"></span>';
-    html += ' Self Assessment</div>';
+    let html = '<h2 class="sbplus_quiz_header"><span class="icon-assessment" aria-hidden="true"></span>';
+    html += ' Self Assessment</h2>';
     
     if ( !SBPLUS.isEmpty( self.quiz.questionImg ) ) {
         questionImg = '<p><img src="assets/images/' + self.quiz.questionImg + '" /></p>';

@@ -1202,10 +1202,10 @@ const SBPLUS = {
                     }
                     
                     // append section head HTML to DOM
-                    sectionHTML += '<div class="header" >';
-                    sectionHTML += '<button class="title" tabindex="0" aria-expanded="true" aria-controls="toc-section-'+i+'">';
-                    sectionHTML += sectionHead +'<div class="icon"><span class="icon-collapse"></span></div></button>';
-                    sectionHTML += '</div>';
+                    sectionHTML += '<h3 class="header" >';
+                    sectionHTML += '<button class="title" aria-expanded="true" aria-controls="toc-section-'+i+'">';
+                    sectionHTML += sectionHead +'<div class="icon" aria-hidden="true"><span class="icon-collapse"></span></div></button>';
+                    sectionHTML += '</h3>';
                     
                 }
                 
@@ -1586,8 +1586,11 @@ const SBPLUS = {
         sbplusBanner.attr( "aria-hidden", true ).css( 'display', 'none' );
         sbplusContentWrapper.attr( "aria-hidden", true ).css( 'display', 'none' );
         
-        $( self.menu.menuContentList + ' li' ).removeClass( 'active' ).removeAttr( 'aria-selected' );
-        $( self.menu.menuContentList + ' .' + itemId ).addClass( 'active' ).attr( 'aria-selected', true );
+        $( self.menu.menuContentList + ' li' ).removeClass( 'active' );
+        $( self.menu.menuContentList + ' .' + itemId ).addClass( 'active' );
+
+        $( self.menu.menuContentList + ' li button' ).removeAttr( 'aria-selected' );
+        $( self.menu.menuContentList + ' .' + itemId + ' button ' ).attr( 'aria-selected', true );
         
         switch ( itemId ) {
                     

@@ -69,13 +69,12 @@ Page.prototype.getPageMedia = function() {
     
     // reset
     if ( $( SBPLUS.layout.quizContainer ).length ) {
-        $( SBPLUS.layout.quizContainer ).remove();
+        $( SBPLUS.layout.quizContainer ).empty();
     }
     
     $( self.mediaContent ).css('backgroundImage', '').removeClass('compat-object-fit').removeClass( 'show-vjs-poster' );
-    
     $( this.mediaError ).empty().hide();
-    
+
     if ( $( '#mp' ).length ) {
         videojs( 'mp' ).dispose();
     }
@@ -83,7 +82,8 @@ Page.prototype.getPageMedia = function() {
     SBPLUS.clearWidget();
     
     $( self.mediaContent ).removeClass( 'iframeEmbed' ).empty();
-    $(SBPLUS.layout.mediaMsg).addClass( 'hide' ).html('');
+    $( SBPLUS.layout.mediaMsg ).addClass( 'hide' ).empty('');
+    $( self.quizContainer ).addClass( 'hidden' ).empty();
     
     removeSecondaryControls();
 
@@ -316,21 +316,18 @@ Page.prototype.getPageMedia = function() {
         
         case 'quiz':
             
-            $( self.mainContentCol ).append( '<div id="sbplus_quiz_wrapper"></div>' )
-                .promise().done( function() {
-            
-                    const qObj = {
-                        id: self.pageNumber
-                    };
-                    
-                    const quizItem = new Quiz( qObj, self.pageData  );
-                    quizItem.getQuiz();
-                    
-                    if ( $( '#sbplus_widget' ).is( ':visible' ) ) {
-                        SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationId + '-previously-widget-open', 1, true );
-                    }
+            $( self.quizContainer ).removeClass( 'hidden' );
 
-            } );
+            const qObj = {
+                id: self.pageNumber
+            };
+            
+            const quizItem = new Quiz( qObj, self.pageData  );
+            quizItem.getQuiz();
+            
+            if ( $( '#sbplus_widget' ).is( ':visible' ) ) {
+                SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationId + '-previously-widget-open', 1, true );
+            }
             
         break;
         
