@@ -1992,7 +1992,6 @@ const SBPLUS = {
             pageData.src = target.attr( 'src' ).trim();
             
             // check for preventAutoplay attribute
-            
             if ( target.attr( 'preventAutoplay' ) != undefined ) {
                 pageData.preventAutoplay = target.attr( 'preventAutoplay' ).trim();
             } else {
@@ -2031,6 +2030,10 @@ const SBPLUS = {
 
             if ( target.find( 'copyableContent' ).length ) {
                 pageData.copyableContent = target.find( 'copyableContent' );
+            }
+
+            if ( target.find( 'description' ).length ) {
+                pageData.description = target.find( 'description' );
             }
 
             pageData.frames = target.find( 'frame' );

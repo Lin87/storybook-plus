@@ -30,16 +30,6 @@
     
     <section title="Chocolate Chip Cookies">
         
-        <!-- <page type="brightcove" src="6348690126112" title="Cooking Baking: Chocolate Chip Cookies" transition="" preventAutoplay="false" disableFullscreen="">
-            <note>
-              <![CDATA[<h1>Heading Level 1 (and 2)</h1>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip <em>ex ea commodo consequat</em>. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<ol><li>Hello</li><li>World</li></ol><h3>Heading Level 3</h3><p><a href="#">Loremipsumdolorsitametconsectetuadipisicingelitseddoeiusmodtemporincididuntutlaboreetdoloremagnaaliqua.</a> Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><ul><li>Hello</li><li>World</li></ul><script>onclick();</script>]]>
-            </note>
-            <markers>
-                <marker timecode="00:10" color="">Marker 1</marker>
-                <marker timecode="00:20" color="">Marker 2</marker>
-            </markers>
-        </page> -->
-
         <page type="image-audio" src="slide01" title="Cooking Baking: Chocolate Chip Cookies" transition="">
             <note>
               <![CDATA[<h1>Heading Level 1</h1>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip <em>ex ea commodo consequat</em>. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<ol><li>Hello</li><li>World</li></ol><h2>Heading Level 3</h2><p><a href="#">Loremipsumdolorsitametconsectetuadipisicingelitseddoeiusmodtemporincididuntutlaboreetdoloremagnaaliqua.</a> Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><ul><li>Hello</li><li>World</li></ul><script>onclick();</script>]]>
@@ -48,6 +38,7 @@
                 <marker timecode="00:10" color="">Marker 1</marker>
                 <marker timecode="00:20" color="">Marker 2</marker>
             </markers>
+            <description><![CDATA[Close-up view of several chocolate chip cookies. The cookies are a light golden brown color, and are stacked or overlapping each other, showing the textures and the chocolate chips within.The cookies appear freshly baked, with visible cracks and a slightly uneven surface characteristic of baked goods. The text "BKN 315 - Week 2" is displayed at the top of the image in a light-colored font, above a larger title "Cookie Baking" in a bold, sans-serif font with a light background. Below that title, the words "Chocolate Chip Cookies" are also displayed in a smaller font. The focus is primarily on the textures and colors of the cookies,with the lighting highlighting the details. The image suggests a theme of baking or a baking project.]]></description>
         </page>
         
         <page type="image-audio" src="slide02" title="Overview" transition="">
@@ -60,6 +51,7 @@
         
         <page type="image-audio" src="slide03" title="Cookie Type" transition="">
             <note />
+            <description />
         </page>
         
         <page type="image-audio" src="slide04" title="History" transition="">
@@ -68,19 +60,23 @@
                 <marker timecode="00:10" color="">Marker 1</marker>
                 <marker timecode="00:20" color="#f00">Marker 2</marker>
             </markers>
+            <description />
         </page>
         
         <page type="image-audio" src="slide05" title="A Cookie Timeline" transition="">
             <note />
+            <description />
         </page>
         
         <page type="image-audio" src="slide06" title="The Recipe" transition="">
             <note />
             <copyableContent><![CDATA[2 cups chocolate morsels, 2 1/4 cups all-purpose flour]]></copyableContent>
+            <description />
         </page>
         
         <page type="image-audio" src="slide07" title="Tools" transition="" preventAutoplay="true">
             <note>Audio is intentionally forced to prevent autoplay</note>
+            <description />
         </page>
         
         <page type="image-audio" src="slide08" title="Part 1 - Preheating and Melting" transition="">
@@ -201,6 +197,12 @@
 
         <page type="kaltura" src="0_1aesgu7f" title="Video from Kaltura" transition="" preventAutoplay="false">
             <note />
+            <description>A flock of geese swimming across the muddy pond on a windy day.</description>
+        </page>
+
+        <page type="brightcove" src="6348690126112" title="Video from BrightCove" transition="" preventAutoplay="false" disableFullscreen="">
+            <note />
+            <description>A screen recording of how to add Sketch in Front Panel using SOLIDSWorks.</description>
         </page>
         
         <page type="youtube" src="RzkD_rTEBYs" title="Video from YouTube" transition="" preventAutoplay="false" useDefaultPlayer="true">
@@ -216,8 +218,9 @@
             <note />
         </page>
         
-        <page type="image" src="slide03" title="Image from Assets Directory">
+        <page type="image" src="slide02" title="Image from Assets Directory">
             <note />
+            <description>An overview of chocolate chip cookies. The text highlights four key topic areas: a brief history of Chocolate Chip Cookies, the recipe and instructions, troubleshooting, and common variants. The text is presented in a bulleted list format, typical of an outline or presentation. A blurry, out-of-focus background image of chocolate chip cookies is visible.</description>
         </page>
         
         <page type="html" src="testing" title="HTML from Local Assets" embed="yes">

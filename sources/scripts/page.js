@@ -22,6 +22,7 @@ let Page = function ( obj, data ) {
         this.widgetSegments = {};
         this.copyableContent = obj.copyableContent;
         this.imgType = obj.imageFormat;
+        this.description = obj.description;
 
         if ( obj.type !== 'image' && obj.markers.length ) {
             this.markersNode = obj.markers[0];
@@ -32,6 +33,8 @@ let Page = function ( obj, data ) {
             this.frames = obj.frames;
             this.cuepoints = [];
         }
+
+        
         
         this.mediaPlayer = null;
         this.isKaltura = null;
@@ -177,6 +180,10 @@ Page.prototype.getPageMedia = function() {
                         self.addMarkers();
                         self.renderVideoJS();
                         self.setWidgets();
+
+                        if ( !!self.description ) {
+                            self.insertDescription();
+                        }
                 
                     } );
                     
@@ -205,7 +212,6 @@ Page.prototype.getPageMedia = function() {
                     }  
                 });
                 
-                
             } );
             
             $( img ).on( 'error', function() {
@@ -213,8 +219,13 @@ Page.prototype.getPageMedia = function() {
                 self.showPageError( 'NO_IMG', img.src );
             } );
             
-            $( self.mediaContent ).html( '<img src="' + img.src + '" class="img_only" alt="' + img.alt + '" />' ).promise().done( function() {
+            $( self.mediaContent ).html( '<img src="' + img.src + '" class="img_only" />' ).promise().done( function() {
                 self.setWidgets();
+
+                if ( !!self.description ) {
+                    self.insertDescription();
+                }
+                
                 addSecondaryControls( true );
             } );
                         
@@ -241,6 +252,12 @@ Page.prototype.getPageMedia = function() {
                     self.isVideo = true;
                     self.addMarkers();
                     self.renderVideoJS();
+
+                    if ( !!self.description ) {
+                        document.querySelector( '#mp_html5_api' ).setAttribute( 'aria-describedby', 'long-description' );
+                        self.insertDescription();
+                    }
+
                     self.setWidgets();
                     
                 } );
@@ -259,6 +276,11 @@ Page.prototype.getPageMedia = function() {
 
                     self.addMarkers();
                     self.renderVideoJS();
+
+                    if ( !!self.description ) {
+                        document.querySelector( '.video-js' ).setAttribute( 'aria-describedby', 'long-description' );
+                        self.insertDescription();
+                    }
                     
                 } );
 
@@ -307,6 +329,11 @@ Page.prototype.getPageMedia = function() {
                     self.addMarkers();
                     self.renderVideoJS();
                     self.setWidgets();
+
+                    if ( !!self.description ) {
+                        document.querySelector( '#mp_html5_api' ).setAttribute( 'aria-describedby', 'long-description' );
+                        self.insertDescription();
+                    }
             
                 } );
                 
@@ -504,6 +531,34 @@ function copyToClipboard() {
 
 }
 
+// insert long description
+Page.prototype.insertDescription = function() {
+
+    const self = this;
+
+    if ( self.description ) {
+    
+        const longDescEl = document.createElement( 'div' );
+
+        longDescEl.id = 'long-description';
+        longDescEl.classList.add( 'sr-only' );
+        longDescEl.innerText = self.description[0].textContent;
+
+        const videojs = document.querySelector( '.video-js' );
+
+        if ( videojs ) {
+            videojs.appendChild( longDescEl );
+            return;
+        }
+
+        const imageOnly = document.querySelector( '.img_only' );
+        imageOnly.setAttribute( 'aria-describedby', 'long-description' );
+        imageOnly.parentNode.appendChild( longDescEl );
+    
+    }
+
+}
+
 // kaltura api request
 Page.prototype.loadKalturaVideoData = function () {
     
@@ -581,6 +636,11 @@ Page.prototype.loadKalturaVideoData = function () {
                     
                     // call video js
                     self.renderVideoJS();
+
+                    if ( !!self.description ) {
+                        document.querySelector( '#mp_html5_api' ).setAttribute( 'aria-describedby', 'long-description' );
+                        self.insertDescription();
+                    }
                     
                 } );
                     
@@ -643,6 +703,10 @@ Page.prototype.loadBrightcoveVideoData = function () {
                     
         $( self.mediaContent ).html( html ).promise().done( function() {
             self.renderVideoJS();
+            if ( !!self.description ) {
+                document.querySelector( '#mp_html5_api' ).setAttribute( 'aria-describedby', 'long-description' );
+                self.insertDescription();
+            }
         } );
         
     } ).catch( error => {
@@ -790,7 +854,7 @@ Page.prototype.renderVideoJS = function( src ) {
             if ( self.isAudio && self.hasImage ) {
                 player.poster( SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType );
                 const imgPath = SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType;
-                $('.vjs-poster')[0].innerHTML = "<img src=" + imgPath + " alt='Content about " + SBPLUS.escapeHTMLAttribute( self.title ) + "' />";
+                $('.vjs-poster')[0].innerHTML = "<img src=" + imgPath + " alt='' aria-describedby='long-description' />";
             }
             
             if ( self.isBundle ) {
