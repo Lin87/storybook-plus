@@ -34,8 +34,6 @@ let Page = function ( obj, data ) {
             this.cuepoints = [];
         }
 
-        
-        
         this.mediaPlayer = null;
         this.isKaltura = null;
         this.isAudio = false;
@@ -672,10 +670,20 @@ Page.prototype.loadBrightcoveVideoData = function () {
 
     } ).then( data => {
 
+        const now = new Date().toISOString();
+        const rand = Math.random() * 1000000;
+        const session = parseInt( rand ).toString() + '_' + now;
+
         self.isBrightcove = {
             name: data.response.name, 
             sources: data.response.sources,
-            poster: data.response.poster
+            poster: data.response.poster,
+            duration: 0,
+            session: session,
+            videoId: self.src,
+            accountId: SBPLUS.manifest.sbplus_brightcove_id,
+            lastEngagedTime: -1,
+            firstPlayRequestTime: Date().valueOf(),
         };
 
         self.captionUrl = [];
@@ -843,8 +851,35 @@ Page.prototype.renderVideoJS = function( src ) {
 
             player.src( vidSources );
 
-            player.on( 'loadedmetadata', ()=> {
+            player.on( 'loadedmetadata', ( evt ) => {
+
                 Array.from( player.textTracks() ).filter( ({kind}) => !['chapters','metadata'].includes(kind)).forEach((track) => track.mode = 'disabled' );
+                
+                // event: video started loading
+                self.isBrightcove.duration = player.duration();
+                self.sendBrightcoveAnalyticsEvent( 'video_impression', evt );
+
+            } );
+
+            player.on( 'ready', function (evt) {
+                self.sendBrightcoveAnalyticsEvent( 'player_load', evt );
+            } );
+
+            player.one( 'play', function()  {
+                self.isBrightcove.firstPlayRequestTime = Date.now();
+            } );
+
+            player.on( 'playing', function( evt )  {
+                self.sendBrightcoveAnalyticsEvent( 'play_request', evt );
+                self.sendBrightcoveAnalyticsEvent( 'video_view', evt );
+            } );
+
+            player.on( 'timeupdate', function( evt ) {
+                self.onBrightcoveTimeUpdate( evt );
+            } );
+
+            player.on( 'ended', function( evt ) {
+                self.onBrightcoveTimeUpdate( evt );
             } );
 
         }
@@ -1262,34 +1297,113 @@ Page.prototype.showPageError = function( type, src ) {
     
 }
 
-function getKalturaStatus( code ) {
-    let msg = '';
-    switch( code ) {
-        case -1:
-        msg = 'ERROR';
-        break;
-        case 0:
-        msg = 'QUEUED (queued for conversion)';
-        break;
-        case 1:
-        msg = 'CONVERTING';
-        break;
-        case 2:
-        msg = 'READY';
-        break;
-        case 3:
-        msg = 'DELETED';
-        break;
-        case 4:
-        msg = 'NOT APPLICABLE';
-        break;
-        default:
-        msg = 'UNKNOWN ERROR (check main entry)';
-        break;
-        
+Page.prototype.sendBrightcoveAnalyticsEvent = function( eventType, evt ) {
+    
+    const self = this;
+    const baseURL = 'https://metrics.brightcove.com/tracker/v2/?'
+    const time = Date.now();
+    const destination = encodeURI( window.location.href );
+    const source = encodeURI( document.referrer );
+
+    let urlStr = '';
+    
+    // add params for all requests
+    urlStr = 'event=' + eventType + '&session=' + self.isBrightcove.session + '&domain=videocloud&account=' + self.isBrightcove.accountId + '&time=' + time + '&destination=' + destination + '&video=' + self.isBrightcove.videoId + '&video_name=' + encodeURI( self.isBrightcove.name );
+
+    // source will be empty for direct traffic
+    if ( source !== '' && source != destination ) {
+        urlStr += '&source=' + source;
     }
-    return msg;
+
+    if ( eventType === 'video_view' ) {
+        urlStr += '&start_time_ms=' + self.isBrightcove.firstPlayRequestTime;
+    }
+
+    if ( eventType !== 'player_load' ) {
+        urlStr += '&video_duration=' + self.isBrightcove.duration;
+    }
+    
+    // add params specific to video_engagement events
+    if ( eventType === 'video_engagement' ) {
+        const currentSource = self.mediaPlayer.currentSource();
+        urlStr += '&range=' + evt.range + '&rendition_url=' + encodeURI( currentSource.src.split('?')[0] ) + '&rendition_mime_type=' + encodeURI( currentSource.type );
+    }
+
+    // add the base URL
+    urlStr = baseURL + urlStr;
+
+    // make the request
+    sendData( urlStr );
+
+    return;
+
 }
+
+Page.prototype.onBrightcoveTimeUpdate = function( evt ) {
+
+    const self = this;
+    const currentTime = self.mediaPlayer.currentTime();
+    const engagementThreshold = 10; // Trigger every 10 seconds
+    const currentSegment = Math.floor(currentTime / engagementThreshold) * engagementThreshold;
+    let range = '';
+
+    if ( currentSegment > self.isBrightcove.lastEngagedTime ) {
+
+        // set the range and add it to the evt object
+        let endRange = ( Math.floor( currentTime ) + engagementThreshold );
+
+        if ( endRange >= self.isBrightcove.duration ) {
+            endRange = Math.floor( self.isBrightcove.duration );
+        }
+
+        range = ( Math.floor( currentTime ) + '..' + endRange ).toString();
+        evt.range = range;
+
+        // send video_enagement event
+        self.sendBrightcoveAnalyticsEvent( 'video_engagement', evt );
+
+        // Update last engaged time
+        self.isBrightcove.lastEngagedTime = currentSegment;
+    }
+
+    if ( evt.type === 'ended' ) {
+        const duration = Math.floor( self.isBrightcove.duration );
+        range = ( duration + '..' +  duration ).toString();
+        evt.range = range;
+        self.sendBrightcoveAnalyticsEvent( 'video_engagement', evt );
+        self.isBrightcove.lastEngagedTime = -1;
+    }
+
+}
+
+// function getKalturaStatus( code ) {
+//     let msg = '';
+//     switch( code ) {
+//         case -1:
+//         msg = 'ERROR';
+//         break;
+//         case 0:
+//         msg = 'QUEUED (queued for conversion)';
+//         break;
+//         case 1:
+//         msg = 'CONVERTING';
+//         break;
+//         case 2:
+//         msg = 'READY';
+//         break;
+//         case 3:
+//         msg = 'DELETED';
+//         break;
+//         case 4:
+//         msg = 'NOT APPLICABLE';
+//         break;
+//         default:
+//         msg = 'UNKNOWN ERROR (check main entry)';
+//         break;
+        
+//     }
+//     return msg;
+// }
 
 function getEntryKalturaStatus( code ) {
     let msg = '';
@@ -1458,15 +1572,15 @@ function displayWidgetContent( str ) {
     
 }
 
-function guid() {
+// function guid() {
     
-    function s4() {
-        return Math.floor( ( 1 + Math.random() ) * 0x10000 ).toString( 16 ).substring (1 );
-    }
+//     function s4() {
+//         return Math.floor( ( 1 + Math.random() ) * 0x10000 ).toString( 16 ).substring (1 );
+//     }
     
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+//     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
     
-}
+// }
 
 function toSeconds( str ) {
     
@@ -1483,6 +1597,23 @@ function toSeconds( str ) {
 function isUrl(s) {
    const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
    return regexp.test(s);
+}
+
+/**
+ * Injects API calls into the head of a document
+ * as the src for a img tag
+ * img is better than script tag for CORS
+ * @param {string} requestURL The URL to call to send the data
+ * @return true
+ */
+function sendData( requestURL ) {
+    const scriptElement = document.createElement( 'img' );
+    scriptElement.setAttribute( 'src', requestURL );
+    scriptElement.setAttribute( 'alt', '' );
+    scriptElement.setAttribute( 'aria-hidden', 'true' );
+    scriptElement.style.display = 'none';
+    document.getElementsByTagName( 'body' )[0].appendChild( scriptElement );
+    return true;
 }
 
 export { Page };

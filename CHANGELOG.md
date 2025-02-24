@@ -1,5 +1,9 @@
 ### Version Change Logs
 
+#### 3.6.0 (02/26/2025)
+* Add a new long description feature for video, image, image-audio, and bundle slide type.
+* Add data collection for BrightCove VODs.
+
 #### 3.5.12 (02/12/2025)
 * 2nd pass through of the Ablr report; corrected partially accessible issues.
 
