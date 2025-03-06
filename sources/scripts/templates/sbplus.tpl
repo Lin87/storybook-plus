@@ -57,22 +57,22 @@
                     </button>
                     <ul id="sbplus_menu_list" class="menu" aria-hidden="false" role="menu">
     
-                        <li class="menu-item sbplus_author_profile" role="menuitem">
-                            <button onclick="SBPLUS.openMenuItem('sbplus_author_profile');" aria-controls="menu_item_content">
+                        <li class="menu-item sbplus_author_profile" role="none">
+                            <button onclick="SBPLUS.openMenuItem('sbplus_author_profile');" aria-controls="menu_item_content" role="menuitem">
                                 <span class="icon-profile"></span>
                                 Author Profile
                             </button>
                         </li>
                         
-                        <li class="menu-item sbplus_general_info" role="menuitem">
-                            <button onclick="SBPLUS.openMenuItem('sbplus_general_info');" aria-controls="menu_item_content">
+                        <li class="menu-item sbplus_general_info" role="none">
+                            <button onclick="SBPLUS.openMenuItem('sbplus_general_info');" aria-controls="menu_item_content" role="menuitem">
                                 <span class="icon-info"></span>
                                 General Info
                             </button>
                         </li>
                         
-                        <li class="menu-item sbplus_settings" role="menuitem">
-                            <button onclick="SBPLUS.openMenuItem('sbplus_settings');" aria-controls="menu_item_content">
+                        <li class="menu-item sbplus_settings" role="none">
+                            <button onclick="SBPLUS.openMenuItem('sbplus_settings');" aria-controls="menu_item_content" role="menuitem">
                                 <span class="icon-settings"></span>
                                 Settings
                             </button>
@@ -171,7 +171,7 @@
                 <button id="sbplus_menu_close_btn"><span class="icon-close"></span> Close</button>
             </div>
             <div class="container">
-                <div class="content" tabindex="0"></div>
+                <div class="content" tabindex="0" aria-live="polite"></div>
                 <nav class="side_menu">
                     <ul class="menu" role="menu">
                         

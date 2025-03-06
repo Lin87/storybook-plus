@@ -440,7 +440,7 @@ const SBPLUS = {
                     const sanitizedName = self.sanitize( name );
                     
                     // set the HTML LI tag
-                    const item = '<li role="menuitem" class="menu-item sbplus_' + sanitizedName + '"><button onclick="SBPLUS.openMenuItem(\'sbplus_' + sanitizedName + '\');" aria-controls="menu_item_content" role="menuitem"><span class="icon-' + sanitizedName + '"></span> ' + name + '</a></li>';
+                    const item = '<li class="menu-item sbplus_' + sanitizedName + '" role="none"><button onclick="SBPLUS.openMenuItem(\'sbplus_' + sanitizedName + '\');" aria-controls="menu_item_content" role="menuitem"><span class="icon-' + sanitizedName + '"></span> ' + name + '</a></li>';
                     
                     // append the HTML LI tag to the menu list
                     $( self.menu.menuList ).append( item );
@@ -1589,8 +1589,8 @@ const SBPLUS = {
         $( self.menu.menuContentList + ' li' ).removeClass( 'active' );
         $( self.menu.menuContentList + ' .' + itemId ).addClass( 'active' );
 
-        $( self.menu.menuContentList + ' li button' ).removeAttr( 'aria-selected' );
-        $( self.menu.menuContentList + ' .' + itemId + ' button ' ).attr( 'aria-selected', true );
+        $( self.menu.menuContentList + ' li button' ).removeAttr( 'aria-current' );
+        $( self.menu.menuContentList + ' .' + itemId + ' button ' ).attr( 'aria-current', true );
         
         switch ( itemId ) {
                     
