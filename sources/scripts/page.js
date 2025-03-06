@@ -217,7 +217,7 @@ Page.prototype.getPageMedia = function() {
                 self.showPageError( 'NO_IMG', img.src );
             } );
             
-            $( self.mediaContent ).html( '<img src="' + img.src + '" class="img_only" />' ).promise().done( function() {
+            $( self.mediaContent ).html( '<img src="' + img.src + '" class="img_only"  alt="Content about ' + SBPLUS.escapeHTMLAttribute( self.title ) + '" />' ).promise().done( function() {
                 self.setWidgets();
 
                 if ( !!self.description ) {
@@ -888,8 +888,12 @@ Page.prototype.renderVideoJS = function( src ) {
             
             if ( self.isAudio && self.hasImage ) {
                 player.poster( SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType );
-                const imgPath = SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType;
-                $('.vjs-poster')[0].innerHTML = "<img src=" + imgPath + " alt='' aria-describedby='long-description' />";
+                const imgPath = `${SBPLUS.assetsPath}pages/${src}.${self.imgType}`;
+                const imgAlt = `Content about ${SBPLUS.escapeHTMLAttribute(self.title)}`;
+                const imgElement = `<img src="${imgPath}" alt="${imgAlt}"${self.description ? ' aria-describedby="long-description"' : ''} />`;
+
+                $('.vjs-poster')[0].innerHTML = imgElement;
+                
             }
             
             if ( self.isBundle ) {
