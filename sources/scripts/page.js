@@ -1226,13 +1226,13 @@ Page.prototype.getWidgetContent = function( id ) {
         
         case 'sbplus_notes':
             
-            displayWidgetContent( this.notes );
+            displayWidgetContent( id, this.notes );
             
         break;
         
         default:
             
-            displayWidgetContent( self.widgetSegments[id] );
+            displayWidgetContent( id, self.widgetSegments[id] );
             
         break;
         
@@ -1552,18 +1552,19 @@ function setupMarkers ( player, markers ) {
 
 }
 
-function displayWidgetContent( str ) {
+function displayWidgetContent( id, str ) {
     
-    $( SBPLUS.widget.content ).html( str ).one( 'webkitAnimationEnd mozAnimationEnd animationend', 
-        function() {
-            
-            const region = $( this );
-            
-            region.off();
-            
-            if ( region.find( 'a' ).length ) {
+    $( SBPLUS.widget.content ).html( str ).promise().done( ( element ) => {
 
-        		region.find( 'a' ).each( function() {
+            console.log( id );
+            element.attr( 'role', 'tabpanel' );
+            element.attr( 'tabindex', 0 );
+            element.attr( 'aria-labelledby', id );
+            element.attr( 'aria-live', 'polite' );
+            
+            if ( element.find( 'a' ).length ) {
+
+        		element.find( 'a' ).each( function() {
             		
         			$( this ).attr( "target", "_blank" );
         
@@ -1571,8 +1572,7 @@ function displayWidgetContent( str ) {
         
             }
             
-        }
-     );
+        } );
     
 }
 

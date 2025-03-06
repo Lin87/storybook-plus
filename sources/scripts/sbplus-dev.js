@@ -2193,7 +2193,7 @@ const SBPLUS = {
             if ( !target.hasClass( 'active' ) ) {
                 self.currentPage.getWidgetContent( targetId );
                 button.removeClass( 'active' );
-                button.removeAttr( 'aria-selected' );
+                button.attr( 'aria-selected', false );
                 target.addClass( 'active' );
                 target.attr( 'aria-selected', true );
             }
@@ -2210,6 +2210,10 @@ const SBPLUS = {
             $( self.button.notes ).attr( 'title', '' );
             $( self.button.notes ).attr( 'aria-label', '' );
             $( self.widget.content ).attr( 'aria-hidden', true );
+            $( self.widget.content ).removeAttr( 'aria-labelledby' );
+            $( self.widget.content ).removeAttr( 'tabindex' );
+            $( self.widget.content ).removeAttr( 'aria-live' );
+            $( self.widget.content ).removeAttr( 'role' );
 
             // show logo
             if ( !self.isEmpty( self.logo ) ) {
@@ -2242,7 +2246,7 @@ const SBPLUS = {
     addSegment: function( str ) {
         
         const self = this;
-        const btn = '<button role="tab" id="sbplus_' + self.sanitize( str ) + '" aria-controls="widget_content">' + str + '</button>';
+        const btn = '<button role="tab" id="sbplus_' + self.sanitize( str ) + '" aria-controls="widget_content" aria-selected="false">' + str + '</button>';
         
         self.widget.segments.push( str );
         

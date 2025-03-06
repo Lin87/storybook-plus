@@ -153,7 +153,7 @@
                         <div class="tab_segment" role="tablist"></div>
                     </div>
                     
-                    <div id="widget_content" class="segment_content" role="tabpanel"></div>
+                    <div id="widget_content" class="segment_content"></div>
                     
                 </div>
 
