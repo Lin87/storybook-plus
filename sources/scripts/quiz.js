@@ -268,11 +268,11 @@ Quiz.prototype.renderQuiz = function() {
     html += ' Self Assessment</h2>';
     
     if ( !SBPLUS.isEmpty( self.quiz.questionImg ) ) {
-        questionImg = '<p><img src="assets/images/' + self.quiz.questionImg + '" /></p>';
+        questionImg = '<p><img src="' + SBPLUS.assetsPath + 'images/' + self.quiz.questionImg + '" /></p>';
     }
     
     if ( !SBPLUS.isEmpty( self.quiz.questionAudio ) ) {
-        questionAudio = '<p><audio controls><source src="assets/audio/' + self.quiz.questionAudio + '" type="audio/mpeg" /></audio></p>';
+        questionAudio = '<p><audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + self.quiz.questionAudio + '" type="audio/mpeg" /></audio></p>';
     }
     
     html += '<div id="quiz-question" class="sbplus_quiz_question">' + questionImg + questionAudio + self.quiz.question + '</div>';
@@ -297,13 +297,13 @@ Quiz.prototype.renderQuiz = function() {
                         
                         if ( !SBPLUS.isEmpty( self.quiz.answers[i].img ) ) {
                             cleanMSValue = SBPLUS.sanitize( self.quiz.answers[i].img );
-                            msInput += '<label class="img_val" for="' + cleanMSValue + '"><input type="radio" id="' + cleanMSValue +'" name="ms" value="' + i + '" /><img src="assets/images/' + self.quiz.answers[i].img + '" alt="'+self.quiz.answers[i].value+'"/ ></label>';
+                            msInput += '<label class="img_val" for="' + cleanMSValue + '"><input type="radio" id="' + cleanMSValue +'" name="ms" value="' + i + '" /><img src="' + SBPLUS.assetsPath + 'images/' + self.quiz.answers[i].img + '" alt="'+self.quiz.answers[i].value+'"/ ></label>';
                             return true;
                         }
                         
                         if ( !SBPLUS.isEmpty( self.quiz.answers[i].audio ) ) {
                             cleanMSValue = SBPLUS.sanitize( self.quiz.answers[i].audio );
-                            msInput += '<label class="au_val" for="'+cleanMSValue+'"><input type="radio" id="'+cleanMSValue+'" name="ms" value="' + i + '" /> <audio controls><source src="assets/audio/' + self.quiz.answers[i].audio + '" type="audio/mpeg"/></audio></label>';
+                            msInput += '<label class="au_val" for="'+cleanMSValue+'"><input type="radio" id="'+cleanMSValue+'" name="ms" value="' + i + '" /> <audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + self.quiz.answers[i].audio + '" type="audio/mpeg"/></audio></label>';
                             return true;
                         }
                         
@@ -332,13 +332,13 @@ Quiz.prototype.renderQuiz = function() {
                         
                         if ( !SBPLUS.isEmpty( self.quiz.answers[i].img ) ) {
                             cleanMMValue = SBPLUS.sanitize( self.quiz.answers[i].img );
-                            mmInput += '<label class="img_val" for="' + cleanMMValue + '"><input type="checkbox" id="' + cleanMMValue +'" name="mm" value="' + i + '" /><img src="assets/images/' + self.quiz.answers[i].img + '" alt="' + self.quiz.answers[i].value + '"/></label>';
+                            mmInput += '<label class="img_val" for="' + cleanMMValue + '"><input type="checkbox" id="' + cleanMMValue +'" name="mm" value="' + i + '" /><img src="' + SBPLUS.assetsPath + 'images/' + self.quiz.answers[i].img + '" alt="' + self.quiz.answers[i].value + '"/></label>';
                             return true;
                         }
                         
                         if ( !SBPLUS.isEmpty( self.quiz.answers[i].audio ) ) {
                             cleanMMValue = SBPLUS.sanitize( self.quiz.answers[i].audio );
-                            mmInput += '<label class="au_val" for="'+cleanMMValue+'"><input type="checkbox" id="'+cleanMMValue+'" name="mm" value="' + i + '" /> <audio controls><source src="assets/audio/' + self.quiz.answers[i].audio + '" type="audio/mpeg"/></audio></label>';
+                            mmInput += '<label class="au_val" for="'+cleanMMValue+'"><input type="checkbox" id="'+cleanMMValue+'" name="mm" value="' + i + '" /> <audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + self.quiz.answers[i].audio + '" type="audio/mpeg"/></audio></label>';
                             return true;
                         }
                         
@@ -533,11 +533,11 @@ Quiz.prototype.renderFeedback = function() {
     } 
     
     if ( !SBPLUS.isEmpty( self.quiz.questionImg ) ) {
-        questionImg = '<p><img src="assets/images/' + self.quiz.questionImg + '" /></p>';
+        questionImg = '<p><img src="' + SBPLUS.assetsPath + 'images/' + self.quiz.questionImg + '" /></p>';
     }
     
     if ( !SBPLUS.isEmpty( self.quiz.questionAudio ) ) {
-        questionAudio = '<p><audio controls><source src="assets/audio/' + self.quiz.questionAudio + '" type="audio/mpeg" /></audio></p>';
+        questionAudio = '<p><audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + self.quiz.questionAudio + '" type="audio/mpeg" /></audio></p>';
     }
     
     html += '<div class="sbplus_quiz_question">' + questionImg + questionAudio + self.quiz.question + '</div>';
@@ -597,11 +597,11 @@ Quiz.prototype.renderFeedback = function() {
             switch ( msAnswerType ) {
                         
                 case 'img':
-                    html += '<p><strong>Your answer:</strong><br><img src="assets/images/' + msAnswerNode.img + '" alt="'+ msAnswerNode.value +'" /></p>';
+                    html += '<p><strong>Your answer:</strong><br><img src="' + SBPLUS.assetsPath + 'images/' + msAnswerNode.img + '" alt="'+ msAnswerNode.value +'" /></p>';
                 break;
                 
                 case 'audio':
-                    html += '<p><strong>Your answer:</strong><br><audio controls><source src="assets/audio/' + msAnswerAudio + '" type="audio/mpeg"/></audio></p>';
+                    html += '<p><strong>Your answer:</strong><br><audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + msAnswerAudio + '" type="audio/mpeg"/></audio></p>';
                 break;
                 
                 case 'text':
@@ -619,11 +619,11 @@ Quiz.prototype.renderFeedback = function() {
                     switch ( msAnswerType ) {
                         
                         case 'img':
-                            output = '<img src="assets/images/' + self.quiz.answers[i].img + '" alt="'+ self.quiz.answers[i].value +'" />';
+                            output = '<img src="' + SBPLUS.assetsPath + 'images/' + self.quiz.answers[i].img + '" alt="'+ self.quiz.answers[i].value +'" />';
                         break;
                         
                         case 'audio':
-                            output = '<audio controls><source src="assets/audio/' + self.quiz.answers[i].value + '" type="audio/mpeg"/></audio>';
+                            output = '<audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + self.quiz.answers[i].value + '" type="audio/mpeg"/></audio>';
                         break;
                         
                     }
@@ -677,11 +677,11 @@ Quiz.prototype.renderFeedback = function() {
                 switch ( mmAnswerType ) {
                             
                     case 'img':
-                        html += '<img src="assets/images/' + self.quiz.answers[saIndex].img + '" alt="' + self.quiz.answers[saIndex].value + '" /><br>';
+                        html += '<img src="' + SBPLUS.assetsPath + 'images/' + self.quiz.answers[saIndex].img + '" alt="' + self.quiz.answers[saIndex].value + '" /><br>';
                     break;
                     
                     case 'audio':
-                        html += '<audio controls><source src="assets/audio/' + self.quiz.answers[saIndex].value + '" type="audio/mpeg"/></audio><br>';
+                        html += '<audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + self.quiz.answers[saIndex].value + '" type="audio/mpeg"/></audio><br>';
                     break;
                     
                     case 'text':
@@ -758,11 +758,11 @@ function displayCorrectMultipleAnswers( answers ) {
             switch ( aType ) {
                     
                 case 'img':
-                    result += '<img src="assets/images/' + this.img + '" alt="' + this.value + '" /><br>';
+                    result += '<img src="' + SBPLUS.assetsPath + 'images/' + this.img + '" alt="' + this.value + '" /><br>';
                 break;
                 
                 case 'audio':
-                    result += '<audio controls><source src="assets/audio/' + this.value + '" type="audio/mpeg"/></audio><br>';
+                    result += '<audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + this.value + '" type="audio/mpeg"/></audio><br>';
                 break;
                 
                 case 'text':
