@@ -1,6 +1,6 @@
 ### Version Change Logs
 
-#### 3.6.0 (3/12/2025)
+#### 3.6.1 (03/12/2025)
 * 3rd pass of the updated Ablr accessibility report.
 
 #### 3.6.0 (02/26/2025)
