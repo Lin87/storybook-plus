@@ -2,6 +2,8 @@
 
 #### 3.6.2 (04/30/2025)
 * Update focus to have a thicker two-color outline so that will have enough contrast on light and dark background.
+* Move long description outside of media player container.
+* Minor fixes and improvements.
 
 #### 3.6.1 (03/12/2025)
 * 3rd pass of the updated Ablr accessibility report.
