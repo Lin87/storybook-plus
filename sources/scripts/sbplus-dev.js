@@ -1254,7 +1254,6 @@ const SBPLUS = {
             // set total page to the status bar and to the screen reader text holder
             $( self.layout.pageStatus ).find( 'span.total' ).html( self.totalPages );
             $( self.screenReader.totalPages ).html( self.totalPages );
-            console.log(self.totalPages);
             
             // if author is missing hide author button and menu item
             if ( self.xml.setup.author.length ) {
@@ -1941,7 +1940,6 @@ const SBPLUS = {
             
             // update screen reader status
             $( self.screenReader.currentPage ).html( self.targetPage.data( 'count' ) );
-            console.log($( self.screenReader.currentPage ));
             
             // update the scroll bar to targeted page with a 1
             if ( $( self.layout.sidebar ).is( ':visible' ) ) {
