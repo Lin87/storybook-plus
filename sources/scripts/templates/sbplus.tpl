@@ -37,7 +37,7 @@
     </div> <!-- Splash screen END -->
     
     <div id="sbplus_main_screen" class="hide" aria-hidden="true">
-        <div class="sr-page-status" aria-live="assertive">
+        <div class="sr-page-status visually-hidden-focusable" tabindex="0">
             You are currently on slide 
             <span class="sr-current-page" >#</span> of <span class="sr-total-pages">#</span>: 
             <span class="sr-page-title">Slide title</span>. <span class="sr-has-notes"></span>
@@ -137,9 +137,9 @@
                 
             </div>
 
-            <div id="sbplus_main_content_col" aria-live="polite" aria-atomic="true" tabindex="0">
+            <div id="sbplus_main_content_col">
                 
-                <div id="sbplus_media_wrapper">
+                <div id="sbplus_media_wrapper" tabindex="0">
                     <div class="sbplus_media_error"></div>
                     <div class="sbplus_media_msg hide"></div>
                     <div class="sbplus_media_content animated"></div>
@@ -165,13 +165,13 @@
         
         </div>
         
-        <div id="menu_item_content" class="animated" aria-live="polite" aria-atomic="true">
+        <div id="menu_item_content" class="animated">
             <div class="sbplus_menu_title_bar">
                 <div class="title"></div>
                 <button id="sbplus_menu_close_btn"><span class="icon-close"></span> Close</button>
             </div>
             <div class="container">
-                <div class="content" tabindex="0" aria-live="polite"></div>
+                <div class="content" tabindex="0"></div>
                 <nav class="side_menu">
                     <ul class="menu" role="menu">
                         

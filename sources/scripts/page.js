@@ -57,7 +57,6 @@ let Page = function ( obj, data ) {
     };
     this.kalturaSrc = {};
     
-    this.mainContentCol = SBPLUS.layout.mainContentCol;
     this.mediaContent = SBPLUS.layout.mediaContent;
     this.quizContainer = SBPLUS.layout.quizContainer;
     this.mediaError = SBPLUS.layout.mediaError;
@@ -431,8 +430,8 @@ Page.prototype.getPageMedia = function() {
     
     window.setTimeout( function() {
         document.activeElement.blur();
-        document.querySelector( SBPLUS.layout.mainContentCol ).focus();
-    }, 1000 );
+        document.querySelector( SBPLUS.layout.media ).focus();
+    }, 750 );
 
     // add current page index to local storage
     
@@ -890,7 +889,7 @@ Page.prototype.renderVideoJS = function( src ) {
                 player.poster( SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType );
                 const imgPath = `${SBPLUS.assetsPath}pages/${src}.${self.imgType}`;
                 const imgAlt = `Content about ${SBPLUS.escapeHTMLAttribute(self.title)}`;
-                const imgElement = `<img src="${imgPath}" alt="${imgAlt}"${self.description ? ' aria-describedby="long-description"' : ''} />`;
+                const imgElement = `<img src="${imgPath}" alt="${imgAlt}"${self.description ? ' aria-describedby="long-description"' : ''} tabindex="0" />`;
 
                 $('.vjs-poster')[0].innerHTML = imgElement;
                 
@@ -1556,11 +1555,9 @@ function displayWidgetContent( id, str ) {
     
     $( SBPLUS.widget.content ).html( str ).promise().done( ( element ) => {
 
-            console.log( id );
             element.attr( 'role', 'tabpanel' );
             element.attr( 'tabindex', 0 );
             element.attr( 'aria-labelledby', id );
-            element.attr( 'aria-live', 'polite' );
             
             if ( element.find( 'a' ).length ) {
 

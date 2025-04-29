@@ -94,7 +94,6 @@ body {
     height: 100%;
 }
 
-[class^="sr-"],
 .sr-only {
     position: absolute !important;
     width: 1px;
@@ -117,6 +116,14 @@ body {
     bottom: 1%;
     left: 50%;
     transform: translateX(-50%);
+
+    &.sr-page-status {
+        top: 6%;
+        left: 1%;
+        bottom: unset;
+        transform: none;
+        width: 600px;
+    }
 }
 
 .visually-hidden-focusable:not(:focus):not(:focus-within):not(caption) {
@@ -284,6 +291,7 @@ body {
 
             width: 100%;
             height: 100%;
+            position: relative;
            
             &.hide {
                 display: none;

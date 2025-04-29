@@ -1254,6 +1254,7 @@ const SBPLUS = {
             // set total page to the status bar and to the screen reader text holder
             $( self.layout.pageStatus ).find( 'span.total' ).html( self.totalPages );
             $( self.screenReader.totalPages ).html( self.totalPages );
+            console.log(self.totalPages);
             
             // if author is missing hide author button and menu item
             if ( self.xml.setup.author.length ) {
@@ -1713,7 +1714,7 @@ const SBPLUS = {
             
         }
         
-        menuContentWrapper.removeAttr( 'aria-hidden' ).attr( { 'aria-live': 'polite', 'aria-atomic': true } ).show();
+        menuContentWrapper.removeAttr( 'aria-hidden' ).show();
         menuContent.append( content )
         document.querySelector( self.menu.menuContent ).focus();
         
@@ -1737,7 +1738,7 @@ const SBPLUS = {
         const menuContent = $( self.menu.menuContent );
         
         menuContent.empty();
-        menuContentWrapper.removeAttr( 'aria-live aria-atomic' ).attr( 'aria-hidden', true ).hide();
+        menuContentWrapper.attr( 'aria-hidden', true ).hide();
 
         sbplusBanner.removeAttr( "aria-hidden" ).css( 'display', 'flex' );
         sbplusContentWrapper.removeAttr( "aria-hidden" ).css( 'display', 'flex' );
@@ -1940,6 +1941,7 @@ const SBPLUS = {
             
             // update screen reader status
             $( self.screenReader.currentPage ).html( self.targetPage.data( 'count' ) );
+            console.log($( self.screenReader.currentPage ));
             
             // update the scroll bar to targeted page with a 1
             if ( $( self.layout.sidebar ).is( ':visible' ) ) {
@@ -2158,7 +2160,7 @@ const SBPLUS = {
             
             $( self.layout.widget ).removeClass('noSegments').removeAttr( 'aria-hidden' );
             $( self.widget.content ).css( 'background-image', '' ).removeAttr( 'aria-hidden' );
-            $( self.screenReader.hasNotes ).html( 'This page contains notes.' );
+            $( self.screenReader.hasNotes ).html( 'This slide contains notes.' );
             $( self.button.notes ).prop( 'disabled', false );
             $( self.button.notes ).attr( 'title', 'View Notes' );
             $( self.button.notes ).attr( 'aria-label', 'View Notes' );
@@ -2212,7 +2214,6 @@ const SBPLUS = {
             $( self.widget.content ).attr( 'aria-hidden', true );
             $( self.widget.content ).removeAttr( 'aria-labelledby' );
             $( self.widget.content ).removeAttr( 'tabindex' );
-            $( self.widget.content ).removeAttr( 'aria-live' );
             $( self.widget.content ).removeAttr( 'role' );
 
             // show logo
