@@ -541,17 +541,14 @@ Page.prototype.insertDescription = function() {
         longDescEl.classList.add( 'sr-only' );
         longDescEl.innerText = self.description[0].textContent;
 
-        const videojs = document.querySelector( '.video-js' );
+        const imageOnly = document.querySelector( '.img_only' );
 
-        if ( videojs ) {
-            videojs.appendChild( longDescEl );
-            return;
+        if ( imageOnly ) {
+            imageOnly.setAttribute( 'aria-describedby', 'long-description' );
         }
 
-        const imageOnly = document.querySelector( '.img_only' );
-        imageOnly.setAttribute( 'aria-describedby', 'long-description' );
-        imageOnly.parentNode.appendChild( longDescEl );
-    
+        document.querySelector( self.mediaContent ).appendChild( longDescEl );
+        
     }
 
 }
