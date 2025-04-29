@@ -148,10 +148,13 @@ body {
         box-sizing: border-box;
     }
     
-    *:focus-visible {
-        outline: 2px dashed $default-accent-hover;
-        box-shadow: 0 0 6px #fff;
-        z-index: 11;
+    *:not(.vjs-slider):focus-visible { 
+        /* inner indicator */
+        outline: 2px #F9F9F9 solid;
+        outline-offset: 0;  
+        /* outer indicator */
+        box-shadow: 0 0 0 4px $default-accent-hover;
+        z-index: 11; 
     }
     
     #sbplus_loading_screen {

@@ -85,7 +85,7 @@ const SBPLUS = {
     playbackrate: 1,
 
     // version number
-    version: '3.6.1',
+    version: '3.6.2',
     
     // easter egg variables
     clickCount: 0,
