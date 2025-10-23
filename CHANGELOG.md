@@ -1,5 +1,8 @@
 ### Version Change Logs
 
+#### 3.6.3 (10/23/2025)
+* Fix an issue where quiz area is not showing on small screen devices.
+
 #### 3.6.2 (04/30/2025)
 * Update focus to have a thicker two-color outline so that will have enough contrast on light and dark background.
 * Move long description outside of media player container.
