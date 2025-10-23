@@ -597,6 +597,10 @@ body {
                     background-color: #000;
                     overflow: hidden;
 
+                    &.hidden {
+                        display: none;
+                    }
+
                     #copyToCbBtn {
 
                         position: absolute;
@@ -1075,9 +1079,7 @@ body {
                                 }
 
                             }
-                            
-                            
-                            
+
                             // caption setting modal dialog
                             .vjs-modal-dialog {
 
@@ -1240,16 +1242,17 @@ body {
                 
                 #sbplus_quiz_wrapper {
                     
-                    position: absolute;
+                    position: relative;
                     top: 0;
                     left: 0;
                     width: 100%;
                     height: 100%;
+                    min-height: 360px;
                     background-color: #f2f2f2;
                     z-index: 10;
                     overflow-x: hidden;
                     overflow-y: auto;
-
+                    
                     &.hidden {
                         display: none;
                     }
@@ -1462,6 +1465,10 @@ body {
                     background-color: #fff;
                     flex: 2 0 auto;
                     overflow: hidden;
+
+                    &.hidden {
+                        display: none;
+                    }
                     
                     .widget_controls_bar {
                         
@@ -2562,6 +2569,7 @@ body {
                             #sbplus_main_content_col {
                                 
                                 #sbplus_quiz_wrapper {
+                                    position: absolute;
                                     border: solid 1px rgb(73, 80, 87);
                                 }
 
