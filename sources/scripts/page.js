@@ -69,7 +69,7 @@ Page.prototype.getPageMedia = function() {
     
     // reset
     if ( $( SBPLUS.layout.quizContainer ).length ) {
-        $( SBPLUS.layout.quizContainer ).empty();
+        $( SBPLUS.layout.quizContainer ).addClass( 'hidden' ).empty();
     }
     
     $( self.mediaContent ).css('backgroundImage', '').removeClass('compat-object-fit').removeClass( 'show-vjs-poster' );
@@ -83,8 +83,9 @@ Page.prototype.getPageMedia = function() {
     
     $( self.mediaContent ).removeClass( 'iframeEmbed' ).empty();
     $( SBPLUS.layout.mediaMsg ).addClass( 'hide' ).empty('');
-    $( self.quizContainer ).addClass( 'hidden' ).empty();
-    
+    $( SBPLUS.layout.media ).removeClass('hidden');
+    $( SBPLUS.layout.widget ).removeClass('hidden');
+
     removeSecondaryControls();
 
     // show copy to clipboard button if applicable
@@ -341,6 +342,8 @@ Page.prototype.getPageMedia = function() {
         case 'quiz':
             
             $( self.quizContainer ).removeClass( 'hidden' );
+            $( SBPLUS.layout.widget ).addClass('hidden');
+            $( SBPLUS.layout.media ).addClass('hidden');
 
             const qObj = {
                 id: self.pageNumber
@@ -348,10 +351,6 @@ Page.prototype.getPageMedia = function() {
             
             const quizItem = new Quiz( qObj, self.pageData  );
             quizItem.getQuiz();
-            
-            if ( $( '#sbplus_widget' ).is( ':visible' ) ) {
-                SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationId + '-previously-widget-open', 1, true );
-            }
             
         break;
         

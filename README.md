@@ -1,5 +1,5 @@
 # Storybook Plus (SB+)  
-**version 3.6.2**
+**version 3.6.3**
 
 ---
 
@@ -21,15 +21,15 @@ Storybook Plus (Storybook+) is an open-source web application transforming multi
 SB+ may not function properly with beta or pre-release versions of web browsers. Please use the latest stable version for the best experience.
 
 ## Bug Reporting and Questions
-If any bugs/glitches are found in the SB+, please report them under the "**[Issues](https://github.com/excelsior-university-web-systems/sbplus-v3/issues)**" page on GitHub. When reporting a bug, please write the report as detailed and specifically as possible. Note the steps to reproduce the bug and include screen captures if possible.
+If any bugs/glitches are found in the SB+, please report them under the "**[Issues](https://github.com/Lin87/storybook-plus/issues)**" page on GitHub. When reporting a bug, please write the report as detailed and specifically as possible. Note the steps to reproduce the bug and include screen captures if possible.
 
-For questions, please also post them under the "**[Issues](https://github.com/excelsior-university-web-systems/sbplus-v3/issues)**" page on GitHub.
+For questions, please also post them under the "**[Issues](https://github.com/Lin87/storybook-plus/issues)**" page on GitHub.
 
 ---
 ## Version Change Log
 
-See [CHANGELOG](https://github.com/excelsior-university-web-systems/sbplus-v3/blob/master/CHANGELOG.md) for details.
+See [CHANGELOG](https://github.com/Lin87/storybook-plus/blob/master/CHANGELOG.md) for details.
 
 ---
 ## License & Copyright
-Storybook Plus (SB+) is licensed under [GNU v3](https://github.com/excelsior-university-web-systems/sbplus-v3/blob/master/LICENSE) license. (c) 2013-2025. Ethan Lin and [Excelsior University](https://excelsior.edu). All rights reserved.
+Storybook Plus (SB+) is licensed under [GNU v3](https://github.com/Lin87/storybook-plus/blob/master/LICENSE) license. (c) 2013-2025 Ethan Lin. All rights reserved. Sponsor by [Excelsior University](https://excelsior.edu).
