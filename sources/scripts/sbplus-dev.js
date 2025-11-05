@@ -2,14 +2,14 @@
  * Storybook Plus
  *
  * @author: Ethan Lin
- * @url: https://github.com/excelsior-university-web-systems/sbplus-v3
+ * @url: https://github.com/Lin87/storybook-plus
  * @version: 3.6.3
  * Released 10/23/2025
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
     Storybook Plus is an web application that serves multimedia contents.
-    Copyright (C) 2013-2025 Ethan Lin and Excelsior University
+    Copyright (C) 2013-2025 Ethan Lin
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ const SBPLUS = {
     playbackrate: 1,
 
     // version number
-    version: '3.6.2',
+    version: '3.6.3',
     
     // easter egg variables
     clickCount: 0,

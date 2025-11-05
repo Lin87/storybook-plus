@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/excelsior-university-web-systems/sbplus-v3.git"
+    "url": "git+https://github.com/Lin87/storybook-plus.git"
   },
   "keywords": [
     "multimedia",
@@ -20,9 +20,9 @@
   "author": "Ethan Lin",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/excelsior-university-web-systems/sbplus-v3/issues"
+    "url": "https://github.com/Lin87/storybook-plus/issues"
   },
-  "homepage": "https://github.com/excelsior-university-web-systems/sbplus-v3#readme",
+  "homepage": "https://github.com/Lin87/storybook-plus#readme",
   "devDependencies": {
     "@babel/core": "^7.23.9",
     "@babel/preset-env": "^7.23.9",
