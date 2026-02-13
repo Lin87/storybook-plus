@@ -4,7 +4,9 @@
 
 ### 3.6.4 (pending...)
 
-* Optimize asset loading
+* Fix table of content item color on dark mode.
+* Remove redundant Modernizr checks.
+* Optimize asset loading.
 
 ## 2025
 
