@@ -25,7 +25,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-import $ from "jquery";
+import { fetchResource, headRequest, loadScript, onAnimationEnd, onDelegate } from "./utilities";
 import "../sass/sbplus.scss";
 
 /*******************************************************************************
@@ -228,7 +228,10 @@ const SBPLUS = {
                 if ( !response ) {
 
                     // display the error message to the HTML page
-                    $( self.layout.wrapper ).html( "<div class=\"sbplus-core-error\"><h1><strong>Storybook Plus Error</strong></h1><p>The manifest.json file may be missing in the app\'s source directory, or it may contains errors.</P></div>" );
+                    const wrapperEl = document.querySelector( self.layout.wrapper );
+                    if ( wrapperEl ) {
+                        wrapperEl.innerHTML = "<div class=\"sbplus-core-error\"><h1><strong>Storybook Plus Error</strong></h1><p>The manifest.json file may be missing in the app\'s source directory, or it may contains errors.</P></div>";
+                    }
                     return;
 
                 }
@@ -239,7 +242,7 @@ const SBPLUS = {
 
                 // set an event listener to unload all session storage on HTML
                 // page refresh/reload or closing
-                $( window ).on( 'unload', self.removeAllSessionStorage.bind( self ) );
+                window.addEventListener( 'unload', self.removeAllSessionStorage.bind( self ) );
                 
                 if ( self.isEmpty( self.manifest.sbplus_root_directory ) ) {
                     self.manifest.sbplus_root_directory = 'sources/';
@@ -264,7 +267,10 @@ const SBPLUS = {
 
         // add loaded-in-iframe class if loaded in an iframe
         if ( window.self !== window.top ) {
-            $( self.layout.wrapper ).addClass( 'loaded-in-iframe' );
+            const wrapperEl = document.querySelector( self.layout.wrapper );
+            if ( wrapperEl ) {
+                wrapperEl.classList.add( 'loaded-in-iframe' );
+            }
         }
         
         if ( self.manifestLoaded ) {
@@ -273,13 +279,16 @@ const SBPLUS = {
             const templateUrl = self.manifest.sbplus_root_directory + 'scripts/templates/sbplus.tpl';
             
             // AJAX call and load the sbplus.tpl template
-            $.get( templateUrl, function( data ) {
+            fetchResource( templateUrl ).then( function( data ) {
                 
                 // output the template date to the HTML/DOM
-                $( self.layout.wrapper ).html( data );
+                const wrapperEl = document.querySelector( self.layout.wrapper );
+                if ( wrapperEl ) {
+                    wrapperEl.innerHTML = data;
+                }
                 
                 // set an event listener to resize elements on viewport resize
-                $( window ).on( 'resize', self.resize.bind( self ) );
+                window.addEventListener( 'resize', self.resize.bind( self ) );
 
                 // execute tasks before loading external XML data
                 self.beforeXMLLoading();
@@ -287,10 +296,13 @@ const SBPLUS = {
                 // load the data from the external XML file
                 self.loadXML();
                 
-            } ).fail( function() { // when fail to load the template
+            } ).catch( function() { // when fail to load the template
                 
                 // display the error message to the HTML page
-                $( self.layout.wrapper ).html( "<div class=\"sbplus-core-error\"><h1><strong>Storybook Plus Error</strong></h1><p>Failed to load template. Expecting template file located at " + this.url + ".</p></div>" );
+                const wrapperEl = document.querySelector( self.layout.wrapper );
+                if ( wrapperEl ) {
+                    wrapperEl.innerHTML = "<div class=\"sbplus-core-error\"><h1><strong>Storybook Plus Error</strong></h1><p>Failed to load template. Expecting template file located at " + templateUrl + ".</p></div>";
+                }
                 
             } );
             
@@ -309,8 +321,14 @@ const SBPLUS = {
             
             // set copyright date
             const date = new Date();
-            $( '#copyright-footer .copyright-year' ).html( date.getFullYear() );
-            $( '#copyright-footer .notice' ).html( self.manifest.sbplus_copyright_notice );
+            const yearEl = document.querySelector( '#copyright-footer .copyright-year' );
+            const noticeEl = document.querySelector( '#copyright-footer .notice' );
+            if ( yearEl ) {
+                yearEl.textContent = date.getFullYear().toString();
+            }
+            if ( noticeEl ) {
+                noticeEl.innerHTML = self.manifest.sbplus_copyright_notice;
+            }
             
         }
          
@@ -329,7 +347,10 @@ const SBPLUS = {
         }
 
         // set logo on the loading screen
-        $( self.loadingScreen.logo ).html( '<img src="' + path + '" />' );
+        const loadingLogoEl = document.querySelector( self.loadingScreen.logo );
+        if ( loadingLogoEl ) {
+            loadingLogoEl.innerHTML = '<img src="' + path + '" />';
+        }
 
         // set logo on splash screen
         const splashLogo = document.querySelector( self.splash.logo );
@@ -361,7 +382,7 @@ const SBPLUS = {
                 markerColor = self.colorLum( self.xml.settings.accent, 0.8 );
             }
 
-            $.get( accentUrl, ( data ) => {
+            fetchResource( accentUrl ).then( ( data ) => {
 
                 let accentCssModified = data;
 
@@ -371,7 +392,10 @@ const SBPLUS = {
                 accentCssModified = accentCssModified.replace( /--var-markerColor/gi, markerColor );
 
                 // append the style/css to the HTML head
-                $( "head" ).append('<style type="text/css">' + accentCssModified + "</style>");
+                const headEl = document.head;
+                if ( headEl ) {
+                    headEl.insertAdjacentHTML( 'beforeend', '<style type="text/css">' + accentCssModified + "</style>" );
+                }
 
             } );
 
@@ -449,14 +473,21 @@ const SBPLUS = {
                     const item = '<li class="menu-item sbplus_' + sanitizedName + '" role="none"><button onclick="SBPLUS.openMenuItem(\'sbplus_' + sanitizedName + '\');" aria-controls="menu_item_content" role="menuitem"><span class="icon-' + sanitizedName + '"></span> ' + name + '</a></li>';
                     
                     // append the HTML LI tag to the menu list
-                    $( self.menu.menuList ).append( item );
+                    const menuListEl = document.querySelector( self.menu.menuList );
+                    if ( menuListEl ) {
+                        menuListEl.insertAdjacentHTML( 'beforeend', item );
+                    }
                     
                 }
                 
             }
             
             // append/display the menu list to inner menu list
-            $( self.menu.menuContentList ).html( $( self.menu.menuList ).html() );
+            const menuContentListEl = document.querySelector( self.menu.menuContentList );
+            const menuListEl = document.querySelector( self.menu.menuList );
+            if ( menuContentListEl && menuListEl ) {
+                menuContentListEl.innerHTML = menuListEl.innerHTML;
+            }
             
         }
         
@@ -475,7 +506,7 @@ const SBPLUS = {
             // const xmlUrl = 'assets/sbplus.xml?_=' + new Date().getTime();
 
             // AJAX call to the XML file
-            $.get( self.xmlPath, function( data ) {
+            fetchResource( self.xmlPath ).then( function( data ) {
                 
                 self.xmlLoaded = true;
                 
@@ -483,13 +514,13 @@ const SBPLUS = {
                 // SHOULD BE THE LAST TASK TO BE EXECUTED IN THIS BLOCK
                 self.parseXMLData( data );
                 
-            } ).fail( function( res, status ) { // when fail to load XML file
+            } ).catch( function( error ) { // when fail to load XML file
                 
                 // set error flag to true
                 self.hasError = true;
                 
                 // display appropriate error message based on the status
-                if ( status === 'parsererror' ) {
+                if ( error && error.type === 'parsererror' ) {
                     self.showErrorScreen( 'parser' );
                 } else {
                     self.showErrorScreen( 'xml' );
@@ -511,28 +542,28 @@ const SBPLUS = {
             
         if ( self.xmlLoaded ) {
             
-            // set the parameter as jQuery set
-            const data = $( d );
+            const doc = d;
+            const xSb = doc.querySelector( 'storybook' );
+            const xSetup = doc.querySelector( 'setup' );
             
             // set data from the XML to respective variables
-            let xSb = data.find( 'storybook' );
-            let xSetup = data.find( 'setup' );
-            let xAccent = self.trimAndLower( xSb.attr( 'accent' ) );
-            let xImgType = self.trimAndLower( xSb.attr( 'pageImgFormat' ) );
+            let xAccent = xSb ? self.trimAndLower( xSb.getAttribute( 'accent' ) || '' ) : '';
+            let xImgType = xSb ? self.trimAndLower( xSb.getAttribute( 'pageImgFormat' ) || '' ) : '';
             let xSplashImgType = 'svg';
             let xMathjax = '';
-            let xDownloadableFileName = xSb.attr( 'downloadableFileName' );
+            let xDownloadableFileName = xSb ? xSb.getAttribute( 'downloadableFileName' ) : '';
             let xSplashImg = '';
-            let xTitle = self.noScript( xSetup.find( 'title' ).text().trim() );
-            let xSubtitle = self.noScript( xSetup.find( 'subtitle' ).text().trim() );
-            let xLength = xSetup.find( 'length' ).text().trim();
-            let xAuthor = xSetup.find( 'author' );
-            let xGeneralInfo = self.getTextContent( xSetup.find( 'generalInfo' ) );
-            let xSections = data.find( 'section' );
+            let xTitle = self.noScript( ( xSetup && xSetup.querySelector( 'title' ) ? xSetup.querySelector( 'title' ).textContent : '' ).trim() );
+            let xSubtitle = self.noScript( ( xSetup && xSetup.querySelector( 'subtitle' ) ? xSetup.querySelector( 'subtitle' ).textContent : '' ).trim() );
+            let xLength = xSetup && xSetup.querySelector( 'length' ) ? xSetup.querySelector( 'length' ).textContent.trim() : '';
+            let xAuthor = xSetup ? xSetup.querySelector( 'author' ) : null;
+            let xGeneralInfoNode = xSetup ? xSetup.querySelector( 'generalInfo' ) : null;
+            let xGeneralInfo = xGeneralInfoNode ? self.noScript( self.noCDATA( xGeneralInfoNode.innerHTML || xGeneralInfoNode.textContent || '' ) ) : '';
+            let xSections = doc.querySelectorAll( 'section' );
             
             // variable to hold temporary XML value for further evaluation
-            let splashImgType_temp = xSb.attr( 'splashImgFormat' );
-            let splashImg_temp = xSetup.attr( 'splashImg' );
+            let splashImgType_temp = xSb ? xSb.getAttribute( 'splashImgFormat' ) : '';
+            let splashImg_temp = xSetup ? xSetup.getAttribute( 'splashImg' ) : '';
             
             // if temporary splash image type is defined...
             if ( splashImgType_temp ) {
@@ -565,7 +596,8 @@ const SBPLUS = {
             }
             
             // if mathjax is not found or empty
-            if ( self.isEmpty( xSb.attr( 'mathjax' ) ) ) {
+            const mathjaxAttr = xSb ? xSb.getAttribute( 'mathjax' ) : '';
+            if ( self.isEmpty( mathjaxAttr ) ) {
                 
                 // default to off
                 xMathjax = 'off';
@@ -573,7 +605,7 @@ const SBPLUS = {
             } else {
                 
                 // value in mathjax attribute is on, set to on
-                if ( self.trimAndLower( xSb.attr( 'mathjax' ) ) === 'on' || self.trimAndLower( xSb.attr( 'mathjax' ) ) === 'true' ) {
+                if ( self.trimAndLower( mathjaxAttr ) === 'on' || self.trimAndLower( mathjaxAttr ) === 'true' ) {
                     xMathjax = 'on';
                 }
                 
@@ -613,7 +645,7 @@ const SBPLUS = {
             // if mathjax if turned on
             if (self.xml.settings.mathjax === "on" || self.xml.settings.mathjax === "true") {
                 // load the MathJAX script from a CDN
-                $.getScript("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                loadScript("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML").then( function () {
                     MathJax.Hub.Config({
                         "HTML-CSS": {
                             matchFontHeight: true,
@@ -703,18 +735,19 @@ const SBPLUS = {
 
         const self = this;
 
-        if ( self.xmlLoaded && typeof self.xml.setup.author !== "object" ) {
+        if ( self.xmlLoaded && !( self.xml.setup.author instanceof Element ) ) {
             return;
         }
 
-        if ( self.xml.setup.author.length ) {
+        if ( self.xml.setup.author ) {
                 
             // set author name and path to the profile to respective variable
-            const sanitizedAuthor = self.sanitize( self.xml.setup.author.attr( 'name' ).trim() );
+            const authorName = self.xml.setup.author.getAttribute( 'name' ) ? self.xml.setup.author.getAttribute( 'name' ).trim() : '';
+            const sanitizedAuthor = self.sanitize( authorName );
             const profileUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.json';
-            const profileInXml = self.getTextContent( self.xml.setup.author );
+            const profileInXml = self.noScript( self.noCDATA( self.xml.setup.author.innerHTML || self.xml.setup.author.textContent || '' ) );
             
-            self.xml.setup.author = self.xml.setup.author.attr( 'name' ).trim();
+            self.xml.setup.author = authorName;
             self.xml.setup.profile = profileInXml;
 
             if ( self.isEmpty( profileInXml ) && !self.isEmpty( self.manifest.sbplus_author_directory ) && !self.isEmpty( sanitizedAuthor ) ) {
@@ -729,7 +762,10 @@ const SBPLUS = {
                         self.xml.setup.profile = self.noScript( data.profile );
 
                         if ( self.splashScreenRendered ) {
-                            $( self.splash.author ).html( self.xml.setup.author );
+                            const splashAuthorEl = document.querySelector( self.splash.author );
+                            if ( splashAuthorEl ) {
+                                splashAuthorEl.innerHTML = self.xml.setup.author;
+                            }
                         }
 
                     }
@@ -756,29 +792,49 @@ const SBPLUS = {
         if ( self.xmlParsed === true && self.splashScreenRendered === false ) {
 
             // set the HTML page title
-            $( document ).attr( "title", self.xml.setup.title );
+            document.title = self.xml.setup.title;
 
             // display data to the splash screen
-            $( self.splash.title ).html( self.xml.setup.title );
-            $( self.splash.subtitle ).html( self.xml.setup.subtitle );
-            $( self.splash.author ).html( self.xml.setup.author );
-            $( self.splash.duration ).html( self.xml.setup.duration );
+            const splashTitleEl = document.querySelector( self.splash.title );
+            const splashSubtitleEl = document.querySelector( self.splash.subtitle );
+            const splashAuthorEl = document.querySelector( self.splash.author );
+            const splashDurationEl = document.querySelector( self.splash.duration );
+            if ( splashTitleEl ) {
+                splashTitleEl.innerHTML = self.xml.setup.title;
+            }
+            if ( splashSubtitleEl ) {
+                splashSubtitleEl.innerHTML = self.xml.setup.subtitle;
+            }
+            if ( splashAuthorEl ) {
+                splashAuthorEl.innerHTML = self.xml.setup.author;
+            }
+            if ( splashDurationEl ) {
+                splashDurationEl.innerHTML = self.xml.setup.duration;
+            }
 
             // set event listener to the start button
-            $( self.button.start ).on( "click", self.startPresentation.bind(self) );
+            const startBtn = document.querySelector( self.button.start );
+            if ( startBtn ) {
+                startBtn.addEventListener( "click", self.startPresentation.bind(self) );
+            }
 
             // if local storage has a value for the matching presentation title
             if ( self.hasStorageItem( "sbplus-" + self.presentationId ) ) {
 
                 // set event listener to the resume button
-                $( self.button.resume ).on( "click", self.resumePresentation.bind(self) );
+                const resumeBtn = document.querySelector( self.button.resume );
+                if ( resumeBtn ) {
+                    resumeBtn.addEventListener( "click", self.resumePresentation.bind(self) );
+                }
 
             } else {
 
                 // hide the resume button
-                $( self.button.resume ).hide( 0, function() {
-                    $( self ).attr( "tabindex", "-1" );
-                } );
+                const resumeBtn = document.querySelector( self.button.resume );
+                if ( resumeBtn ) {
+                    resumeBtn.style.display = 'none';
+                    resumeBtn.setAttribute( "tabindex", "-1" );
+                }
 
             }
 
@@ -822,16 +878,16 @@ const SBPLUS = {
 
             switch ( colorMode ) {
                 case "dark":
-                    $ ( "html" ).addClass( "dark-mode" );
+                    document.documentElement.classList.add( "dark-mode" );
                     break;
                 case "auto":
-                    $ ( "html" ).addClass( "auto-mode" );
+                    document.documentElement.classList.add( "auto-mode" );
 
                     self.applyAutoColorMode();
 
                     break;
                 default:
-                    $( "html" ).removeClass( ["auto-mode", "dark-mode"] );
+                    document.documentElement.classList.remove( "auto-mode", "dark-mode" );
                 break;
             }
 
@@ -857,7 +913,10 @@ const SBPLUS = {
 
         // if autoplay for videoJS is on, add a class to the body tag
         if ( self.getStorageItem( "sbplus-autoplay" ) == "1" ) {
-            $( self.layout.wrapper ).addClass( "sbplus_autoplay_on" );
+            const wrapperEl = document.querySelector( self.layout.wrapper );
+            if ( wrapperEl ) {
+                wrapperEl.classList.add( "sbplus_autoplay_on" );
+            }
         }
 
     },
@@ -926,7 +985,10 @@ const SBPLUS = {
         img.addEventListener( 'load', function() {
             
             if ( img.complete ) {
-                $( self.splash.background ).css( 'background-image', 'url(' + img.src + ')' );
+                const splashBgEl = document.querySelector( self.splash.background );
+                if ( splashBgEl ) {
+                    splashBgEl.style.backgroundImage = 'url(' + img.src + ')';
+                }
             }
 
         } );
@@ -940,16 +1002,21 @@ const SBPLUS = {
 
         const self = this;
 
-        $( self.splash.infoBox ).show();
+        const splashInfoBoxEl = document.querySelector( self.splash.infoBox );
+        if ( splashInfoBoxEl ) {
+            splashInfoBoxEl.style.display = 'block';
+        }
 
         setTimeout( () => {
 
-            $( self.loadingScreen.wrapper ).addClass( "fadeOut" ).one( 'webkitAnimationEnd mozAnimationEnd animationend', function() {
-                
-                $( this ).off();
-                $( this ).removeClass( 'fadeOut' ).hide();
-
-            } );
+            const loadingWrapperEl = document.querySelector( self.loadingScreen.wrapper );
+            if ( loadingWrapperEl ) {
+                loadingWrapperEl.classList.add( "fadeOut" );
+                onAnimationEnd( loadingWrapperEl, function() {
+                    loadingWrapperEl.classList.remove( 'fadeOut' );
+                    loadingWrapperEl.style.display = 'none';
+                } );
+            }
             
         }, 1500 );
 
@@ -966,14 +1033,19 @@ const SBPLUS = {
         if ( self.presentationRendered ) {
             
             // add fadeOut class and listen for animation completion event
-            $( self.splash.screen ).addClass( 'fadeOut' ).one( 'webkitAnimationEnd mozAnimationEnd animationend', function() {
-
-                    $( this ).removeClass( 'fadeOut' ).hide();
-                    $( self.layout.mainScreen ).removeAttr( 'aria-hidden' ).removeClass( 'hide' );
-                    $( this ).off();
-
-                }
-            );
+            const splashScreenEl = document.querySelector( self.splash.screen );
+            const mainScreenEl = document.querySelector( self.layout.mainScreen );
+            if ( splashScreenEl ) {
+                splashScreenEl.classList.add( 'fadeOut' );
+                onAnimationEnd( splashScreenEl, function() {
+                    splashScreenEl.classList.remove( 'fadeOut' );
+                    splashScreenEl.style.display = 'none';
+                    if ( mainScreenEl ) {
+                        mainScreenEl.removeAttribute( 'aria-hidden' );
+                        mainScreenEl.classList.remove( 'hide' );
+                    }
+                } );
+            }
             
         }
         
@@ -997,24 +1069,29 @@ const SBPLUS = {
         // load each supported downloadable files specified in the manifest
         self.manifest.sbplus_download_files.forEach( function( file ) {
 
-            $.ajax( {
+            const downloadableUrl = self.extractAssetsRoot( self.xmlPath ) + fileName + "." + file.format;
 
-                url: self.extractAssetsRoot( self.xmlPath ) + fileName + "." + file.format,
-                type: "HEAD",
-
-             } ).done( function() {
+            headRequest( downloadableUrl ).then( function() {
 
                 const fileLabel = file.label.toLowerCase();
 
-                self.downloads[fileLabel] = { fileName: fileName, fileFormat: file.format, url: this.url };
+                self.downloads[fileLabel] = { fileName: fileName, fileFormat: file.format, url: downloadableUrl };
 
-                $( self.splash.downloadBar ).append('<a href="' + this.url + '" download="' + fileName + "." + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + "</a>");
+                const downloadBarEl = document.querySelector( self.splash.downloadBar );
+                if ( downloadBarEl ) {
+                    downloadBarEl.insertAdjacentHTML( 'beforeend', '<a href="' + downloadableUrl + '" download="' + fileName + "." + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + "</a>" );
+                }
 
-            } ).always( function () {
+            } ).catch( function() {
+                // Downloadable file is optional.
+            } ).finally( function () {
 
                 if ( Object.keys( self.downloads ).length <= 0 ) {
 
-                    $(self.splash.cta).addClass("no_downloads");
+                    const splashCtaEl = document.querySelector( self.splash.cta );
+                    if ( splashCtaEl ) {
+                        splashCtaEl.classList.add("no_downloads");
+                    }
 
                 }
 
@@ -1057,22 +1134,22 @@ const SBPLUS = {
 
             let srcArray = [];
 
-            $( xmlSections ).each( function()  {
+            Array.from( xmlSections ).forEach( function( sectionNode )  {
 
-                $( this ).find( 'page' ).each( function () {
+                Array.from( sectionNode.querySelectorAll( 'page' ) ).forEach( function ( pageNode ) {
 
-                    const type = $( this ).attr( 'type' );
+                    const type = pageNode.getAttribute( 'type' );
 
                     switch ( type ) {
 
                         case 'bundle': {
 
-                            const src = $ ( this ).attr( 'src' );
+                            const src = pageNode.getAttribute( 'src' );
                             const bundleSrc = [];
 
                             bundleSrc.push( src + '-' + (1) );
 
-                            $( this ).find( 'frame' ).each( function ( i ) {
+                            Array.from( pageNode.querySelectorAll( 'frame' ) ).forEach( function ( _frame, i ) {
                                 bundleSrc.push( src + '-' + (i + 2) );
                             } );
 
@@ -1082,7 +1159,7 @@ const SBPLUS = {
                         }
                         case 'image':
                         case 'image-audio': {
-                            const src = $( this ).attr( 'src' );
+                            const src = pageNode.getAttribute( 'src' );
                             srcArray.push( src );
                             break;
                         }
@@ -1125,16 +1202,14 @@ const SBPLUS = {
         if ( self.presentationStarted === false ) {
             
             // render presentation
-            self.renderPresentation().promise().done( function() {
-                
-                // hide splash screen
-                self.hideSplashScreen();
-                
-                // select the first page
-                self.selectPage( '0,0' );
-                self.presentationStarted = true;
-                
-            } );
+            self.renderPresentation();
+            
+            // hide splash screen
+            self.hideSplashScreen();
+            
+            // select the first page
+            self.selectPage( '0,0' );
+            self.presentationStarted = true;
             
         }
         
@@ -1152,18 +1227,16 @@ const SBPLUS = {
         if ( self.presentationStarted === false ) {
             
             // render presentation
-            self.renderPresentation().promise().done( function() {
-                
-                // hide screen
-                self.hideSplashScreen();
-                
-                // select the page that was set in the local storage data
-                self.selectPage( self.getStorageItem( 'sbplus-' + self.presentationId ) );
-                window.setTimeout( function() {
-                    self.updateScroll( self.targetPage[0] );
-                }, 1000 );
-                
-            } );
+            self.renderPresentation();
+            
+            // hide screen
+            self.hideSplashScreen();
+            
+            // select the page that was set in the local storage data
+            self.selectPage( self.getStorageItem( 'sbplus-' + self.presentationId ) );
+            window.setTimeout( function() {
+                self.updateScroll( self.targetPage );
+            }, 1000 );
             
             self.presentationStarted = true;
             
@@ -1184,23 +1257,30 @@ const SBPLUS = {
             document.querySelector( self.layout.sbplus ).focus();
             
             // display presentation title and author to the black banner bar
-            $( self.banner.title ).html( self.xml.setup.title );
-            $( self.banner.author ).html( self.xml.setup.author );
+            const bannerTitleEl = document.querySelector( self.banner.title );
+            const bannerAuthorEl = document.querySelector( self.banner.author );
+            if ( bannerTitleEl ) {
+                bannerTitleEl.innerHTML = self.xml.setup.title;
+            }
+            if ( bannerAuthorEl ) {
+                bannerAuthorEl.innerHTML = self.xml.setup.author;
+            }
             
             // display table of contents
-            $( self.xml.sections ).each( function( i ) {
+            const sections = Array.from( self.xml.sections );
+            sections.forEach( function( sectionNode, i ) {
                 
                 // set section head title
-                let sectionHead = $( this ).attr( 'title' );
+                let sectionHead = sectionNode.getAttribute( 'title' );
                 
                 // set page array data
-                const pages = $( this ).find( 'page' );
+                const pages = Array.from( sectionNode.querySelectorAll( 'page' ) );
                 
                 // set section HTML DOM
                 let sectionHTML = '<div class="section">';
                 
                 // if there is more than 2 sections...
-                if ( $( self.xml.sections ).length >= 2 ) {
+                if ( sections.length >= 2 ) {
                     
                     // if sectionHead title is empty, set a default title
                     if ( self.isEmpty( sectionHead ) ) {
@@ -1219,13 +1299,13 @@ const SBPLUS = {
                 sectionHTML += '<ul id="toc-section-'+i+'" class="list" role="tablist">';
                 
                 // for each page
-                $.each( pages, function( j ) {
+                pages.forEach( function( pageNode, j ) {
                     
                     // increment total page
                     ++self.totalPages;
                     
-                    const pageType = $( this ).attr( 'type' );
-                    const title = $( this ).attr( 'title' );
+                    const pageType = pageNode.getAttribute( 'type' );
+                    const title = pageNode.getAttribute( 'title' );
 
                     // append opening list item tag to DOM
                     sectionHTML += '<li class="item" data-count="' + self.totalPages + '" data-page="' + i + ',' + j + '" role="presentation">';
@@ -1253,79 +1333,123 @@ const SBPLUS = {
                 sectionHTML += '</ul></div>';
                 
                 // append the section HTML to the table of content DOM area
-                $( self.tableOfContents.container ).append( sectionHTML );
+                const tocContainerEl = document.querySelector( self.tableOfContents.container );
+                if ( tocContainerEl ) {
+                    tocContainerEl.insertAdjacentHTML( 'beforeend', sectionHTML );
+                }
                 
             } );
             
             // set total page to the status bar and to the screen reader text holder
-            $( self.layout.pageStatus ).find( 'span.total' ).html( self.totalPages );
-            $( self.screenReader.totalPages ).html( self.totalPages );
+            const totalStatusEl = document.querySelector( self.layout.pageStatus + ' span.total' );
+            const totalPagesSrEl = document.querySelector( self.screenReader.totalPages );
+            if ( totalStatusEl ) {
+                totalStatusEl.innerHTML = String( self.totalPages );
+            }
+            if ( totalPagesSrEl ) {
+                totalPagesSrEl.innerHTML = String( self.totalPages );
+            }
             
             // if author is missing hide author button and menu item
             if ( self.xml.setup.author.length ) {
                 
-                $( self.button.author ).on( 'click', function() {
-                    self.openMenuItem( 'sbplus_author_profile' );
-                } );
+                const authorBtnEl = document.querySelector( self.button.author );
+                if ( authorBtnEl ) {
+                    authorBtnEl.addEventListener( 'click', function() {
+                        self.openMenuItem( 'sbplus_author_profile' );
+                    } );
+                }
                 
             } else {
                 
-                $( self.button.author ).prop( 'disabled', true );
-                $( '.sbplus_author_profile' ).hide();
+                const authorBtnEl = document.querySelector( self.button.author );
+                if ( authorBtnEl ) {
+                    authorBtnEl.disabled = true;
+                }
+                document.querySelectorAll( '.sbplus_author_profile' ).forEach( function( el ) {
+                    el.style.display = 'none';
+                } );
                 
             }
             
-            $( self.button.next ).on( 'click', self.goToNextPage.bind( self ) );
-            $( self.button.prev ).on( 'click', self.goToPreviousPage.bind( self ) );
-            $( self.button.mobileTocToggle).on( 'click', self.toggleToc.bind(self) );
-            
-            if ( $( self.xml.sections ).length >= 2 ) {
-                $( self.tableOfContents.header ).on( 'click', self.toggleSection.bind( self ) );
+            const nextBtnEl = document.querySelector( self.button.next );
+            const prevBtnEl = document.querySelector( self.button.prev );
+            const mobileTocToggleEl = document.querySelector( self.button.mobileTocToggle );
+            if ( nextBtnEl ) {
+                nextBtnEl.addEventListener( 'click', self.goToNextPage.bind( self ) );
+            }
+            if ( prevBtnEl ) {
+                prevBtnEl.addEventListener( 'click', self.goToPreviousPage.bind( self ) );
+            }
+            if ( mobileTocToggleEl ) {
+                mobileTocToggleEl.addEventListener( 'click', self.toggleToc.bind(self) );
             }
             
-            $( self.tableOfContents.page ).on( 'click', self.selectPage.bind( self ) );
-            $( self.widget.segment ).on( 'click', 'button', self.selectSegment.bind( self ) );
+            if ( sections.length >= 2 ) {
+                document.querySelectorAll( self.tableOfContents.header ).forEach( function( headerEl ) {
+                    headerEl.addEventListener( 'click', self.toggleSection.bind( self ) );
+                } );
+            }
+            
+            document.querySelectorAll( self.tableOfContents.page ).forEach( function( pageEl ) {
+                pageEl.addEventListener( 'click', self.selectPage.bind( self ) );
+            } );
+
+            const widgetSegmentEl = document.querySelector( self.widget.segment );
+            if ( widgetSegmentEl ) {
+                self.widgetSegmentCleanup = onDelegate( widgetSegmentEl, 'click', 'button', self.selectSegment.bind( self ) );
+            }
             
             // add main menu button
-            $( self.button.menu ).on( 'click', function( e ) {
+            const menuBtnEl = document.querySelector( self.button.menu );
+            if ( menuBtnEl ) {
+                menuBtnEl.addEventListener( 'click', function( e ) {
 
-                const menuBtn = $( e.currentTarget );
-                const expanded = menuBtn.attr( 'aria-expanded' );
+                    const expanded = e.currentTarget.getAttribute( 'aria-expanded' );
 
-                if ( expanded === 'false' ) {
-                    self.openMenu();
-                } else {
-                    self.closeMenu();
-                }
+                    if ( expanded === 'false' ) {
+                        self.openMenu();
+                    } else {
+                        self.closeMenu();
+                    }
 
-            } );
+                } );
+            }
             
             // hide general info under main menu if empty
             if ( self.isEmpty( self.xml.setup.generalInfo ) ) {
-                $( ".sbplus_general_info" ).hide();
+                document.querySelectorAll( ".sbplus_general_info" ).forEach( function( infoEl ) {
+                    infoEl.style.display = 'none';
+                } );
             }
             
             // add download button if downloads object is not empty
-            if ( !$.isEmptyObject( self.downloads ) ) {
+            if ( Object.keys( self.downloads ).length > 0 ) {
                 
-                $( self.button.download ).on( 'click', function( evt ) {
-                    const downloadBtn = $( evt.currentTarget );
-                    if ( downloadBtn.attr( 'aria-expanded') === 'false' ) {
-                        self.openDownloadMenu();
-                    } else {
-                        self.closeDownloadMenu();
-                    }
-                } );
+                const downloadBtnEl = document.querySelector( self.button.download );
+                if ( downloadBtnEl ) {
+                    downloadBtnEl.addEventListener( 'click', function( evt ) {
+                        if ( evt.currentTarget.getAttribute( 'aria-expanded') === 'false' ) {
+                            self.openDownloadMenu();
+                        } else {
+                            self.closeDownloadMenu();
+                        }
+                    } );
+                }
 
                 // set download items
                 for ( let key in self.downloads ) {
                     
                     if ( self.downloads[key] != undefined ) {
-                        $( self.button.downloadMenu ).append(
-                            '<li class="menu-item" role="menuitem"><a download="' + self.downloads[key].fileName + '.' + self.downloads[key].fileFormat + '" href="'
-                            + self.downloads[key].url +
-                            '" class="sbplus-download-link" aria-label="Download '+ self.escapeHTMLAttribute(key) +' file">' + self.capitalizeFirstLetter( key ) + '</a></li>'
-                        );
+                        const downloadMenuEl = document.querySelector( self.button.downloadMenu );
+                        if ( downloadMenuEl ) {
+                            downloadMenuEl.insertAdjacentHTML(
+                                'beforeend',
+                                '<li class="menu-item" role="menuitem"><a download="' + self.downloads[key].fileName + '.' + self.downloads[key].fileFormat + '" href="'
+                                + self.downloads[key].url +
+                                '" class="sbplus-download-link" aria-label="Download '+ self.escapeHTMLAttribute(key) +' file">' + self.capitalizeFirstLetter( key ) + '</a></li>'
+                            );
+                        }
                     }
                     
                 }
@@ -1333,7 +1457,10 @@ const SBPLUS = {
             } else {
                 
                 // hide the download button if download object is empty
-                $( self.button.downloadWrapper ).hide();
+                const downloadWrapperEl = document.querySelector( self.button.downloadWrapper );
+                if ( downloadWrapperEl ) {
+                    downloadWrapperEl.style.display = 'none';
+                }
             
             }
             
@@ -1343,25 +1470,28 @@ const SBPLUS = {
             }
             
             // easter egg event listener
-            $( "#sbplus_menu_btn" ).on( 'click', self.burgerBurger.bind( self ) );
+            const menuButtonEl = document.querySelector( "#sbplus_menu_btn" );
+            if ( menuButtonEl ) {
+                menuButtonEl.addEventListener( 'click', self.burgerBurger.bind( self ) );
+            }
 
             // close floating menus when click anywhere on the page
-            $( document ).on( 'click', function ( evt ) {
+            document.addEventListener( 'click', function ( evt ) {
 
                 const target = evt.target;
-                const downloadBtn = $( self.button.download );
-                const menuBtn = $( self.button.menu );
+                const downloadBtn = document.querySelector( self.button.download );
+                const menuBtn = document.querySelector( self.button.menu );
             
                 // Check if downloadBtn exists and handle clicks outside it (including descendants)
-                if ( downloadBtn.length && !downloadBtn.is( target ) && !$.contains( downloadBtn[0], target ) ) {
-                    if ( downloadBtn.hasClass( 'active' ) ) {
+                if ( downloadBtn && target && target !== downloadBtn && !downloadBtn.contains( target ) ) {
+                    if ( downloadBtn.classList.contains( 'active' ) ) {
                         self.closeDownloadMenu();
                     }
                 }
             
                 // Handle clicks outside menuBtn (including descendants)
-                if ( !menuBtn.is( target ) && !$.contains( menuBtn[0], target ) ) {
-                    if ( menuBtn.hasClass( 'active' ) ) {
+                if ( menuBtn && target && target !== menuBtn && !menuBtn.contains( target ) ) {
+                    if ( menuBtn.classList.contains( 'active' ) ) {
                         self.closeMenu();
                     }
                 }
@@ -1373,7 +1503,7 @@ const SBPLUS = {
             // resize elements after everything is put in place
             self.resize();
             
-            return $( self.layout.sbplus );
+            return document.querySelector( self.layout.sbplus );
             
         }
         
@@ -1391,7 +1521,8 @@ const SBPLUS = {
         const self = this;
 
         // get/set current page array
-        const currentPage = $( '.sb_selected' ).data( 'page' ).split(',');
+        const currentSelected = document.querySelector( '.sb_selected' );
+        const currentPage = currentSelected ? currentSelected.getAttribute( 'data-page' ).split(',') : ['0', '0'];
         
         // set section number
         let tSection = Number( currentPage[0] );
@@ -1403,7 +1534,7 @@ const SBPLUS = {
         const totalSections = self.xml.sections.length;
         
         // set total page in current section
-        const totalPagesInSection = $( self.xml.sections[tSection] ).find( 'page' ).length;
+        const totalPagesInSection = self.xml.sections[tSection].querySelectorAll( 'page' ).length;
         
         // increment current page number
         tPage++;
@@ -1441,7 +1572,8 @@ const SBPLUS = {
         const self = this;
 
         // get/set current page array
-        const currentPage = $( '.sb_selected' ).data( 'page' ).split(',');
+        const currentSelected = document.querySelector( '.sb_selected' );
+        const currentPage = currentSelected ? currentSelected.getAttribute( 'data-page' ).split(',') : ['0', '0'];
         
         // set section number
         let tSection = Number( currentPage[0] );
@@ -1467,7 +1599,7 @@ const SBPLUS = {
             }
             
             // set page number to the last page on the current section
-            tPage = $( self.xml.sections[tSection] ).find( 'page' ).length - 1;
+            tPage = self.xml.sections[tSection].querySelectorAll( 'page' ).length - 1;
             
         }
         
@@ -1483,17 +1615,25 @@ const SBPLUS = {
     toggleToc: function () {
 
         const self = this;
-        const sbplusWrapper = $( self.layout.wrapper );
+        const sbplusWrapper = document.querySelector( self.layout.wrapper );
 
-        if ( sbplusWrapper.hasClass( 'toc_displayed' ) ) {
+        if ( sbplusWrapper && sbplusWrapper.classList.contains( 'toc_displayed' ) ) {
 
-            $( self.tableOfContents.container ).css( 'height', '' );
-            sbplusWrapper.removeClass( 'toc_displayed' );
+            const tocContainerEl = document.querySelector( self.tableOfContents.container );
+            if ( tocContainerEl ) {
+                tocContainerEl.style.height = '';
+            }
+            sbplusWrapper.classList.remove( 'toc_displayed' );
             
         } else {
 
-            $( self.tableOfContents.container ).height( self.calcTocHeight() );
-            sbplusWrapper.addClass( 'toc_displayed' );
+            const tocContainerEl = document.querySelector( self.tableOfContents.container );
+            if ( tocContainerEl ) {
+                tocContainerEl.style.height = self.calcTocHeight() + 'px';
+            }
+            if ( sbplusWrapper ) {
+                sbplusWrapper.classList.add( 'toc_displayed' );
+            }
 
         }
 
@@ -1505,7 +1645,13 @@ const SBPLUS = {
     calcTocHeight: function() {
 
         const self = this;
-        return window.innerHeight - ( $( self.banner.bar ).height() + $( self.layout.media ).height() + $( self.layout.mainControl ).height() );
+        const bannerEl = document.querySelector( self.banner.bar );
+        const mediaEl = document.querySelector( self.layout.media );
+        const controlEl = document.querySelector( self.layout.mainControl );
+        const bannerHeight = bannerEl ? bannerEl.getBoundingClientRect().height : 0;
+        const mediaHeight = mediaEl ? mediaEl.getBoundingClientRect().height : 0;
+        const controlHeight = controlEl ? controlEl.getBoundingClientRect().height : 0;
+        return window.innerHeight - ( bannerHeight + mediaHeight + controlHeight );
 
     },
     
@@ -1517,7 +1663,10 @@ const SBPLUS = {
         const self = this;
 
         // display current page number to the status
-        $( self.layout.pageStatus ).find( 'span.current' ).html( num );
+        const currentEl = document.querySelector( self.layout.pageStatus + ' span.current' );
+        if ( currentEl ) {
+            currentEl.innerHTML = String( num );
+        }
         
     }, // end updatePageStatus function
 
@@ -1526,40 +1675,62 @@ const SBPLUS = {
     **************************************************************************/
     openMenu: function() {
 
-        const menuBtn = $( this.button.menu );
-        const menuList = $( this.menu.menuList );
+        const menuBtn = document.querySelector( this.button.menu );
+        const menuList = document.querySelector( this.menu.menuList );
         
-        menuBtn.attr( 'aria-expanded', true ).addClass( 'active' );
-        menuList.addClass( 'active' );
+        if ( menuBtn ) {
+            menuBtn.setAttribute( 'aria-expanded', 'true' );
+            menuBtn.classList.add( 'active' );
+        }
+        if ( menuList ) {
+            menuList.classList.add( 'active' );
+        }
         
     },
 
     closeMenu: function() {
 
-        const menuBtn = $( this.button.menu );
-        const menuList = $( this.menu.menuList );
+        const menuBtn = document.querySelector( this.button.menu );
+        const menuList = document.querySelector( this.menu.menuList );
 
-        menuBtn.attr( 'aria-expanded', false ).removeClass( 'active' );
-        menuList.removeClass( 'active' );
+        if ( menuBtn ) {
+            menuBtn.setAttribute( 'aria-expanded', 'false' );
+            menuBtn.classList.remove( 'active' );
+        }
+        if ( menuList ) {
+            menuList.classList.remove( 'active' );
+        }
 
     },
 
     openDownloadMenu: function() {
 
-        const downloadBtn = $( this.button.download );
-        const downloadMenuList = $( this.button.downloadMenu );
+        const downloadBtn = document.querySelector( this.button.download );
+        const downloadMenuList = document.querySelector( this.button.downloadMenu );
 
-        downloadBtn.attr( 'aria-expanded', true ).addClass( 'active' );
-        downloadMenuList.removeAttr( 'aria-hidden' ).show();
+        if ( downloadBtn ) {
+            downloadBtn.setAttribute( 'aria-expanded', 'true' );
+            downloadBtn.classList.add( 'active' );
+        }
+        if ( downloadMenuList ) {
+            downloadMenuList.removeAttribute( 'aria-hidden' );
+            downloadMenuList.style.display = '';
+        }
 
     },
 
     closeDownloadMenu: function() {
-        const downloadBtn = $( this.button.download );
-        const downloadMenuList = $( this.button.downloadMenu );
+        const downloadBtn = document.querySelector( this.button.download );
+        const downloadMenuList = document.querySelector( this.button.downloadMenu );
 
-        downloadBtn.attr( 'aria-expanded', false ).removeClass( 'active' );
-        downloadMenuList.attr( 'aria-hidden', true ).hide();
+        if ( downloadBtn ) {
+            downloadBtn.setAttribute( 'aria-expanded', 'false' );
+            downloadBtn.classList.remove( 'active' );
+        }
+        if ( downloadMenuList ) {
+            downloadMenuList.setAttribute( 'aria-hidden', 'true' );
+            downloadMenuList.style.display = 'none';
+        }
     },
 
     /**
@@ -1581,60 +1752,83 @@ const SBPLUS = {
         const itemId = id;
         let content = "";
         
-        const sbplusBanner = $( self.banner.bar );
-        const sbplusContentWrapper = $( self.layout.contentWrapper );
-        const menuContentWrapper = $( self.menu.menuContentWrapper );
-        const menuContent = $( self.menu.menuContent );
-        const menuTitle = $( self.menu.menuBarTitle );
+        const sbplusBanner = document.querySelector( self.banner.bar );
+        const sbplusContentWrapper = document.querySelector( self.layout.contentWrapper );
+        const menuContentWrapper = document.querySelector( self.menu.menuContentWrapper );
+        const menuContent = document.querySelector( self.menu.menuContent );
+        const menuTitle = document.querySelector( self.menu.menuBarTitle );
         
-        menuContent.empty();
+        if ( menuContent ) {
+            menuContent.innerHTML = '';
+        }
         self.closeMenu();
-        sbplusBanner.attr( "aria-hidden", true ).css( 'display', 'none' );
-        sbplusContentWrapper.attr( "aria-hidden", true ).css( 'display', 'none' );
-        
-        $( self.menu.menuContentList + ' li' ).removeClass( 'active' );
-        $( self.menu.menuContentList + ' .' + itemId ).addClass( 'active' );
 
-        $( self.menu.menuContentList + ' li button' ).removeAttr( 'aria-current' );
-        $( self.menu.menuContentList + ' .' + itemId + ' button ' ).attr( 'aria-current', true );
+        // Move focus into the menu content before hiding banner/content
+        // regions with aria-hidden to avoid focus-in-hidden warnings.
+        if ( menuContentWrapper ) {
+            menuContentWrapper.removeAttribute( 'aria-hidden' );
+            menuContentWrapper.style.display = 'block';
+        }
+        const menuCloseBtnForFocus = document.querySelector( self.button.menuClose );
+        if ( menuCloseBtnForFocus ) {
+            menuCloseBtnForFocus.focus();
+        } else if ( menuContent ) {
+            menuContent.focus();
+        }
+
+        if ( sbplusBanner ) {
+            sbplusBanner.setAttribute( "aria-hidden", 'true' );
+            sbplusBanner.style.display = 'none';
+        }
+        if ( sbplusContentWrapper ) {
+            sbplusContentWrapper.setAttribute( "aria-hidden", 'true' );
+            sbplusContentWrapper.style.display = 'none';
+        }
+        
+        document.querySelectorAll( self.menu.menuContentList + ' li' ).forEach( ( itemEl ) => itemEl.classList.remove( 'active' ) );
+        document.querySelectorAll( self.menu.menuContentList + ' .' + itemId ).forEach( ( itemEl ) => itemEl.classList.add( 'active' ) );
+
+        document.querySelectorAll( self.menu.menuContentList + ' li button' ).forEach( ( btnEl ) => btnEl.removeAttribute( 'aria-current' ) );
+        document.querySelectorAll( self.menu.menuContentList + ' .' + itemId + ' button ' ).forEach( ( btnEl ) => btnEl.setAttribute( 'aria-current', 'true' ) );
         
         switch ( itemId ) {
                     
             case 'sbplus_author_profile':
             
-                menuTitle.html( 'Author Profile' );
+                if ( menuTitle ) {
+                    menuTitle.innerHTML = 'Author Profile';
+                }
                 
                 if ( self.xml.setup.author.length ) {
                     
-                    menuContent.append( '<div class="profileImg"></div>' );
+                    if ( menuContent ) {
+                        menuContent.insertAdjacentHTML( 'beforeend', '<div class="profileImg"></div>' );
+                    }
                     
                     const author = self.xml.setup.author;
                     const sanitizedAuthor = self.sanitize( author );
 
                     const photoUrl = self.assetsPath + sanitizedAuthor + '.jpg';
 
-                    $.ajax( {
-                
-                        type: 'HEAD',
-                        url: photoUrl
+                    headRequest( photoUrl ).then( function() {
                         
-                    } ).done( function() {
+                        const profileImgEl = document.querySelector( '.profileImg' );
+                        if ( profileImgEl ) {
+                            profileImgEl.innerHTML = '<img src="' + photoUrl + '" alt="Photo of ' + author + '" crossorigin="Anonymous" />';
+                        }
                         
-                        $( '.profileImg' ).html( '<img src="' + this.url + '" alt="Photo of ' + author + '" crossorigin="Anonymous" />' );
-                        
-                    } ).fail( function() {
+                    } ).catch( function() {
                         
                         if ( !self.isEmpty( self.manifest.sbplus_author_directory ) ) {
 
-                            $.ajax( {
-                            
-                                type: 'HEAD',
-                                url: self.manifest.sbplus_author_directory + sanitizedAuthor + '.jpg'
-                            
-                            } ).done( function() {
-                                
-                                $( '.profileImg' ).html( '<img src="' + this.url + '" alt="Photo of ' + author + '" crossorigin="Anonymous" />' );
-                                
+                            const fallbackPhotoUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.jpg';
+                            headRequest( fallbackPhotoUrl ).then( function() {
+                                const profileImgEl = document.querySelector( '.profileImg' );
+                                if ( profileImgEl ) {
+                                    profileImgEl.innerHTML = '<img src="' + fallbackPhotoUrl + '" alt="Photo of ' + author + '" crossorigin="Anonymous" />';
+                                }
+                            } ).catch( function() {
+                                // No fallback author image available.
                             } );
                             
                         }
@@ -1654,7 +1848,9 @@ const SBPLUS = {
             
             case 'sbplus_general_info':
 
-                menuTitle.html( 'General Info' );
+                if ( menuTitle ) {
+                    menuTitle.innerHTML = 'General Info';
+                }
                 
                 if ( self.isEmpty( self.xml.setup.generalInfo ) ) {
                     content = 'No general information available.';
@@ -1666,26 +1862,38 @@ const SBPLUS = {
             
             case 'sbplus_settings':
                 
-                menuTitle.html( 'Settings' );
+                if ( menuTitle ) {
+                    menuTitle.innerHTML = 'Settings';
+                }
                 
                 if ( self.hasLocalStorageSupport && self.hasSessionStorageSupport ) {
                     
                     if ( self.hasStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', true ) === false ) {
                     
-                        $.get( self.manifest.sbplus_root_directory + 'scripts/templates/settings.tpl', function( data ) {
+                        fetchResource( self.manifest.sbplus_root_directory + 'scripts/templates/settings.tpl' ).then( function( data ) {
                         
                             self.settings = data;
                             self.setStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', 1, true );
-                            menuContent.append( data );
+                            if ( menuContent ) {
+                                menuContent.insertAdjacentHTML( 'beforeend', data );
+                            }
                             self.afterSettingsLoaded();
-                            $( self.menu.versionContainer ).html( 'version ' + self.version );
+                            const versionEl = document.querySelector( self.menu.versionContainer );
+                            if ( versionEl ) {
+                                versionEl.innerHTML = 'version ' + self.version;
+                            }
                             
                         } );
                         
                     } else {
                         
-                        menuContent.append( self.settings );
-                        $( self.menu.versionContainer ).html( 'version ' + self.version );
+                        if ( menuContent ) {
+                            menuContent.insertAdjacentHTML( 'beforeend', self.settings );
+                        }
+                        const versionEl = document.querySelector( self.menu.versionContainer );
+                        if ( versionEl ) {
+                            versionEl.innerHTML = 'version ' + self.version;
+                        }
                         self.afterSettingsLoaded();
                         
                     }
@@ -1709,7 +1917,9 @@ const SBPLUS = {
                     const menuId = 'sbplus_' + self.sanitize( customMenuItems[key].name );
 
                     if ( itemId === menuId ) {
-                        menuTitle.html( customMenuItems[key].name );
+                        if ( menuTitle ) {
+                            menuTitle.innerHTML = customMenuItems[key].name;
+                        }
                         content = customMenuItems[key].content;
                         break;
                     }
@@ -1719,11 +1929,19 @@ const SBPLUS = {
             
         }
         
-        menuContentWrapper.removeAttr( 'aria-hidden' ).show();
-        menuContent.append( content )
+        if ( menuContentWrapper ) {
+            menuContentWrapper.removeAttribute( 'aria-hidden' );
+            menuContentWrapper.style.display = 'block';
+        }
+        if ( menuContent ) {
+            menuContent.insertAdjacentHTML( 'beforeend', content );
+        }
         document.querySelector( self.menu.menuContent ).focus();
         
-        $( self.button.menuClose ).on( 'click', self.closeMenuContent.bind( self ) );
+        const menuCloseBtnEl = document.querySelector( self.button.menuClose );
+        if ( menuCloseBtnEl ) {
+            menuCloseBtnEl.addEventListener( 'click', self.closeMenuContent.bind( self ) );
+        }
         
         if ( self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true' ) {
             MathJax.Hub.Queue( ['Typeset', MathJax.Hub] );
@@ -1737,19 +1955,34 @@ const SBPLUS = {
     closeMenuContent: function() {
         
         const self = this;
-        const sbplusBanner = $( self.banner.bar );
-        const sbplusContentWrapper = $( self.layout.contentWrapper );
-        const menuContentWrapper = $( self.menu.menuContentWrapper );
-        const menuContent = $( self.menu.menuContent );
+        const sbplusBanner = document.querySelector( self.banner.bar );
+        const sbplusContentWrapper = document.querySelector( self.layout.contentWrapper );
+        const menuContentWrapper = document.querySelector( self.menu.menuContentWrapper );
+        const menuContent = document.querySelector( self.menu.menuContent );
         
-        menuContent.empty();
-        menuContentWrapper.attr( 'aria-hidden', true ).hide();
+        if ( menuContent ) {
+            menuContent.innerHTML = '';
+        }
+        if ( menuContentWrapper ) {
+            menuContentWrapper.setAttribute( 'aria-hidden', 'true' );
+            menuContentWrapper.style.display = 'none';
+        }
 
-        sbplusBanner.removeAttr( "aria-hidden" ).css( 'display', 'flex' );
-        sbplusContentWrapper.removeAttr( "aria-hidden" ).css( 'display', 'flex' );
+        if ( sbplusBanner ) {
+            sbplusBanner.removeAttribute( "aria-hidden" );
+            sbplusBanner.style.display = 'flex';
+        }
+        if ( sbplusContentWrapper ) {
+            sbplusContentWrapper.removeAttribute( "aria-hidden" );
+            sbplusContentWrapper.style.display = 'flex';
+        }
         document.querySelector( self.button.menu ).focus();
         
-        $( this.button.menuClose ).off( 'click' );
+        const menuCloseBtnEl = document.querySelector( this.button.menuClose );
+        if ( menuCloseBtnEl ) {
+            const clone = menuCloseBtnEl.cloneNode( true );
+            menuCloseBtnEl.parentNode.replaceChild( clone, menuCloseBtnEl );
+        }
         
     },
     
@@ -1759,16 +1992,22 @@ const SBPLUS = {
     burgerBurger: function() {
         
         const self = this;
-        const menuIcon = $( 'span.menu-icon' );
+        const menuIcon = document.querySelector( 'span.menu-icon' );
             
         self.clickCount++;
         
         if ( self.clickCount === self.randomNum ) {
-            menuIcon.removeClass('icon-menu').html('🍔');
+            if ( menuIcon ) {
+                menuIcon.classList.remove('icon-menu');
+                menuIcon.innerHTML = '🍔';
+            }
             self.clickCount = 0;
             self.randomNum = Math.floor((Math.random() * 6) + 5);
         } else {
-            menuIcon.addClass('icon-menu').empty();
+            if ( menuIcon ) {
+                menuIcon.classList.add('icon-menu');
+                menuIcon.innerHTML = '';
+            }
         }
         
     },
@@ -1784,7 +2023,8 @@ const SBPLUS = {
         const self = this;
 
         // get total number of 
-        const totalHeaderCount = $( this.tableOfContents.header ).length;
+        const headers = document.querySelectorAll( this.tableOfContents.header );
+        const totalHeaderCount = headers.length;
         
         // if total number of section is greater than 1...
         if ( totalHeaderCount > 1 ) {
@@ -1796,7 +2036,7 @@ const SBPLUS = {
             if ( el instanceof Object ) {
                 
                 // set the current section to the current event click target
-                targetSectionHeader = $( el.currentTarget );
+                targetSectionHeader = el.currentTarget;
                 
             } else {
                 
@@ -1809,12 +2049,14 @@ const SBPLUS = {
                 }
                 
                 // set the current section to the passed argument
-                targetSectionHeader = $( '.header:eq(' + el + ')' );
+                targetSectionHeader = headers[Number( el )];
                 
             }
             
+            const targetList = targetSectionHeader ? targetSectionHeader.nextElementSibling : null;
+            const isVisible = !!( targetList && ( targetList.offsetWidth || targetList.offsetHeight || targetList.getClientRects().length ) );
             // if target is visible...
-            if ( $( targetSectionHeader.siblings( '.list' ) ).is( ':visible' ) ) {
+            if ( isVisible ) {
                 
                 self.closeSection( targetSectionHeader );
                 
@@ -1836,17 +2078,24 @@ const SBPLUS = {
      closeSection: function( obj ) {
         
         // set the target to the list element under the section
-        const target = $( obj.siblings( '.list' ) );
+        const target = obj ? obj.nextElementSibling : null;
         
         // the open/collapse icon on the section title bar
-        const icon = obj.find( '.icon' );
+        const icon = obj ? obj.querySelector( '.icon' ) : null;
         
         // slide up (hide) the list
-        $(target.siblings()[0]).find( 'button.title' ).attr( 'aria-expanded', false );
-        target.slideUp();
+        const titleBtn = obj ? obj.querySelector( 'button.title' ) : null;
+        if ( titleBtn ) {
+            titleBtn.setAttribute( 'aria-expanded', 'false' );
+        }
+        if ( target ) {
+            target.style.display = 'none';
+        }
             
         // update the icon to open icon
-        icon.html( '<span class="icon-open"></span>' );
+        if ( icon ) {
+            icon.innerHTML = '<span class="icon-open"></span>';
+        }
          
      },
      
@@ -1858,17 +2107,24 @@ const SBPLUS = {
      openSection: function( obj ) {
         
         // set the target to the list element under the section
-        const target = $( obj.siblings( '.list' ) );
+        const target = obj ? obj.nextElementSibling : null;
         
         // the open/collapse icon on the section title bar
-        const icon = obj.find( '.icon' );
+        const icon = obj ? obj.querySelector( '.icon' ) : null;
         
         // slide down (show) the list
-        $(target.siblings()[0]).find( 'button.title' ).attr( 'aria-expanded', true );
-        target.slideDown();
+        const titleBtn = obj ? obj.querySelector( 'button.title' ) : null;
+        if ( titleBtn ) {
+            titleBtn.setAttribute( 'aria-expanded', 'true' );
+        }
+        if ( target ) {
+            target.style.display = '';
+        }
         
         // update the icon to collapse icon
-        icon.html( '<span class="icon-collapse"></span>' );
+        if ( icon ) {
+            icon.innerHTML = '<span class="icon-collapse"></span>';
+        }
          
      },
     
@@ -1884,15 +2140,15 @@ const SBPLUS = {
         if ( el instanceof Object ) {
             
             // set target to current click event target
-            self.targetPage = $( el.currentTarget );
+            self.targetPage = el.currentTarget;
             
         } else {
             
             // set target to the passed in argument
-            self.targetPage = $( '.item[data-page="' + el + '"]' );
+            self.targetPage = document.querySelector( '.item[data-page="' + el + '"]' );
             
             // if targe page does not exist
-            if ( self.targetPage.length === 0 ) {
+            if ( !self.targetPage ) {
                 
                 // exit function; stop further execution
                 return false;
@@ -1901,28 +2157,28 @@ const SBPLUS = {
         }
         
         // if target page does not have the sb_selected class
-        if ( !self.targetPage.hasClass( 'sb_selected' ) ) {
+        if ( !self.targetPage.classList.contains( 'sb_selected' ) ) {
             
-            // get jQuery set that contain pages
-            const allPages = $( self.tableOfContents.page );
+            // get all pages
+            const allPages = Array.from( document.querySelectorAll( self.tableOfContents.page ) );
             
-            // get jQuery set that contain section headers
-            const sectionHeaders = $( self.tableOfContents.header );
+            // get section headers
+            const sectionHeaders = Array.from( document.querySelectorAll( self.tableOfContents.header ) );
             
             // if more than one section headers...
             if ( sectionHeaders.length > 1 ) {
                 
                 // set the target header to targeted page's header
-                const targetHeader = self.targetPage.parent().siblings( '.header' );
+                const targetHeader = self.targetPage.parentElement ? self.targetPage.parentElement.previousElementSibling : null;
                 
                 // if targeted header does not have the current class
-                if ( !targetHeader.hasClass( 'current' ) ) {
+                if ( targetHeader && !targetHeader.classList.contains( 'current' ) ) {
                     
                     // remove current class from all section headers
-                    sectionHeaders.removeClass( 'current' );
+                    sectionHeaders.forEach( ( headerEl ) => headerEl.classList.remove( 'current' ) );
                     
                     // add current class to targeted header
-                    targetHeader.addClass( 'current' );
+                    targetHeader.classList.add( 'current' );
                     
                 }
                 
@@ -1931,29 +2187,42 @@ const SBPLUS = {
             }
             
             // remove sb_selected class from all pages
-            allPages.removeClass( 'sb_selected' );
-            $( allPages.find( 'button' ) ).attr( 'aria-selected', false );
+            allPages.forEach( ( pageEl ) => {
+                pageEl.classList.remove( 'sb_selected' );
+                const btn = pageEl.querySelector( 'button' );
+                if ( btn ) {
+                    btn.setAttribute( 'aria-selected', 'false' );
+                }
+            } );
             
             // add sb_selected class to targeted page
-            self.targetPage.addClass( 'sb_selected' );
-            $( self.targetPage.find( 'button' ) ).attr( 'aria-selected', true );
+            self.targetPage.classList.add( 'sb_selected' );
+            const selectedBtn = self.targetPage.querySelector( 'button' );
+            if ( selectedBtn ) {
+                selectedBtn.setAttribute( 'aria-selected', 'true' );
+            }
             
             // call the getPage function with targeted page data as parameter
-            self.getPage( self.targetPage.data('page') );
+            self.getPage( self.targetPage.getAttribute( 'data-page' ) );
             
             // update the page status with the targeted page count data
-            self.updatePageStatus( self.targetPage.data( 'count' ) );
+            self.updatePageStatus( self.targetPage.getAttribute( 'data-count' ) );
             
             // update screen reader status
-            $( self.screenReader.currentPage ).html( self.targetPage.data( 'count' ) );
+            const srCurrentPage = document.querySelector( self.screenReader.currentPage );
+            if ( srCurrentPage ) {
+                srCurrentPage.innerHTML = self.targetPage.getAttribute( 'data-count' );
+            }
             
             // update the scroll bar to targeted page with a 1
-            if ( $( self.layout.sidebar ).is( ':visible' ) ) {
-                self.updateScroll( self.targetPage[0] );
+            const sidebarEl = document.querySelector( self.layout.sidebar );
+            if ( sidebarEl && ( sidebarEl.offsetWidth || sidebarEl.offsetHeight || sidebarEl.getClientRects().length ) ) {
+                self.updateScroll( self.targetPage );
             }
 
             // hide table of content in mobile view
-            if ( $( self.layout.wrapper ).hasClass( 'toc_displayed' ) ) {
+            const wrapperEl = document.querySelector( self.layout.wrapper );
+            if ( wrapperEl && wrapperEl.classList.contains( 'toc_displayed' ) ) {
                 self.toggleToc();
             }
             
@@ -1968,6 +2237,18 @@ const SBPLUS = {
     getPage: function ( page ) {
         
         const self = this;
+        const getAttrTrim = function( node, name, fallback = '' ) {
+            if ( !node || !node.getAttribute ) {
+                return fallback;
+            }
+
+            const value = node.getAttribute( name );
+            if ( value === null || value === undefined ) {
+                return fallback;
+            }
+
+            return String( value ).trim();
+        };
 
         // split the page value into an array
         page = page.split( ',' );
@@ -1979,13 +2260,17 @@ const SBPLUS = {
         const item = page[1];
         
         // get and set target based on the section and item variable
-        const target = $( $( self.xml.sections[section] ).find( 'page' )[item] );
+        const pageNodes = self.xml.sections[section].querySelectorAll( 'page' );
+        const target = pageNodes[item];
+        if ( !target ) {
+            return;
+        }
         
         // create a pageData object to hold page title and type
         const pageData = {
-            xml: target,
-            title: target.attr( 'title' ).trim(),
-            type: target.attr( 'type' ).trim().toLowerCase()
+            xml: [target],
+            title: getAttrTrim( target, 'title', '' ),
+            type: getAttrTrim( target, 'type', '' ).toLowerCase()
         };
         
         // set number property to the pageData object
@@ -1995,18 +2280,18 @@ const SBPLUS = {
         if ( pageData.type !== 'quiz' ) {
             
             // add/set additional property to the pageData object
-            pageData.src = target.attr( 'src' ).trim();
+            pageData.src = getAttrTrim( target, 'src', '' );
             
             // check for preventAutoplay attribute
-            if ( target.attr( 'preventAutoplay' ) != undefined ) {
-                pageData.preventAutoplay = target.attr( 'preventAutoplay' ).trim();
+            if ( target.getAttribute( 'preventAutoplay' ) != undefined ) {
+                pageData.preventAutoplay = getAttrTrim( target, 'preventAutoplay', 'false' );
             } else {
                 pageData.preventAutoplay = "false";
             }
 
             // check for defaultPlayer attribute if it is youtube or vimeo
-            if ( target.attr( 'useDefaultPlayer' ) !== undefined ) {
-                pageData.useDefaultPlayer = target.attr( 'useDefaultPlayer' ).trim();
+            if ( target.getAttribute( 'useDefaultPlayer' ) !== undefined ) {
+                pageData.useDefaultPlayer = getAttrTrim( target, 'useDefaultPlayer', 'true' );
             } else {
                 pageData.useDefaultPlayer = "true";
             }
@@ -2017,8 +2302,8 @@ const SBPLUS = {
             || pageData.type == 'video' 
             || ( pageData.type == 'youtube' && pageData.useDefaultPlayer == "true" ) ) {
 
-                if ( target.attr( 'disableFullscreen' ) != undefined ) {
-                    pageData.disableFullscreen = target.attr( 'disableFullscreen' ).trim();
+                if ( target.getAttribute( 'disableFullscreen' ) != undefined ) {
+                    pageData.disableFullscreen = getAttrTrim( target, 'disableFullscreen', 'false' );
                 } else {
                     pageData.disableFullscreen = "false";
                 }
@@ -2026,29 +2311,29 @@ const SBPLUS = {
             }
             
             // if there is a note tag, set notes
-            if ( target.find( 'note' ).length ) {
-                
-                pageData.notes = self.getTextContent( target.find( 'note' ) );
+            if ( target.querySelectorAll( 'note' ).length ) {
+                const noteNode = target.querySelector( 'note' );
+                pageData.notes = noteNode ? self.noScript( self.noCDATA( noteNode.innerHTML || noteNode.textContent || '' ) ) : '';
                 
             }
             
-            pageData.widget = target.find( 'widget' );
+            pageData.widget = target.querySelectorAll( 'widget' );
 
-            if ( target.find( 'copyableContent' ).length ) {
-                pageData.copyableContent = target.find( 'copyableContent' );
+            if ( target.querySelectorAll( 'copyableContent' ).length ) {
+                pageData.copyableContent = target.querySelectorAll( 'copyableContent' );
             }
 
-            if ( target.find( 'description' ).length ) {
-                pageData.description = target.find( 'description' );
+            if ( target.querySelectorAll( 'description' ).length ) {
+                pageData.description = target.querySelectorAll( 'description' );
             }
 
-            pageData.frames = target.find( 'frame' );
+            pageData.frames = target.querySelectorAll( 'frame' );
             pageData.imageFormat = self.xml.settings.imgType;
-            pageData.transition = target[0].hasAttribute( 'transition' ) ? 
-                target.attr( 'transition' ).trim() : '';
+            pageData.transition = target.hasAttribute( 'transition' ) ? 
+                getAttrTrim( target, 'transition', '' ) : '';
 
             if ( pageData.type !== 'image' ) {
-                pageData.markers = target.find( 'markers' );
+                pageData.markers = target.querySelectorAll( 'markers' );
             }
             
             // create new page object using the pageData and set to SBPLUS's
@@ -2065,7 +2350,10 @@ const SBPLUS = {
         self.currentPage.getPageMedia();
         
         // update the page title to the screen reader
-        $( self.screenReader.pageTitle ).html( pageData.title );
+        const pageTitleEl = document.querySelector( self.screenReader.pageTitle );
+        if ( pageTitleEl ) {
+            pageTitleEl.innerHTML = pageData.title;
+        }
         
     }, // end getPage function
     
@@ -2082,18 +2370,18 @@ const SBPLUS = {
         let target = obj;
         
         // if the target is not visible
-        if ( !$( target ).is( ':visible' ) ) {
+        if ( !( target.offsetWidth || target.offsetHeight || target.getClientRects().length ) ) {
             
             // target its parent's siblings
-            target = $( target ).parent().siblings( '.header' )[0];
+            target = target.parentElement ? target.parentElement.previousElementSibling : target;
             
         }
         
-        if ( $( target ).data( "page" ) == "0,0" ) {
+        if ( target && target.getAttribute && target.getAttribute( "data-page" ) == "0,0" ) {
             
-            if ( $( target ).parent().prev().length ) {
+            if ( target.parentElement && target.parentElement.previousElementSibling ) {
                 
-                $( $( target ).parent().prev() )[0].scrollIntoView( scrollOption );
+                target.parentElement.previousElementSibling.scrollIntoView( scrollOption );
                 
             } else {
                 
@@ -2105,10 +2393,11 @@ const SBPLUS = {
         }
         
         // get/set the scrollable height
-        const scrollHeight = $( self.tableOfContents.container ).height();
-        const targetHeight = $( target ).outerHeight();
-        const sectionHeaders = $( self.tableOfContents.header );
-        let targetTop = $( target ).offset().top - targetHeight;
+        const tocContainerEl = document.querySelector( self.tableOfContents.container );
+        const scrollHeight = tocContainerEl ? tocContainerEl.getBoundingClientRect().height : 0;
+        const targetHeight = target.getBoundingClientRect().height;
+        const sectionHeaders = document.querySelectorAll( self.tableOfContents.header );
+        let targetTop = target.getBoundingClientRect().top + window.scrollY - targetHeight;
         
         if ( sectionHeaders.length <= 0 ) {
             targetTop += 40;
@@ -2136,8 +2425,14 @@ const SBPLUS = {
     clearWidget: function() {
 
         const self = this;
-        $( self.widget.segment ).empty();
-        $( self.widget.content ).empty();
+        const widgetSegmentEl = document.querySelector( self.widget.segment );
+        const widgetContentEl = document.querySelector( self.widget.content );
+        if ( widgetSegmentEl ) {
+            widgetSegmentEl.innerHTML = '';
+        }
+        if ( widgetContentEl ) {
+            widgetContentEl.innerHTML = '';
+        }
 
     },
     
@@ -2147,7 +2442,8 @@ const SBPLUS = {
     hasWidgetContent: function() {
         
         const self = this;
-        return $( self.widget.segment ).find( 'button' ).length;
+        const widgetSegmentEl = document.querySelector( self.widget.segment );
+        return widgetSegmentEl ? widgetSegmentEl.querySelectorAll( 'button' ).length : 0;
         
     },
     
@@ -2158,50 +2454,68 @@ const SBPLUS = {
     selectSegment: function( el ) {
         
         const self = this;
-        const button = $( self.widget.segment ).find( 'button' );
+        const buttons = Array.from( document.querySelectorAll( self.widget.segment + ' button' ) );
+        const widgetLayoutEl = document.querySelector( self.layout.widget );
+        const widgetContentEl = document.querySelector( self.widget.content );
+        const srHasNotesEl = document.querySelector( self.screenReader.hasNotes );
+        const notesBtnEl = document.querySelector( self.button.notes );
         
         if ( self.hasWidgetContent() ) {
             
-            $( self.layout.widget ).removeClass('noSegments').removeAttr( 'aria-hidden' );
-            $( self.widget.content ).css( 'background-image', '' ).removeAttr( 'aria-hidden' );
-            $( self.screenReader.hasNotes ).html( 'This slide contains notes.' );
-            $( self.button.notes ).prop( 'disabled', false );
-            $( self.button.notes ).attr( 'title', 'View Notes' );
-            $( self.button.notes ).attr( 'aria-label', 'View Notes' );
+            if ( widgetLayoutEl ) {
+                widgetLayoutEl.classList.remove('noSegments');
+                widgetLayoutEl.removeAttribute( 'aria-hidden' );
+            }
+            if ( widgetContentEl ) {
+                widgetContentEl.style.backgroundImage = '';
+                widgetContentEl.removeAttribute( 'aria-hidden' );
+            }
+            if ( srHasNotesEl ) {
+                srHasNotesEl.innerHTML = 'This slide contains notes.';
+            }
+            if ( notesBtnEl ) {
+                notesBtnEl.disabled = false;
+                notesBtnEl.setAttribute( 'title', 'View Notes' );
+                notesBtnEl.setAttribute( 'aria-label', 'View Notes' );
+            }
 
-            $( self.button.notes ).on( 'click', function() {
+            if ( notesBtnEl ) {
+                notesBtnEl.onclick = function() {
 
-                const secControlExpandedBtn = document.querySelector( '#expand_contract_btn' );
+                    const secControlExpandedBtn = document.querySelector( '#expand_contract_btn' );
 
-                if ( secControlExpandedBtn && secControlExpandedBtn.classList.contains( 'expanded' ) ) {
-                    secControlExpandedBtn.classList.remove( 'expanded' );
-                }
+                    if ( secControlExpandedBtn && secControlExpandedBtn.classList.contains( 'expanded' ) ) {
+                        secControlExpandedBtn.classList.remove( 'expanded' );
+                    }
 
-                if ( self.currentPage.mediaPlayer && self.currentPage.mediaPlayer.hasClass( 'sbplus-vjs-expanded' ) ) {
-                    self.currentPage.mediaPlayer.removeClass( 'sbplus-vjs-expanded' );
-                }
+                    if ( self.currentPage.mediaPlayer && self.currentPage.mediaPlayer.hasClass( 'sbplus-vjs-expanded' ) ) {
+                        self.currentPage.mediaPlayer.removeClass( 'sbplus-vjs-expanded' );
+                    }
 
-                document.querySelector( self.layout.sbplus ).classList.remove( 'sbplus-vjs-expanded' );
+                    document.querySelector( self.layout.sbplus ).classList.remove( 'sbplus-vjs-expanded' );
         
-            } );
+                };
+            }
             
-            let target = '';
+            let target = null;
             let targetId = '';
             
             if ( typeof el === 'string' ) {
-                target = $( '#' + el );
+                target = document.getElementById( el );
                 targetId = el;
             } else {
-                target = $( el.currentTarget );
-                targetId = target[0].id;
+                target = el.currentTarget;
+                targetId = target.id;
             }
             
-            if ( !target.hasClass( 'active' ) ) {
+            if ( target && !target.classList.contains( 'active' ) ) {
                 self.currentPage.getWidgetContent( targetId );
-                button.removeClass( 'active' );
-                button.attr( 'aria-selected', false );
-                target.addClass( 'active' );
-                target.attr( 'aria-selected', true );
+                buttons.forEach( ( buttonEl ) => {
+                    buttonEl.classList.remove( 'active' );
+                    buttonEl.setAttribute( 'aria-selected', 'false' );
+                } );
+                target.classList.add( 'active' );
+                target.setAttribute( 'aria-selected', 'true' );
             }
             
             if ( self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true' ) {
@@ -2210,20 +2524,31 @@ const SBPLUS = {
             
         } else {
             
-            $( self.screenReader.hasNotes ).empty();
-            $( self.layout.widget ).addClass('noSegments').attr( 'aria-hidden', true );
-            $( self.button.notes ).prop( 'disabled', true );
-            $( self.button.notes ).attr( 'title', '' );
-            $( self.button.notes ).attr( 'aria-label', '' );
-            $( self.widget.content ).attr( 'aria-hidden', true );
-            $( self.widget.content ).removeAttr( 'aria-labelledby' );
-            $( self.widget.content ).removeAttr( 'tabindex' );
-            $( self.widget.content ).removeAttr( 'role' );
+            if ( srHasNotesEl ) {
+                srHasNotesEl.innerHTML = '';
+            }
+            if ( widgetLayoutEl ) {
+                widgetLayoutEl.classList.add('noSegments');
+                widgetLayoutEl.setAttribute( 'aria-hidden', 'true' );
+            }
+            if ( notesBtnEl ) {
+                notesBtnEl.disabled = true;
+                notesBtnEl.setAttribute( 'title', '' );
+                notesBtnEl.setAttribute( 'aria-label', '' );
+            }
+            if ( widgetContentEl ) {
+                widgetContentEl.setAttribute( 'aria-hidden', 'true' );
+                widgetContentEl.removeAttribute( 'aria-labelledby' );
+                widgetContentEl.removeAttribute( 'tabindex' );
+                widgetContentEl.removeAttribute( 'role' );
+            }
 
             // show logo
             if ( !self.isEmpty( self.logo ) ) {
 
-                $( self.widget.content ).css( 'background-image', 'url(' + self.logo + ')' );
+                if ( widgetContentEl ) {
+                    widgetContentEl.style.backgroundImage = 'url(' + self.logo + ')';
+                }
 
             }
             
@@ -2237,10 +2562,15 @@ const SBPLUS = {
     selectFirstSegment: function() {
         
         const self = this;
-        const button = $( self.widget.segment ).find( 'button' )[0];
-        const target = $( button ).attr( 'id' );
+        const button = document.querySelector( self.widget.segment + ' button' );
+        const target = button ? button.getAttribute( 'id' ) : '';
         
-        self.selectSegment( target );
+        if ( target ) {
+            self.selectSegment( target );
+        } else {
+            // Trigger empty widget state so logo fallback is shown.
+            self.selectSegment( '' );
+        }
         
     },
     
@@ -2256,9 +2586,15 @@ const SBPLUS = {
         self.widget.segments.push( str );
         
         if ( str === 'Notes' ) {
-            $( self.widget.segment ).prepend( btn );
+            const segmentEl = document.querySelector( self.widget.segment );
+            if ( segmentEl ) {
+                segmentEl.insertAdjacentHTML( 'afterbegin', btn );
+            }
         } else {
-            $( self.widget.segment ).append( btn );
+            const segmentEl = document.querySelector( self.widget.segment );
+            if ( segmentEl ) {
+                segmentEl.insertAdjacentHTML( 'beforeend', btn );
+            }
         }
         
     },
@@ -2270,9 +2606,18 @@ const SBPLUS = {
 
         const self = this;
 
-        $( self.widget.segment ).empty();
-        $( self.widget.content ).empty();
-        $( self.widget.bg ).css( 'background-image', '' );
+        const widgetSegmentEl = document.querySelector( self.widget.segment );
+        const widgetContentEl = document.querySelector( self.widget.content );
+        const widgetBgEl = document.querySelector( self.widget.bg );
+        if ( widgetSegmentEl ) {
+            widgetSegmentEl.innerHTML = '';
+        }
+        if ( widgetContentEl ) {
+            widgetContentEl.innerHTML = '';
+        }
+        if ( widgetBgEl ) {
+            widgetBgEl.style.backgroundImage = '';
+        }
         
         self.widget.segments = [];
         
@@ -2351,7 +2696,10 @@ const SBPLUS = {
             
             let errorTemplateUrl = self.manifest.sbplus_root_directory;
         
-            $( self.layout.sbplus ).hide();
+            const sbplusEl = document.querySelector( self.layout.sbplus );
+            if ( sbplusEl ) {
+                sbplusEl.style.display = 'none';
+            }
             
             switch ( type ) {
                 
@@ -2371,9 +2719,13 @@ const SBPLUS = {
             
             if ( errorTemplateUrl.length ) {
                 
-                $.get( errorTemplateUrl, function( data ) {
+                fetchResource( errorTemplateUrl ).then( function( data ) {
                     
-                    $( self.layout.errorScreen ).html( data ).show().css( 'display', 'flex' );
+                    const errorScreenEl = document.querySelector( self.layout.errorScreen );
+                    if ( errorScreenEl ) {
+                        errorScreenEl.innerHTML = data;
+                        errorScreenEl.style.display = 'flex';
+                    }
                     
                 } );
                 
@@ -2390,31 +2742,46 @@ const SBPLUS = {
 
         const self = this;
 
-        if ( $( self.layout.wrapper ).hasClass ( 'toc_displayed' ) ) {
-            $( self.tableOfContents.container ).height( self.calcTocHeight() );
+        const wrapperEl = document.querySelector( self.layout.wrapper );
+        const tocContainerEl = document.querySelector( self.tableOfContents.container );
+
+        if ( wrapperEl && wrapperEl.classList.contains ( 'toc_displayed' ) ) {
+            if ( tocContainerEl ) {
+                tocContainerEl.style.height = self.calcTocHeight() + 'px';
+            }
         }
 
         if ( window.innerWidth < 900 || window.screen.width <= 414 ) {
 
             self.layout.isMobile = true;
             self.alreadyResized = true;
-            $( self.layout.wrapper ).removeClass( 'sbplus_boxed' );
+            if ( wrapperEl ) {
+                wrapperEl.classList.remove( 'sbplus_boxed' );
+            }
 
         } else {
             
             self.layout.isMobile = false;
-            $( self.layout.wrapper ).addClass( 'sbplus_boxed' );
-            $( self.layout.wrapper ).removeClass( 'toc_displayed');
-            $( self.tableOfContents.container ).css( 'height', '' );
+            if ( wrapperEl ) {
+                wrapperEl.classList.add( 'sbplus_boxed' );
+                wrapperEl.classList.remove( 'toc_displayed');
+            }
+            if ( tocContainerEl ) {
+                tocContainerEl.style.height = '';
+            }
 
         }
 
         // if the media area is too large and covers up the table of content
         // made the table of content pop out instead
         if ( (window.innerWidth >= 600 && window.innerWidth <= 899) && window.innerHeight <= 586 ) {
-            $( self.tableOfContents.container ).addClass( 'popout' );
+            if ( tocContainerEl ) {
+                tocContainerEl.classList.add( 'popout' );
+            }
         } else {
-            $( self.tableOfContents.container ).removeClass( 'popout' );
+            if ( tocContainerEl ) {
+                tocContainerEl.classList.remove( 'popout' );
+            }
         }
         
     },
@@ -2640,11 +3007,10 @@ const SBPLUS = {
         
         if ( str !== "" || str !== undefined ) {
 
-           const results = $( "<span>" +  str.trim() + "</span>" );
-    
-           results.find( "script,noscript,style" ).remove().end();
-           
-           return results.html();
+           const container = document.createElement( 'span' );
+           container.innerHTML = str.trim();
+           container.querySelectorAll( "script,noscript,style" ).forEach( ( node ) => node.remove() );
+           return container.innerHTML;
     
        }
     
@@ -2879,39 +3245,52 @@ const SBPLUS = {
             
             if ( self.isMobileDevice() ) {
                     
-                $( '#autoplay_label' ).after( '<p class="error">Mobile devices do not support autoplay.</p>' );
-                $( '#sbplus_va_autoplay' ).prop( 'checked', false ).attr( 'disabled', true );
+                const autoplayLabel = document.querySelector( '#autoplay_label' );
+                const autoplayToggle = document.querySelector( '#sbplus_va_autoplay' );
+                if ( autoplayLabel ) {
+                    autoplayLabel.insertAdjacentHTML( 'afterend', '<p class="error">Mobile devices do not support autoplay.</p>' );
+                }
+                if ( autoplayToggle ) {
+                    autoplayToggle.checked = false;
+                    autoplayToggle.setAttribute( 'disabled', 'true' );
+                }
                 
             }
             
             self.syncSettings();
             
-            $( '.settings input, .settings select' ).on( 'change', function() {
+            document.querySelectorAll( '.settings input, .settings select' ).forEach( function( inputEl ) {
+                inputEl.addEventListener( 'change', function() {
                 
                 // show msg
-                $( self.menu.menuSavingMsg ).fadeIn().html( 'Saving...' );
+                const savingMsgEl = document.querySelector( self.menu.menuSavingMsg );
+                if ( savingMsgEl ) {
+                    savingMsgEl.style.display = '';
+                    savingMsgEl.innerHTML = 'Saving...';
+                }
 
                 // color mode
                 window.matchMedia( "(prefers-color-scheme: dark)" ).off;
 
-                if ( $( 'input[name="sbplus_color_mode"]:checked' ) ) {
+                const selectedColorMode = document.querySelector( 'input[name="sbplus_color_mode"]:checked' );
+                if ( selectedColorMode ) {
 
-                    const mode = $( 'input[name="sbplus_color_mode"]:checked' ).val()
+                    const mode = selectedColorMode.value;
 
                     self.setStorageItem( 'sbplus-colormode', mode );
 
                     switch (mode) {
                         case 'dark':
-                            $( "html" ).addClass( 'dark-mode' );
-                            $( "html" ).removeClass( ["auto-mode"] )
+                            document.documentElement.classList.add( 'dark-mode' );
+                            document.documentElement.classList.remove( 'auto-mode' );
                             break;
                         case 'auto':
-                            $( 'html' ).addClass( 'auto-mode' );
+                            document.documentElement.classList.add( 'auto-mode' );
 
                             self.applyAutoColorMode();
                             break;
                         default:
-                            $( "html" ).removeClass( ["auto-mode", "dark-mode"] );
+                            document.documentElement.classList.remove( "auto-mode", "dark-mode" );
                             break;
                     }
 
@@ -2922,23 +3301,32 @@ const SBPLUS = {
                 }
                 
                 // autoplay
-                if ( $( '#sbplus_va_autoplay' ).is( ':checked' ) ) {
+                const autoplayEl = document.querySelector( '#sbplus_va_autoplay' );
+                if ( autoplayEl && autoplayEl.checked ) {
                     self.setStorageItem( 'sbplus-autoplay', 1 );
-                    $( self.layout.wrapper ).addClass( 'sbplus_autoplay_on' );
+                    const wrapperEl = document.querySelector( self.layout.wrapper );
+                    if ( wrapperEl ) {
+                        wrapperEl.classList.add( 'sbplus_autoplay_on' );
+                    }
                 } else {
                     self.setStorageItem( 'sbplus-autoplay', 0 );
-                    $( self.layout.wrapper ).removeClass( 'sbplus_autoplay_on' );
+                    const wrapperEl = document.querySelector( self.layout.wrapper );
+                    if ( wrapperEl ) {
+                        wrapperEl.classList.remove( 'sbplus_autoplay_on' );
+                    }
                 }
                 
                 // subtitle
-                if ( $( '#sbplus_va_subtitle' ).is( ':checked' ) ) {
+                const subtitleEl = document.querySelector( '#sbplus_va_subtitle' );
+                if ( subtitleEl && subtitleEl.checked ) {
                     self.setStorageItem( 'sbplus-subtitle', 1 );
                 } else {
                     self.setStorageItem( 'sbplus-subtitle', 0 );
                 }
                 
                 // volume
-                let vol = $( '#sbplus_va_volume' ).val();
+                const volumeEl = document.querySelector( '#sbplus_va_volume' );
+                let vol = volumeEl ? volumeEl.value : 0;
                 let volError = false;
                 
                 if ( vol < 0 || vol > 100 || self.isEmpty( vol ) ) {
@@ -2955,38 +3343,49 @@ const SBPLUS = {
                 
                 if ( volError ) {
                     
-                    $( '#volume_label' ).after( '<p class="error">Value must be between 0 and 100.</p>' );
+                    const volumeLabel = document.querySelector( '#volume_label' );
+                    if ( volumeLabel ) {
+                        volumeLabel.insertAdjacentHTML( 'afterend', '<p class="error">Value must be between 0 and 100.</p>' );
+                    }
                     
                 } else {
                     
-                    $( '#volume_label' ).next( '.error' ).remove();
+                    const volumeLabel = document.querySelector( '#volume_label' );
+                    const nextEl = volumeLabel ? volumeLabel.nextElementSibling : null;
+                    if ( nextEl && nextEl.classList.contains( 'error' ) ) {
+                        nextEl.remove();
+                    }
                     
                 }
                 
                 // playback rate
+                const playbackRateEl = document.querySelector( '#sbplus_va_playbackrate' );
                 self.setStorageItem(
                     'sbplus-playbackrate',
-                    $( '#sbplus_va_playbackrate option:selected' ).val()
+                    playbackRateEl ? playbackRateEl.value : '1'
                 );
                 
                 self.setStorageItem(
                     'sbplus-' + self.presentationId + '-playbackrate-temp',
-                    $( '#sbplus_va_playbackrate option:selected' ).val(),
+                    playbackRateEl ? playbackRateEl.value : '1',
                     true
                 );
                 
                 // show msg
-                $( self.menu.menuSavingMsg ).html( 'Settings saved!' );
+                if ( savingMsgEl ) {
+                    savingMsgEl.innerHTML = 'Settings saved!';
+                }
                 
                 setTimeout( function() {
-                    
-                    $( self.menu.menuSavingMsg ).fadeOut( 'slow', function() {
-                        $( this ).empty();
-                    } );
+                    if ( savingMsgEl ) {
+                        savingMsgEl.style.display = 'none';
+                        savingMsgEl.innerHTML = '';
+                    }
                     
                 }, 1500 );
                 
-            });
+            } );
+            } );
             
         }
             
@@ -2998,9 +3397,9 @@ const SBPLUS = {
     applyAutoColorMode: function() {
 
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            $ ( "html" ).addClass( "dark-mode" );
+            document.documentElement.classList.add( "dark-mode" );
         } else {
-            $ ( "html" ).addClass( "auto-mode" );
+            document.documentElement.classList.add( "auto-mode" );
         }
 
         // watch for color mode change
@@ -3009,9 +3408,9 @@ const SBPLUS = {
             const color = event.matches ? "dark" : "light";
             
             if ( color === "dark" ) {
-                $ ( "html" ).addClass( "dark-mode" );
+                document.documentElement.classList.add( "dark-mode" );
             } else {
-                $ ( "html" ).removeClass( "dark-mode" );
+                document.documentElement.classList.remove( "dark-mode" );
             }
 
         });
@@ -3033,13 +3432,16 @@ const SBPLUS = {
             switch (colorMode) {
 
                 case 'dark':
-                    $( '#dark_color_mode' ).prop( "checked", true );
+                    const darkModeEl = document.querySelector( '#dark_color_mode' );
+                    if ( darkModeEl ) darkModeEl.checked = true;
                     break;
                 case 'auto':
-                    $( '#auto_color_mode' ).prop( "checked", true );
+                    const autoModeEl = document.querySelector( '#auto_color_mode' );
+                    if ( autoModeEl ) autoModeEl.checked = true;
                     break;
                 default:
-                    $( '#light_color_mode').prop( "checked", true );
+                    const lightModeEl = document.querySelector( '#light_color_mode' );
+                    if ( lightModeEl ) lightModeEl.checked = true;
                     break;
 
             }
@@ -3051,11 +3453,13 @@ const SBPLUS = {
                 
                 if ( autoplayVal === '1') {
                     
-                    $( '#sbplus_va_autoplay' ).prop( 'checked', true );
+                    const autoplayEl = document.querySelector( '#sbplus_va_autoplay' );
+                    if ( autoplayEl ) autoplayEl.checked = true;
                     
                 } else {
                     
-                    $( '#sbplus_va_autoplay' ).prop( 'checked', false );
+                    const autoplayEl = document.querySelector( '#sbplus_va_autoplay' );
+                    if ( autoplayEl ) autoplayEl.checked = false;
             
                 }
                 
@@ -3064,20 +3468,28 @@ const SBPLUS = {
             // volume
             const volumeVal = self.getStorageItem( 'sbplus-volume' );
             
-            $( '#sbplus_va_volume' ).prop( 'value', volumeVal * 100 );
+            const volumeEl = document.querySelector( '#sbplus_va_volume' );
+            if ( volumeEl ) {
+                volumeEl.value = volumeVal * 100;
+            }
             
             // playback rate
             const playbackRateVal = self.getStorageItem( 'sbplus-playbackrate' );
             
-            $( '#sbplus_va_playbackrate' ).val( playbackRateVal );
+            const playbackRateEl = document.querySelector( '#sbplus_va_playbackrate' );
+            if ( playbackRateEl ) {
+                playbackRateEl.value = playbackRateVal;
+            }
             
             //subtitle
             const subtitleVal = self.getStorageItem( 'sbplus-subtitle' );
             
             if ( subtitleVal === '1') {
-                $( '#sbplus_va_subtitle' ).prop( 'checked', true );
+                const subtitleEl = document.querySelector( '#sbplus_va_subtitle' );
+                if ( subtitleEl ) subtitleEl.checked = true;
             } else {
-                $( '#sbplus_va_subtitle' ).prop( 'checked', false );
+                const subtitleEl = document.querySelector( '#sbplus_va_subtitle' );
+                if ( subtitleEl ) subtitleEl.checked = false;
             }
             
         }
@@ -3159,9 +3571,16 @@ export { SBPLUS };
 /*******************************************************************************
         ON DOM READY
 *******************************************************************************/
-$( function() {
-    
+if ( document.readyState === 'loading' ) {
+    document.addEventListener( 'DOMContentLoaded', function() {
+        window.SBPLUS = SBPLUS;
+        SBPLUS.go();
+    } );
+} else {
     window.SBPLUS = SBPLUS;
     SBPLUS.go();
+}
 
-} );
+
+
+
