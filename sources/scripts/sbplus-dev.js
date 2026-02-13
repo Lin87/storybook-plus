@@ -3,7 +3,7 @@
  *
  * @author: Ethan Lin
  * @url: https://github.com/Lin87/storybook-plus
- * @version: 3.6.4
+ * @version: 3.7.0
  * Released xx/xx/2026
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
@@ -82,7 +82,7 @@ const SBPLUS = {
     kalturaLoaded: false,
     alreadyResized: false,
     playbackrate: 1,
-    version: '3.6.4',
+    version: '3.7.0',
     clickCount: 0,
     randomNum: Math.floor(Math.random() * 6 + 5),
 
