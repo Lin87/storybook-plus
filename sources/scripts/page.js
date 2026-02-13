@@ -2,6 +2,11 @@ import { headRequest, loadScript, onAnimationEnd, onDelegate, isVisible } from '
 import { SBPLUS } from './sbplus-dev';
 import { Quiz } from './quiz';
 
+/**
+ * Represents a presentation page and normalizes XML/media metadata for rendering.
+ * @param {Object} obj Parsed page data from the table of contents entry.
+ * @param {Array|NodeList|HTMLCollection|Element} data XML node context for the selected page.
+ */
 let Page = function (obj, data) {
     this.pageXML = obj.xml[0];
     this.pageData = data;
@@ -59,6 +64,10 @@ let Page = function (obj, data) {
     this.mediaError = SBPLUS.layout.mediaError;
 };
 
+/**
+ * Clears prior media state and renders the selected page's primary media.
+ * @returns {void}
+ */
 Page.prototype.getPageMedia = function () {
     const self = this;
 
@@ -68,9 +77,6 @@ Page.prototype.getPageMedia = function () {
     const mediaMsgEl = document.querySelector(SBPLUS.layout.mediaMsg);
     const mediaWrapperEl = document.querySelector(SBPLUS.layout.media);
     const widgetEl = document.querySelector(SBPLUS.layout.widget);
-
-    // reset
-    // Dispose existing Video.js player before clearing its container.
     if (typeof videojs !== 'undefined' && typeof videojs.getPlayer === 'function') {
         const existingPlayer = videojs.getPlayer('mp');
         if (existingPlayer) {
@@ -110,11 +116,7 @@ Page.prototype.getPageMedia = function () {
     }
 
     removeSecondaryControls();
-
-    // show copy to clipboard button if applicable
     self.showCopyBtn();
-
-    // end reset
 
     switch (self.type) {
         case 'kaltura':
@@ -240,8 +242,6 @@ Page.prototype.getPageMedia = function () {
                     if (mediaContentEl) {
                         mediaContentEl.innerHTML = html;
                     }
-
-                    // call video js
                     self.isVideo = true;
                     self.addMarkers();
                     self.renderVideoJS();
@@ -433,8 +433,6 @@ Page.prototype.getPageMedia = function () {
         }
     }, 750);
 
-    // add current page index to local storage
-
     window.clearTimeout(self.delayStorage);
 
     self.delayStorage = window.setTimeout(function () {
@@ -449,13 +447,14 @@ Page.prototype.getPageMedia = function () {
     }, 3000);
 };
 
-// add Copy to clipboard button
+/**
+ * Adds the copy-to-clipboard control when the current page exposes copyable text.
+ * @returns {void}
+ */
 Page.prototype.showCopyBtn = function () {
-    // clear it first
     this.removeCopyBtn();
 
     if (this.copyableContent) {
-        // build the button
         const copyBtn = document.createElement('button');
         copyBtn.id = 'copyToCbBtn';
 
@@ -486,6 +485,10 @@ Page.prototype.showCopyBtn = function () {
     }
 };
 
+/**
+ * Removes any existing copy-to-clipboard control from the media area.
+ * @returns {void}
+ */
 Page.prototype.removeCopyBtn = function () {
     const copyBtn = document.getElementById('copyToCbBtn');
     const copyTxtArea = document.getElementById('copyableTxt');
@@ -500,6 +503,10 @@ Page.prototype.removeCopyBtn = function () {
     }
 };
 
+/**
+ * Copies page text from the hidden source element into the system clipboard.
+ * @returns {void}
+ */
 function copyToClipboard() {
     const copyBtn = document.getElementById('copyToCbBtn');
     const copyTxtArea = document.getElementById('copyableTxt');
@@ -523,7 +530,10 @@ function copyToClipboard() {
     }
 }
 
-// insert long description
+/**
+ * Injects long-description content and wires toggle behavior for accessibility.
+ * @returns {void}
+ */
 Page.prototype.insertDescription = function () {
     const self = this;
 
@@ -544,7 +554,10 @@ Page.prototype.insertDescription = function () {
     }
 };
 
-// kaltura api request
+/**
+ * Fetches Kaltura metadata/sources and initializes playback data for Video.js.
+ * @returns {void}
+ */
 Page.prototype.loadKalturaVideoData = function () {
     const self = this;
 
@@ -607,8 +620,6 @@ Page.prototype.loadKalturaVideoData = function () {
                 if (mediaContentEl) {
                     mediaContentEl.innerHTML = html;
                 }
-
-                // call video js
                 self.renderVideoJS();
 
                 if (!!self.description) {
@@ -625,7 +636,10 @@ Page.prototype.loadKalturaVideoData = function () {
     });
 };
 
-// kaltura api request
+/**
+ * Fetches Brightcove playback data and prepares source/caption metadata.
+ * @returns {void}
+ */
 Page.prototype.loadBrightcoveVideoData = function () {
     const self = this;
 
@@ -695,6 +709,10 @@ Page.prototype.loadBrightcoveVideoData = function () {
         });
 };
 
+/**
+ * Parses marker data from XML into Video.js marker configuration entries.
+ * @returns {void}
+ */
 Page.prototype.addMarkers = function () {
     if (this.markersNode != undefined) {
         Array.from(this.markersNode.children).forEach((marker) => {
@@ -709,7 +727,11 @@ Page.prototype.addMarkers = function () {
     }
 };
 
-// render videojs
+/**
+ * Builds and configures a Video.js instance for the current page.
+ * @param {string=} src Optional direct media source URL override.
+ * @returns {void}
+ */
 Page.prototype.renderVideoJS = function (src) {
     const self = this;
 
@@ -755,15 +777,11 @@ Page.prototype.renderVideoJS = function (src) {
             qualityMenu: {},
         },
     };
-
-    // autoplay is off for iPhone or iPod
     if (SBPLUS.isMobileDevice()) {
         options.autoplay = false;
         options.playsinline = true;
         options.nativeControlsForTouch = false;
     }
-
-    // set tech order and plugins
     if (self.isYoutube) {
         options.techOrder = ['youtube'];
         options.sources = [{ type: 'video/youtube', src: 'https://www.youtube.com/watch?v=' + src }];
@@ -816,8 +834,6 @@ Page.prototype.renderVideoJS = function (src) {
                 Array.from(player.textTracks())
                     .filter(({ kind }) => !['chapters', 'metadata'].includes(kind))
                     .forEach((track) => (track.mode = 'disabled'));
-
-                // event: video started loading
                 self.isBrightcove.duration = player.duration();
                 self.sendBrightcoveAnalyticsEvent('video_impression', evt);
             });
@@ -939,8 +955,6 @@ Page.prototype.renderVideoJS = function (src) {
             player.src({ type: 'video/mp4', src: SBPLUS.assetsPath + 'video/' + src + '.mp4' });
         }
 
-        // add caption
-
         if (self.isKaltura || self.isBrightcove) {
             if (self.captionUrl.length && player.currentSource().src.includes('.mp4')) {
                 self.captionUrl.forEach((caption) => {
@@ -984,16 +998,11 @@ Page.prototype.renderVideoJS = function (src) {
                     );
                 })
                 .catch(function () {
-                    // Optional YouTube caption file is not guaranteed to exist.
                 });
         }
-
-        // set playback rate
         if (options.playbackRates !== null) {
             player.playbackRate(SBPLUS.playbackrate);
         }
-
-        // video events
         player.on(['waiting', 'pause'], function () {
             self.isPlaying = false;
         });
@@ -1042,8 +1051,6 @@ Page.prototype.renderVideoJS = function (src) {
                 this.playbackRate(rate);
             }
         });
-
-        // volume
         if (SBPLUS.hasStorageItem('sbplus-' + SBPLUS.presentationId + '-volume-temp', true)) {
             player.volume(Number(SBPLUS.getStorageItem('sbplus-' + SBPLUS.presentationId + '-volume-temp', true)));
         } else {
@@ -1053,8 +1060,6 @@ Page.prototype.renderVideoJS = function (src) {
         player.on('volumechange', function () {
             SBPLUS.setStorageItem('sbplus-' + SBPLUS.presentationId + '-volume-temp', this.volume(), true);
         });
-
-        // subtitle
         if (self.isYoutube === false && player.textTracks().tracks_.length >= 1) {
             if (SBPLUS.hasStorageItem('sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true)) {
                 if (SBPLUS.getStorageItem('sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true) === '1') {
@@ -1082,11 +1087,7 @@ Page.prototype.renderVideoJS = function (src) {
                 });
             });
         }
-
-        // add expand/contract button
         addExpandContractButton(player);
-
-        // add markers
         if (Array.isArray(self.markers) && self.markers.length > 0) {
             setupMarkers(player, self.markers);
         }
@@ -1124,6 +1125,10 @@ Page.prototype.renderVideoJS = function (src) {
     }
 };
 
+/**
+ * Populates widget tabs and content based on page-level widget metadata.
+ * @returns {void}
+ */
 Page.prototype.setWidgets = function () {
     const self = this;
 
@@ -1151,6 +1156,11 @@ Page.prototype.setWidgets = function () {
     }
 };
 
+/**
+ * Resolves widget content for a segment identifier from XML or page data.
+ * @param {string} id Widget segment identifier.
+ * @returns {string}
+ */
 Page.prototype.getWidgetContent = function (id) {
     const self = this;
 
@@ -1166,8 +1176,12 @@ Page.prototype.getWidgetContent = function (id) {
             break;
     }
 };
-
-// display page error
+/**
+ * Displays a user-facing media error with context for the failed source.
+ * @param {string} type Error code used to resolve a localized message.
+ * @param {string=} src Optional source URL that failed to load.
+ * @returns {void}
+ */
 Page.prototype.showPageError = function (type, src) {
     src = typeof src !== 'undefined' ? src : '';
 
@@ -1224,6 +1238,12 @@ Page.prototype.showPageError = function (type, src) {
     }
 };
 
+/**
+ * Sends a Brightcove analytics event to the SB+ telemetry endpoint.
+ * @param {string} eventType Analytics event name.
+ * @param {Object} evt Event payload from the player callback.
+ * @returns {void}
+ */
 Page.prototype.sendBrightcoveAnalyticsEvent = function (eventType, evt) {
     const self = this;
     const baseURL = 'https://metrics.brightcove.com/tracker/v2/?';
@@ -1232,11 +1252,7 @@ Page.prototype.sendBrightcoveAnalyticsEvent = function (eventType, evt) {
     const source = encodeURI(document.referrer);
 
     let urlStr = '';
-
-    // add params for all requests
     urlStr = 'event=' + eventType + '&session=' + self.isBrightcove.session + '&domain=videocloud&account=' + self.isBrightcove.accountId + '&time=' + time + '&destination=' + destination + '&video=' + self.isBrightcove.videoId + '&video_name=' + encodeURI(self.isBrightcove.name);
-
-    // source will be empty for direct traffic
     if (source !== '' && source != destination) {
         urlStr += '&source=' + source;
     }
@@ -1248,31 +1264,29 @@ Page.prototype.sendBrightcoveAnalyticsEvent = function (eventType, evt) {
     if (eventType !== 'player_load') {
         urlStr += '&video_duration=' + self.isBrightcove.duration;
     }
-
-    // add params specific to video_engagement events
     if (eventType === 'video_engagement') {
         const currentSource = self.mediaPlayer.currentSource();
         urlStr += '&range=' + evt.range + '&rendition_url=' + encodeURI(currentSource.src.split('?')[0]) + '&rendition_mime_type=' + encodeURI(currentSource.type);
     }
-
-    // add the base URL
     urlStr = baseURL + urlStr;
-
-    // make the request
     sendData(urlStr);
 
     return;
 };
 
+/**
+ * Throttles and emits Brightcove engagement metrics during playback.
+ * @param {Object} evt Time-update payload containing current playback progress.
+ * @returns {void}
+ */
 Page.prototype.onBrightcoveTimeUpdate = function (evt) {
     const self = this;
     const currentTime = self.mediaPlayer.currentTime();
-    const engagementThreshold = 10; // Trigger every 10 seconds
+    const engagementThreshold = 10; // Brightcove engagement events are emitted in 10-second buckets.
     const currentSegment = Math.floor(currentTime / engagementThreshold) * engagementThreshold;
     let range = '';
 
     if (currentSegment > self.isBrightcove.lastEngagedTime) {
-        // set the range and add it to the evt object
         let endRange = Math.floor(currentTime) + engagementThreshold;
 
         if (endRange >= self.isBrightcove.duration) {
@@ -1281,11 +1295,7 @@ Page.prototype.onBrightcoveTimeUpdate = function (evt) {
 
         range = (Math.floor(currentTime) + '..' + endRange).toString();
         evt.range = range;
-
-        // send video_engagement event
         self.sendBrightcoveAnalyticsEvent('video_engagement', evt);
-
-        // Update last engaged time
         self.isBrightcove.lastEngagedTime = currentSegment;
     }
 
@@ -1298,6 +1308,11 @@ Page.prototype.onBrightcoveTimeUpdate = function (evt) {
     }
 };
 
+/**
+ * Maps Kaltura API status codes to a status key used by error handling.
+ * @param {number|string} code Entry status code returned by Kaltura.
+ * @returns {string}
+ */
 function getEntryKalturaStatus(code) {
     let msg = '';
     switch (code) {
@@ -1335,7 +1350,11 @@ function getEntryKalturaStatus(code) {
     return msg;
 }
 
-// page class helper functions
+/**
+ * Adds the expand/contract toggle to the Video.js control bar.
+ * @param {Object} vjs Video.js player instance.
+ * @returns {void}
+ */
 function addExpandContractButton(vjs) {
     class ExpandContractButton extends videojs.getComponent('Button') {
         constructor(player, options) {
@@ -1367,6 +1386,11 @@ function addExpandContractButton(vjs) {
     vjs.getChild('controlBar').addChild('ExpandContractButton', {}, 15);
 }
 
+/**
+ * Toggles expanded media layout mode for the active page.
+ * @param {Event} evt Click event from the expand/contract control.
+ * @returns {void}
+ */
 function toggleExpandContractView(evt) {
     const layout = document.querySelector(SBPLUS.layout.sbplus);
 
@@ -1379,6 +1403,11 @@ function toggleExpandContractView(evt) {
     }
 }
 
+/**
+ * Injects non-media controls (copy, description, transcript) under media content.
+ * @param {boolean} [noAudio=false] Hides audio-specific controls when true.
+ * @returns {void}
+ */
 function addSecondaryControls(noAudio = false) {
     noAudio = typeof noAudio !== 'undefined' ? noAudio : false;
 
@@ -1406,6 +1435,10 @@ function addSecondaryControls(noAudio = false) {
     }
 }
 
+/**
+ * Removes secondary controls previously inserted for a page.
+ * @returns {void}
+ */
 function removeSecondaryControls() {
     const secondaryControlsDiv = document.querySelector('.sbplus_secondary_controls');
 
@@ -1415,6 +1448,12 @@ function removeSecondaryControls() {
     }
 }
 
+/**
+ * Configures marker plugin data for the active Video.js player.
+ * @param {Object} player Video.js player instance.
+ * @param {Array<Object>} markers Marker definitions with time and label data.
+ * @returns {void}
+ */
 function setupMarkers(player, markers) {
     if (!Array.isArray(markers) || markers.length === 0) {
         return;
@@ -1430,6 +1469,12 @@ function setupMarkers(player, markers) {
     });
 }
 
+/**
+ * Renders widget HTML into the widget panel for the selected segment.
+ * @param {string} id Widget content container id.
+ * @param {string} str HTML content to render.
+ * @returns {void}
+ */
 function displayWidgetContent(id, str) {
     const contentEl = document.querySelector(SBPLUS.widget.content);
     if (!contentEl) {
@@ -1446,16 +1491,11 @@ function displayWidgetContent(id, str) {
     });
 }
 
-// function guid() {
-
-//     function s4() {
-//         return Math.floor( ( 1 + Math.random() ) * 0x10000 ).toString( 16 ).substring (1 );
-//     }
-
-//     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-
-// }
-
+/**
+ * Converts a time string (hh:mm:ss or seconds) into total seconds.
+ * @param {string|number} str Time value to convert.
+ * @returns {number}
+ */
 function toSeconds(str) {
     const arr = str.split(':');
 
@@ -1466,17 +1506,20 @@ function toSeconds(str) {
     }
 }
 
+/**
+ * Tests whether a string appears to be an absolute URL.
+ * @param {string} s Candidate URL string.
+ * @returns {boolean}
+ */
 function isUrl(s) {
     const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     return regexp.test(s);
 }
 
 /**
- * Injects API calls into the head of a document
- * as the src for a img tag
- * img is better than script tag for CORS
- * @param {string} requestURL The URL to call to send the data
- * @return true
+ * Sends analytics data by creating a tracking image request.
+ * @param {string} requestURL Fully built analytics request URL.
+ * @returns {boolean}
  */
 function sendData(requestURL) {
     const scriptElement = document.createElement('img');

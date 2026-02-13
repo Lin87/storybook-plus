@@ -2,6 +2,11 @@ import { SBPLUS } from './sbplus-dev';
 
 let quizTracker = [];
 
+/**
+ * Resolves a usable Element from mixed XML/DOM collection inputs.
+ * @param {Array|NodeList|HTMLCollection|Node|Object|null} data Source context value.
+ * @returns {Element|null}
+ */
 function getContextElement(data) {
     if (!data) {
         return null;
@@ -22,6 +27,11 @@ function getContextElement(data) {
     return null;
 }
 
+/**
+ * Reads XML node content and strips CDATA/script content for safe rendering.
+ * @param {Element|null} node XML node to read.
+ * @returns {string}
+ */
 function getXmlTextContent(node) {
     if (!node) {
         return '';
@@ -31,6 +41,12 @@ function getXmlTextContent(node) {
     return SBPLUS.noScript(SBPLUS.noCDATA(html));
 }
 
+/**
+ * Gets an attribute value from an XML node, returning an empty string when missing.
+ * @param {Element|null} node XML element.
+ * @param {string} name Attribute name.
+ * @returns {string}
+ */
 function getNodeAttr(node, name) {
     if (!node) {
         return '';
@@ -40,6 +56,11 @@ function getNodeAttr(node, name) {
     return value == null ? '' : value;
 }
 
+/**
+ * Builds quiz state from XML and tracks learner responses for the current question.
+ * @param {Object} obj Quiz metadata created by page parsing.
+ * @param {Array|NodeList|HTMLCollection|Element|null} data XML node context for the quiz.
+ */
 let Quiz = function (obj, data) {
     const self = this;
     const cntx = getContextElement(data);
@@ -213,6 +234,10 @@ let Quiz = function (obj, data) {
     }
 };
 
+/**
+ * Renders either the quiz prompt or prior feedback based on saved response state.
+ * @returns {void}
+ */
 Quiz.prototype.getQuiz = function () {
     const self = this;
     let answered = false;
@@ -238,6 +263,10 @@ Quiz.prototype.getQuiz = function () {
     }
 };
 
+/**
+ * Renders the question UI and answer inputs for the current quiz type.
+ * @returns {void}
+ */
 Quiz.prototype.renderQuiz = function () {
     const self = this;
     const container = document.querySelector(self.quizContainer);
@@ -452,6 +481,10 @@ Quiz.prototype.renderQuiz = function () {
     });
 };
 
+/**
+ * Evaluates learner input, stores result state, and renders feedback content.
+ * @returns {void}
+ */
 Quiz.prototype.renderFeedback = function () {
     const self = this;
     const container = document.querySelector(self.quizContainer);
@@ -634,6 +667,11 @@ Quiz.prototype.renderFeedback = function () {
     }
 };
 
+/**
+ * Builds a human-readable list of correct answers for multiple-answer quizzes.
+ * @param {Array<Object>} answers Answer objects from quiz state.
+ * @returns {string}
+ */
 function displayCorrectMultipleAnswers(answers) {
     let result = '</p><p><strong>Correct answer:</strong><br>';
 
@@ -671,6 +709,11 @@ function displayCorrectMultipleAnswers(answers) {
     return result;
 }
 
+/**
+ * Checks whether a quiz id already exists in the in-memory tracker.
+ * @param {number} id Quiz identifier.
+ * @returns {boolean}
+ */
 function questionExists(id) {
     for (let i = 0; i < quizTracker.length; i++) {
         if (quizTracker[i].id === id) {
@@ -681,6 +724,11 @@ function questionExists(id) {
     return false;
 }
 
+/**
+ * Randomizes an array in place using Fisher-Yates shuffle.
+ * @param {Array<any>} array Source array.
+ * @returns {Array<any>}
+ */
 function shuffle(array) {
     let randomIndex;
     let temp;
@@ -694,6 +742,12 @@ function shuffle(array) {
     }
 }
 
+/**
+ * Finds the tracker index for a quiz id.
+ * @param {Array<Object>} array Quiz tracker array.
+ * @param {number} id Quiz id to find.
+ * @returns {number}
+ */
 function getCurrentQuizItem(array, id) {
     for (let i = 0; i < array.length; i++) {
         if (array[i].id === id) {

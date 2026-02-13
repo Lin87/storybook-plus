@@ -1,4 +1,4 @@
-/*
+/**
  * Storybook Plus (SB+)
  *
  * @author: Ethan Lin
@@ -28,9 +28,8 @@
 import { fetchResource, headRequest, loadScript, onAnimationEnd, onDelegate } from './utilities';
 import '../sass/sbplus.scss';
 
-/*******************************************************************************
-    STORYBOOK PLUS MAIN OBJECT CLASS
-*******************************************************************************/
+// Storybook Plus main object
+
 ('use strict');
 
 import { Page } from './page';
@@ -48,11 +47,7 @@ function supportsStorage(storageType) {
 }
 
 const SBPLUS = {
-    /***************************************************************************
-        VARIABLE / CONSTANT / OBJECT DECLARATIONS
-    ***************************************************************************/
-
-    // holds the HTML structure classes and IDs
+    // Runtime state, configuration, and cached UI selectors.
     loadingScreen: null,
     layout: null,
     splash: null,
@@ -64,21 +59,15 @@ const SBPLUS = {
     screenReader: null,
     presentationId: '',
     logo: 'sources/images/logo.svg',
-
-    // holds current and total pages in the presentation
     totalPages: 0,
     currentPage: null,
     targetPage: null,
-
-    // holds external data
     manifest: null,
     xml: null,
     xmlPath: null,
     assetsPath: null,
     downloads: {},
     settings: null,
-
-    // status flags
     hasLocalStorageSupport: supportsStorage('localStorage'),
     hasSessionStorageSupport: supportsStorage('sessionStorage'),
     manifestLoaded: false,
@@ -92,27 +81,18 @@ const SBPLUS = {
     hasError: false,
     kalturaLoaded: false,
     alreadyResized: false,
-
-    // videojs
     playbackrate: 1,
-
-    // version number
     version: '3.6.4',
-
-    // easter egg variables
     clickCount: 0,
     randomNum: Math.floor(Math.random() * 6 + 5),
 
-    /***************************************************************************
-        CORE FUNCTIONS
-    ***************************************************************************/
+    // Core bootstrapping and presentation lifecycle methods.
 
     /**
      * The initiating function that sets the HTML classes and IDs to the class
      * variables. Also, getting data from the manifest file.
-     **/
+     */
     go: function () {
-        // set general HTML layout classes and IDs
         this.layout = {
             isMobile: false,
             html: 'html',
@@ -134,15 +114,11 @@ const SBPLUS = {
             dwnldMenu: null,
             mainMenu: null,
         };
-
-        // set HTML banner classes and IDs
         this.banner = {
             bar: '#sbplus_banner_bar',
             title: '#sbplus_lesson_title',
             author: '#sbplus_author_name',
         };
-
-        // set HTML splashscreen classes and IDs
         this.splash = {
             cta: '#splash_cta',
             screen: '#sbplus_splash_screen',
@@ -155,23 +131,17 @@ const SBPLUS = {
             downloadBar: '#sbplus_presentation_info .sb_context .sb_downloads',
             logo: '#sb_splash_logo',
         };
-
-        // set HTML table of contents classes and IDs
         this.tableOfContents = {
             container: '#sbplus_table_of_contents_wrapper',
             header: '.section .header',
             page: '.section .list .item',
         };
-
-        // set HTML widget classes and IDs
         this.widget = {
             bar: '#sbplus_widget .widget_controls_bar',
             segment: '#sbplus_widget .widget_controls_bar .tab_segment',
             segments: [],
             content: '#sbplus_widget .segment_content',
         };
-
-        // set HTML button classes and IDs
         this.button = {
             start: '#sbplus_start_btn',
             resume: '#sbplus_resume_btn',
@@ -186,8 +156,6 @@ const SBPLUS = {
             prev: '#sbplus_previous_btn',
             mobileTocToggle: '#mobile_toc_toggle_btn',
         };
-
-        // set HTML menu classes and IDs
         this.menu = {
             menuList: '#sbplus_menu_list',
             menuContentList: '#menu_item_content .menu',
@@ -197,8 +165,6 @@ const SBPLUS = {
             menuSavingMsg: '#save_settings',
             versionContainer: '#sbplus_version',
         };
-
-        // set screen reader classes and IDs
         this.screenReader = {
             pageStatus: '.sr-page-status',
             currentPage: '.sr-page-status .sr-current-page',
@@ -206,56 +172,42 @@ const SBPLUS = {
             pageTitle: '.sr-page-status .sr-page-title',
             hasNotes: '.sr-page-status .sr-has-notes',
         };
-
-        // set loading screen id
         this.loadingScreen = {
             wrapper: '#sbplus_loading_screen',
             logo: '#sbplus_loading_screen .program_logo',
         };
 
-        this.applyStorageItems(); // set player initial settings to the local storage
-
-        // get manifest data if not set
+        this.applyStorageItems();
         if (this.manifest === null) {
             const self = this;
             const manifestUrl = './sources/manifest.json';
 
             self.requestFile(manifestUrl, (response) => {
                 if (!response) {
-                    // display the error message to the HTML page
                     const wrapperEl = document.querySelector(self.layout.wrapper);
                     if (wrapperEl) {
                         wrapperEl.innerHTML = '<div class="sbplus-core-error"><h1><strong>Storybook Plus Error</strong></h1><p>The manifest.json file may be missing in the app\'s source directory, or it may contains errors.</P></div>';
                     }
                     return;
                 }
-
-                // set the JSON data to the class manifest object
                 self.manifest = JSON.parse(response.responseText);
                 self.manifestLoaded = true;
-
-                // set an event listener to unload all session storage on HTML
-                // page refresh/reload or closing
                 window.addEventListener('unload', self.removeAllSessionStorage.bind(self));
 
                 if (self.isEmpty(self.manifest.sbplus_root_directory)) {
                     self.manifest.sbplus_root_directory = 'sources/';
                 }
-
-                // call the loadTemplate function to load Storybook Plus's HTML structures
-                /* !! SHOULD BE THE LAST THING TO BE CALLED IN THIS BLOCK!! */
+                /** @private Ensure template load is the final step of initialization. */
                 self.loadTemplate();
             });
         }
-    }, // end go function
+    },
 
     /**
      * Load Storybook Plus HTML templates from the templates directory
-     **/
+     */
     loadTemplate: function () {
         const self = this;
-
-        // add loaded-in-iframe class if loaded in an iframe
         if (window.self !== window.top) {
             const wrapperEl = document.querySelector(self.layout.wrapper);
             if (wrapperEl) {
@@ -264,47 +216,33 @@ const SBPLUS = {
         }
 
         if (self.manifestLoaded) {
-            // set the template URL for the sbplus.tpl file
             const templateUrl = self.manifest.sbplus_root_directory + 'scripts/templates/sbplus.tpl';
-
-            // AJAX call and load the sbplus.tpl template
             fetchResource(templateUrl)
                 .then(function (data) {
-                    // output the template date to the HTML/DOM
                     const wrapperEl = document.querySelector(self.layout.wrapper);
                     if (wrapperEl) {
                         wrapperEl.innerHTML = data;
                     }
-
-                    // set an event listener to resize elements on viewport resize
                     window.addEventListener('resize', self.resize.bind(self));
-
-                    // execute tasks before loading external XML data
                     self.beforeXMLLoading();
-
-                    // load the data from the external XML file
                     self.loadXML();
                 })
                 .catch(function () {
-                    // when fail to load the template
-
-                    // display the error message to the HTML page
                     const wrapperEl = document.querySelector(self.layout.wrapper);
                     if (wrapperEl) {
                         wrapperEl.innerHTML = '<div class="sbplus-core-error"><h1><strong>Storybook Plus Error</strong></h1><p>Failed to load template. Expecting template file located at ' + templateUrl + '.</p></div>';
                     }
                 });
         }
-    }, // end loadTemplate function
+    },
 
     /**
      * Set the copyright info
-     **/
+     */
     setCopyright: function () {
         const self = this;
 
         if (self.manifestLoaded) {
-            // set copyright date
             const date = new Date();
             const yearEl = document.querySelector('#copyright-footer .copyright-year');
             const noticeEl = document.querySelector('#copyright-footer .notice');
@@ -315,26 +253,22 @@ const SBPLUS = {
                 noticeEl.innerHTML = self.manifest.sbplus_copyright_notice;
             }
         }
-    }, // end set copyright function
+    },
 
     /**
      * set the default logo
      * @param string - the URL/path to the logo image
-     **/
+     */
     setLogo: function (path) {
         const self = this;
 
         if (self.isEmpty(path)) {
             return;
         }
-
-        // set logo on the loading screen
         const loadingLogoEl = document.querySelector(self.loadingScreen.logo);
         if (loadingLogoEl) {
             loadingLogoEl.innerHTML = '<img src="' + path + '" />';
         }
-
-        // set logo on splash screen
         const splashLogo = document.querySelector(self.splash.logo);
         const logo = document.createElement('img');
 
@@ -347,14 +281,14 @@ const SBPLUS = {
 
     /**
      * set the custom accent colors and contrast for UIs
-     **/
+     */
     setAccent: function () {
         const self = this;
 
         if (!self.isEmpty(self.xml.settings.accent)) {
-            const hover = self.colorLum(self.xml.settings.accent, 0.2); // set hover color hex value
-            const textColor = self.colorContrast(self.xml.settings.accent); // set the text color hex value
-            let markerColor = self.colorLum(self.xml.settings.accent, 0.4); // video marker color
+            const hover = self.colorLum(self.xml.settings.accent, 0.2);
+            const textColor = self.colorContrast(self.xml.settings.accent);
+            let markerColor = self.colorLum(self.xml.settings.accent, 0.4);
             const accentUrl = self.manifest.sbplus_root_directory + 'scripts/templates/accent-css.tpl';
 
             if (textColor !== '#000') {
@@ -368,8 +302,6 @@ const SBPLUS = {
                 accentCssModified = accentCssModified.replace(/--var-hover/gi, hover);
                 accentCssModified = accentCssModified.replace(/--var-textColor/gi, textColor);
                 accentCssModified = accentCssModified.replace(/--var-markerColor/gi, markerColor);
-
-                // append the style/css to the HTML head
                 const headEl = document.head;
                 if (headEl) {
                     headEl.insertAdjacentHTML('beforeend', '<style type="text/css">' + accentCssModified + '</style>');
@@ -380,16 +312,11 @@ const SBPLUS = {
 
     /**
      * Execute tasks before loading the external XML data
-     **/
+     */
     beforeXMLLoading: function () {
         const self = this;
-
-        // if manifest and template are loaded and XML was never loaded before
         if (self.manifestLoaded === true && self.beforeXMLLoadingDone === false) {
-            // setup custom menu items specified in the manifest file
             self.setManifestCustomMenu();
-
-            // parse and set the XML and asset path
             self.xmlPath = self.getXMLPath();
 
             if (self.xmlPath) {
@@ -403,79 +330,51 @@ const SBPLUS = {
             }
 
             self.assetsPath = self.extractAssetsPath(self.xmlPath);
-            self.presentationId = self.sanitize(self.getCourseDirectory()); // set the presentation id
-
-            // set flag to true
+            self.presentationId = self.sanitize(self.getCourseDirectory());
             self.beforeXMLLoadingDone = true;
         }
-    }, // end beforeXMLLoading function
+    },
 
     /**
      * Setting up the custom menu items specified in the manifest file
-     **/
+     */
     setManifestCustomMenu: function () {
         const self = this;
 
         if (self.manifestLoaded) {
-            // set the menu item(s) data from the manifest
             const customMenuItems = self.manifest.sbplus_custom_menu_items;
-
-            // if data is exists...
             if (customMenuItems.length) {
-                // loop through the data
                 for (let key in customMenuItems) {
-                    // set the menu item name
                     const name = customMenuItems[key].name;
-
-                    // clean and reformat the name
                     const sanitizedName = self.sanitize(name);
-
-                    // set the HTML LI tag
                     const item = '<li class="menu-item sbplus_' + sanitizedName + '" role="none"><button onclick="SBPLUS.openMenuItem(\'sbplus_' + sanitizedName + '\');" aria-controls="menu_item_content" role="menuitem"><span class="icon-' + sanitizedName + '"></span> ' + name + '</a></li>';
-
-                    // append the HTML LI tag to the menu list
                     const menuListEl = document.querySelector(self.menu.menuList);
                     if (menuListEl) {
                         menuListEl.insertAdjacentHTML('beforeend', item);
                     }
                 }
             }
-
-            // append/display the menu list to inner menu list
             const menuContentListEl = document.querySelector(self.menu.menuContentList);
             const menuListEl = document.querySelector(self.menu.menuList);
             if (menuContentListEl && menuListEl) {
                 menuContentListEl.innerHTML = menuListEl.innerHTML;
             }
         }
-    }, // end setManifestCustomMenu function
+    },
 
     /**
      * Load presentation data from an external XML file
-     **/
+     */
     loadXML: function () {
         if (this.beforeXMLLoadingDone) {
             const self = this;
-
-            // set the path to the XML file
-            // const xmlUrl = 'assets/sbplus.xml?_=' + new Date().getTime();
-
-            // AJAX call to the XML file
             fetchResource(self.xmlPath)
                 .then(function (data) {
                     self.xmlLoaded = true;
-
-                    // call function to parse the XML data
-                    // SHOULD BE THE LAST TASK TO BE EXECUTED IN THIS BLOCK
                     self.parseXMLData(data);
                 })
                 .catch(function (error) {
-                    // when fail to load XML file
-
-                    // set error flag to true
                     self.hasError = true;
-
-                    // display appropriate error message based on the status
                     if (error && error.type === 'parsererror') {
                         self.showErrorScreen('parser');
                     } else {
@@ -483,12 +382,12 @@ const SBPLUS = {
                     }
                 });
         }
-    }, // end loadXML function
+    },
 
     /**
      * Parse presentation data from an external XML file
      * @param string - data from reading the XML file
-     **/
+     */
     parseXMLData: function (d) {
         const self = this;
 
@@ -496,8 +395,6 @@ const SBPLUS = {
             const doc = d;
             const xSb = doc.querySelector('storybook');
             const xSetup = doc.querySelector('setup');
-
-            // set data from the XML to respective variables
             let xAccent = xSb ? self.trimAndLower(xSb.getAttribute('accent') || '') : '';
             let xImgType = xSb ? self.trimAndLower(xSb.getAttribute('pageImgFormat') || '') : '';
             let xSplashImgType = 'svg';
@@ -511,50 +408,31 @@ const SBPLUS = {
             let xGeneralInfoNode = xSetup ? xSetup.querySelector('generalInfo') : null;
             let xGeneralInfo = xGeneralInfoNode ? self.noScript(self.noCDATA(xGeneralInfoNode.innerHTML || xGeneralInfoNode.textContent || '')) : '';
             let xSections = doc.querySelectorAll('section');
-
-            // variable to hold temporary XML value for further evaluation
             let splashImgType_temp = xSb ? xSb.getAttribute('splashImgFormat') : '';
             let splashImg_temp = xSetup ? xSetup.getAttribute('splashImg') : '';
-
-            // if temporary splash image type is defined...
             if (splashImgType_temp) {
-                // and if it is not empty...
                 if (!self.isEmpty(splashImgType_temp)) {
-                    // set the splash image type to the temporary value
                     xSplashImgType = self.trimAndLower(splashImgType_temp);
                 }
             }
-
-            // if splashImg_temp temporary is defined
-            // set the splashImg_temp to the temporary value
             if (splashImg_temp) {
                 xSplashImg = self.trimAndLower(splashImg_temp);
             }
 
-            // if accent is empty, set the accent to the value in the manifest
-
             if (self.isEmpty(xAccent)) {
                 xAccent = self.manifest.sbplus_default_accent;
             }
-
-            // if image type is empty, default to jpg
             if (self.isEmpty(xImgType)) {
                 xImgType = 'jpg';
             }
-
-            // if mathjax is not found or empty
             const mathjaxAttr = xSb ? xSb.getAttribute('mathjax') : '';
             if (self.isEmpty(mathjaxAttr)) {
-                // default to off
                 xMathjax = 'off';
             } else {
-                // value in mathjax attribute is on, set to on
                 if (self.trimAndLower(mathjaxAttr) === 'on' || self.trimAndLower(mathjaxAttr) === 'true') {
                     xMathjax = 'on';
                 }
             }
-
-            // set the parsed data to the class XML object variable
             self.xml = {
                 settings: {
                     accent: xAccent,
@@ -577,17 +455,14 @@ const SBPLUS = {
 
             self.xmlParsed = true;
 
-            /* finished parsing XML; do additional setup based on parsed XML values */
+            /** @private XML parsing is complete; run dependent setup tasks. */
 
             self.setLogo(self.logo);
 
-            self.getAuthorProfile(); // get author profile
-            self.setAccent(); // set accent color
-            self.setCopyright(); // set the copyright info
-
-            // if mathjax if turned on
+            self.getAuthorProfile();
+            self.setAccent();
+            self.setCopyright();
             if (self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true') {
-                // load the MathJAX script from a CDN
                 loadScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML').then(function () {
                     MathJax.Hub.Config({
                         'HTML-CSS': {
@@ -596,8 +471,6 @@ const SBPLUS = {
                     });
                 });
             }
-
-            // if HotJar site id is set in manifest, get and set HotJar tracking code
             if (self.manifest.sbplus_hotjar_site_id != '') {
                 const id = Number(self.manifest.sbplus_hotjar_site_id);
 
@@ -615,10 +488,8 @@ const SBPLUS = {
                     a.appendChild(r);
                 })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
             }
-
-            // if analytics ID is specified, get and set Google analytics tracking
             if (self.manifest.sbplus_ga_tracking && !self.isEmpty(self.manifest.sbplus_ga_tracking.measurement_id)) {
-                /* Google Analytics gtag.js */
+                /** @private Load Google Analytics gtag.js script. */
                 const head = document.getElementsByTagName('head')[0];
                 const gtagScript = document.createElement('script');
 
@@ -628,7 +499,7 @@ const SBPLUS = {
 
                 head.appendChild(gtagScript);
 
-                /* Google Analytics */
+                /** @private Initialize Google Analytics tracking wrapper. */
                 function gtag() {
                     const dataLayer = (window.dataLayer = window.dataLayer || []);
                     dataLayer.push(arguments);
@@ -664,18 +535,18 @@ const SBPLUS = {
                 }
             }
 
-            /* finished setup; ready to render the splash screen */
+            /** @private Boot setup complete; splash screen can be rendered. */
 
             self.renderSplashscreen();
 
-            /* preload slide images from asset */
+            /** @private Preload slide images to reduce initial page-switch latency. */
             self.preloadPresentationImages();
         }
-    }, // end parseXMLData function
+    },
 
     /**
      * Set author profile from centralized repo if applicable
-     **/
+     */
 
     getAuthorProfile: function () {
         const self = this;
@@ -685,7 +556,6 @@ const SBPLUS = {
         }
 
         if (self.xml.setup.author) {
-            // set author name and path to the profile to respective variable
             const authorName = self.xml.setup.author.getAttribute('name') ? self.xml.setup.author.getAttribute('name').trim() : '';
             const sanitizedAuthor = self.sanitize(authorName);
             const profileUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.json';
@@ -714,21 +584,16 @@ const SBPLUS = {
         }
     },
 
-    /**************************************************************************
-        SPLASH SCREEN FUNCTIONS
-    **************************************************************************/
+    // Splash screen rendering and initialization helpers.
 
     /**
      * Render presentation splash screen
-     **/
+     */
     renderSplashscreen: function () {
         const self = this;
 
         if (self.xmlParsed === true && self.splashScreenRendered === false) {
-            // set the HTML page title
             document.title = self.xml.setup.title;
-
-            // display data to the splash screen
             const splashTitleEl = document.querySelector(self.splash.title);
             const splashSubtitleEl = document.querySelector(self.splash.subtitle);
             const splashAuthorEl = document.querySelector(self.splash.author);
@@ -745,22 +610,16 @@ const SBPLUS = {
             if (splashDurationEl) {
                 splashDurationEl.innerHTML = self.xml.setup.duration;
             }
-
-            // set event listener to the start button
             const startBtn = document.querySelector(self.button.start);
             if (startBtn) {
                 startBtn.addEventListener('click', self.startPresentation.bind(self));
             }
-
-            // if local storage has a value for the matching presentation title
             if (self.hasStorageItem('sbplus-' + self.presentationId)) {
-                // set event listener to the resume button
                 const resumeBtn = document.querySelector(self.button.resume);
                 if (resumeBtn) {
                     resumeBtn.addEventListener('click', self.resumePresentation.bind(self));
                 }
             } else {
-                // hide the resume button
                 const resumeBtn = document.querySelector(self.button.resume);
                 if (resumeBtn) {
                     resumeBtn.style.display = 'none';
@@ -768,14 +627,12 @@ const SBPLUS = {
                 }
             }
 
-            self.determineSplashImage(); // get the splash image
-            self.determineDownloadableFiles(); // get and set any downloadable files
-            self.splashScreenRendered = true; // flag the splash screen as rendered
-            self.showSplashScreen(); // show the splash screen
-            self.resize(); // "refresh the UI"
-            self.scheduleOnlineStatusCheck(); // schedule online connectivity status check
-
-            // send additional data to GTM about the environment
+            self.determineSplashImage();
+            self.determineDownloadableFiles();
+            self.splashScreenRendered = true;
+            self.showSplashScreen();
+            self.resize();
+            self.scheduleOnlineStatusCheck();
             if (self.gtmLoaded) {
                 dataLayer.push({
                     event: 'mediaPlayerLoaded',
@@ -786,11 +643,11 @@ const SBPLUS = {
                 });
             }
         }
-    }, // end renderSplashScreen function
+    },
 
     /**
      * Set initial sbplus settings if not already
-     **/
+     */
     applyStorageItems: function () {
         const self = this;
 
@@ -833,8 +690,6 @@ const SBPLUS = {
         if (self.hasStorageItem('sbplus-subtitle') === false) {
             self.setStorageItem('sbplus-subtitle', 0);
         }
-
-        // if autoplay for videoJS is on, add a class to the body tag
         if (self.getStorageItem('sbplus-autoplay') == '1') {
             const wrapperEl = document.querySelector(self.layout.wrapper);
             if (wrapperEl) {
@@ -845,7 +700,7 @@ const SBPLUS = {
 
     /**
      * determine the image to load on the splash screen
-     **/
+     */
     determineSplashImage: function () {
         const self = this;
         const splashImgUrl = self.assetsPath + 'splash.' + self.xml.settings.splashImgType;
@@ -854,24 +709,15 @@ const SBPLUS = {
             if (result) {
                 self.setSplashImage(splashImgUrl);
             } else {
-                /* when failed to load the image in the assets folder
-                   attempt to get it from the image repo on the server
-                   with the provided splashImg values from the XML */
-
-                // first, if splash directory is not specified in the manifest, no image and exit
+                /** @private Fall back to the configured splash image repository when local splash assets are missing. */
                 if (self.isEmpty(self.manifest.sbplus_splash_directory)) {
                     self.setSplashImage('');
                     return;
                 }
-
-                // otherwise, continue...
-                // if splashImg is empty, no image and exit
                 if (self.isEmpty(self.xml.setup.splashImg)) {
                     self.setSplashImage('');
                     return;
                 }
-
-                // otherwise, attempt to get the image from server
                 const serverSplashImgUrl = self.manifest.sbplus_splash_directory + self.xml.setup.splashImg + '.' + self.xml.settings.splashImgType;
 
                 self.requestedFileExists(serverSplashImgUrl, (serverResult) => {
@@ -884,7 +730,7 @@ const SBPLUS = {
     /**
      * Set the splash screen image to the DOM
      * @param string - the URL/path to the splash image file
-     **/
+     */
     setSplashImage: function (str) {
         const self = this;
 
@@ -907,7 +753,7 @@ const SBPLUS = {
 
     /**
      * Show the splash screen
-     **/
+     */
     showSplashScreen: function () {
         const self = this;
 
@@ -930,13 +776,10 @@ const SBPLUS = {
 
     /**
      * Hide the splash screen. Should be used when starting or resuming.
-     **/
+     */
     hideSplashScreen: function () {
         const self = this;
-
-        // if presentation is rendered...
         if (self.presentationRendered) {
-            // add fadeOut class and listen for animation completion event
             const splashScreenEl = document.querySelector(self.splash.screen);
             const mainScreenEl = document.querySelector(self.layout.mainScreen);
             if (splashScreenEl) {
@@ -955,19 +798,13 @@ const SBPLUS = {
 
     /**
      * Get and set the downloadable files that are available
-     **/
+     */
     determineDownloadableFiles: function () {
         const self = this;
-
-        // set downloadable file name from the course directory name in URL
         let fileName = self.xml.settings.downloadableFileName;
-
-        // if file name is empty, default to 'sbplus'
         if (self.isEmpty(fileName)) {
             fileName = self.sanitize(self.xml.setup.title);
         }
-
-        // load each supported downloadable files specified in the manifest
         self.manifest.sbplus_download_files.forEach(function (file) {
             const downloadableUrl = self.extractAssetsRoot(self.xmlPath) + fileName + '.' + file.format;
 
@@ -983,7 +820,6 @@ const SBPLUS = {
                     }
                 })
                 .catch(function () {
-                    // Downloadable file is optional.
                 })
                 .finally(function () {
                     if (Object.keys(self.downloads).length <= 0) {
@@ -998,7 +834,7 @@ const SBPLUS = {
 
     /**
      * preload all images used in the presentation if applicable
-     **/
+     */
     preloadPresentationImages: async function () {
         const self = this;
 
@@ -1016,7 +852,7 @@ const SBPLUS = {
 
     /**
      * parse preload all images used in the presentation
-     **/
+     */
     parseSectionPageSources: function (xmlSections) {
         const self = this;
         return new Promise((resolve, reject) => {
@@ -1070,19 +906,12 @@ const SBPLUS = {
 
     /**
      * Start presentation function for the start button
-     **/
+     */
     startPresentation: function () {
         const self = this;
-
-        // if presentation has not started, hide splash and render presentation
         if (self.presentationStarted === false) {
-            // render presentation
             self.renderPresentation();
-
-            // hide splash screen
             self.hideSplashScreen();
-
-            // select the first page
             self.selectPage('0,0');
             self.presentationStarted = true;
         }
@@ -1090,20 +919,12 @@ const SBPLUS = {
 
     /**
      * Resume presentation function for the start button
-     **/
+     */
     resumePresentation: function () {
         const self = this;
-
-        // if presentation has not started, hide splash, set resuming flag
-        // to true and render presentation
         if (self.presentationStarted === false) {
-            // render presentation
             self.renderPresentation();
-
-            // hide screen
             self.hideSplashScreen();
-
-            // select the page that was set in the local storage data
             self.selectPage(self.getStorageItem('sbplus-' + self.presentationId));
             window.setTimeout(function () {
                 self.updateScroll(self.targetPage);
@@ -1115,15 +936,12 @@ const SBPLUS = {
 
     /**
      * Render the presentation (after the hiding the splash screen)
-     **/
+     */
     renderPresentation: function () {
         const self = this;
 
         if (self.presentationRendered === false) {
-            // remove focus (from the hidden elements)
             document.querySelector(self.layout.sbplus).focus();
-
-            // display presentation title and author to the black banner bar
             const bannerTitleEl = document.querySelector(self.banner.title);
             const bannerAuthorEl = document.querySelector(self.banner.author);
             if (bannerTitleEl) {
@@ -1132,72 +950,41 @@ const SBPLUS = {
             if (bannerAuthorEl) {
                 bannerAuthorEl.innerHTML = self.xml.setup.author;
             }
-
-            // display table of contents
             const sections = Array.from(self.xml.sections);
             sections.forEach(function (sectionNode, i) {
-                // set section head title
                 let sectionHead = sectionNode.getAttribute('title');
-
-                // set page array data
                 const pages = Array.from(sectionNode.querySelectorAll('page'));
-
-                // set section HTML DOM
                 let sectionHTML = '<div class="section">';
-
-                // if there is more than 2 sections...
                 if (sections.length >= 2) {
-                    // if sectionHead title is empty, set a default title
                     if (self.isEmpty(sectionHead)) {
                         sectionHead = 'Section ' + (i + 1);
                     }
-
-                    // append section head HTML to DOM
                     sectionHTML += '<h3 class="header" >';
                     sectionHTML += '<button class="title" aria-expanded="true" aria-controls="toc-section-' + i + '">';
                     sectionHTML += sectionHead + '<div class="icon" aria-hidden="true"><span class="icon-collapse"></span></div></button>';
                     sectionHTML += '</h3>';
                 }
-
-                // append pages (opening list tag) HTML to DOM
                 sectionHTML += '<ul id="toc-section-' + i + '" class="list" role="tablist">';
-
-                // for each page
                 pages.forEach(function (pageNode, j) {
-                    // increment total page
                     ++self.totalPages;
 
                     const pageType = pageNode.getAttribute('type');
                     const title = pageNode.getAttribute('title');
-
-                    // append opening list item tag to DOM
                     sectionHTML += '<li class="item" data-count="' + self.totalPages + '" data-page="' + i + ',' + j + '" role="presentation">';
                     sectionHTML += '<button role="tab" aria-selected="false" aria-controls="sbplus_main_content_col" aria-label="Slide ' + self.totalPages + ', ' + self.escapeHTMLAttribute(title) + '">';
-
-                    // if page is quiz
                     if (pageType === 'quiz') {
-                        // append an quiz icon
                         sectionHTML += '<span class="icon-assessment"></span>';
                     } else {
-                        // append a count number
                         sectionHTML += '<span class="numbering">' + self.totalPages + '.</span> ';
                     }
-
-                    // append page title and close the list item tag
                     sectionHTML += title + '</button></li>';
                 });
-
-                // appending closing list and div tag
                 sectionHTML += '</ul></div>';
-
-                // append the section HTML to the table of content DOM area
                 const tocContainerEl = document.querySelector(self.tableOfContents.container);
                 if (tocContainerEl) {
                     tocContainerEl.insertAdjacentHTML('beforeend', sectionHTML);
                 }
             });
-
-            // set total page to the status bar and to the screen reader text holder
             const totalStatusEl = document.querySelector(self.layout.pageStatus + ' span.total');
             const totalPagesSrEl = document.querySelector(self.screenReader.totalPages);
             if (totalStatusEl) {
@@ -1206,8 +993,6 @@ const SBPLUS = {
             if (totalPagesSrEl) {
                 totalPagesSrEl.innerHTML = String(self.totalPages);
             }
-
-            // if author is missing hide author button and menu item
             if (self.xml.setup.author.length) {
                 const authorBtnEl = document.querySelector(self.button.author);
                 if (authorBtnEl) {
@@ -1252,8 +1037,6 @@ const SBPLUS = {
             if (widgetSegmentEl) {
                 self.widgetSegmentCleanup = onDelegate(widgetSegmentEl, 'click', 'button', self.selectSegment.bind(self));
             }
-
-            // add main menu button
             const menuBtnEl = document.querySelector(self.button.menu);
             if (menuBtnEl) {
                 menuBtnEl.addEventListener('click', function (e) {
@@ -1266,15 +1049,11 @@ const SBPLUS = {
                     }
                 });
             }
-
-            // hide general info under main menu if empty
             if (self.isEmpty(self.xml.setup.generalInfo)) {
                 document.querySelectorAll('.sbplus_general_info').forEach(function (infoEl) {
                     infoEl.style.display = 'none';
                 });
             }
-
-            // add download button if downloads object is not empty
             if (Object.keys(self.downloads).length > 0) {
                 const downloadBtnEl = document.querySelector(self.button.download);
                 if (downloadBtnEl) {
@@ -1286,8 +1065,6 @@ const SBPLUS = {
                         }
                     });
                 }
-
-                // set download items
                 for (let key in self.downloads) {
                     if (self.downloads[key] != undefined) {
                         const downloadMenuEl = document.querySelector(self.button.downloadMenu);
@@ -1297,38 +1074,27 @@ const SBPLUS = {
                     }
                 }
             } else {
-                // hide the download button if download object is empty
                 const downloadWrapperEl = document.querySelector(self.button.downloadWrapper);
                 if (downloadWrapperEl) {
                     downloadWrapperEl.style.display = 'none';
                 }
             }
-
-            // queue MathJAX if turned on
             if (self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true') {
                 MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
             }
-
-            // easter egg event listener
             const menuButtonEl = document.querySelector('#sbplus_menu_btn');
             if (menuButtonEl) {
                 menuButtonEl.addEventListener('click', self.burgerBurger.bind(self));
             }
-
-            // close floating menus when click anywhere on the page
             document.addEventListener('click', function (evt) {
                 const target = evt.target;
                 const downloadBtn = document.querySelector(self.button.download);
                 const menuBtn = document.querySelector(self.button.menu);
-
-                // Check if downloadBtn exists and handle clicks outside it (including descendants)
                 if (downloadBtn && target && target !== downloadBtn && !downloadBtn.contains(target)) {
                     if (downloadBtn.classList.contains('active')) {
                         self.closeDownloadMenu();
                     }
                 }
-
-                // Handle clicks outside menuBtn (including descendants)
                 if (menuBtn && target && target !== menuBtn && !menuBtn.contains(target)) {
                     if (menuBtn.classList.contains('active')) {
                         self.closeMenu();
@@ -1337,106 +1103,59 @@ const SBPLUS = {
             });
 
             this.presentationRendered = true;
-
-            // resize elements after everything is put in place
             self.resize();
 
             return document.querySelector(self.layout.sbplus);
         }
-    }, // end renderPresentation function
-
-    /**************************************************************************
-        MAIN NAVIGATION FUNCTIONS
-    **************************************************************************/
+    },
+    
+    // Main page-to-page navigation helpers.
 
     /**
      * Go to next page in the table of contents
-     **/
+     */
     goToNextPage: function () {
         const self = this;
-
-        // get/set current page array
         const currentSelected = document.querySelector('.sb_selected');
         const currentPage = currentSelected ? currentSelected.getAttribute('data-page').split(',') : ['0', '0'];
-
-        // set section number
         let tSection = Number(currentPage[0]);
-
-        // set page number
         let tPage = Number(currentPage[1]);
-
-        // set total section
         const totalSections = self.xml.sections.length;
-
-        // set total page in current section
         const totalPagesInSection = self.xml.sections[tSection].querySelectorAll('page').length;
-
-        // increment current page number
         tPage++;
-
-        // if current page number is greater than total number of page in
-        // current section
         if (tPage > totalPagesInSection - 1) {
-            // increment current section number
             tSection++;
-
-            // if current section number is greater total number of sections
             if (tSection > totalSections - 1) {
-                // set current section number to 0 or the first section number
                 tSection = 0;
             }
-
-            // set page number to 0 or the first page in the current section
             tPage = 0;
         }
-
-        // call selectPage function to get the page with current section and
-        // and current page number as the arguments
         self.selectPage(tSection + ',' + tPage);
-    }, // end goToNextPage function
+    },
 
     /**
      * Go to previous page in the table of contents
-     **/
+     */
     goToPreviousPage: function () {
         const self = this;
-
-        // get/set current page array
         const currentSelected = document.querySelector('.sb_selected');
         const currentPage = currentSelected ? currentSelected.getAttribute('data-page').split(',') : ['0', '0'];
-
-        // set section number
         let tSection = Number(currentPage[0]);
-
-        // set page number
         let tPage = Number(currentPage[1]);
-
-        // decrement current page number
         tPage--;
-
-        // current page number is less than 0 or the first page
         if (tPage < 0) {
-            // decrement current section number
             tSection--;
-
-            // if current section number is 0 or the first section
             if (tSection < 0) {
-                // set section number to the last section
                 tSection = self.xml.sections.length - 1;
             }
-
-            // set page number to the last page on the current section
             tPage = self.xml.sections[tSection].querySelectorAll('page').length - 1;
         }
-
-        // call selectPage function to get the page with current section and
-        // and current page number as the arguments
         self.selectPage(tSection + ',' + tPage);
-    }, // end goToPreviousPage function
+    },
 
     /**
      * Toggle table of contents in mobile view
-     **/
+     */
     toggleToc: function () {
         const self = this;
         const sbplusWrapper = document.querySelector(self.layout.wrapper);
@@ -1460,7 +1179,7 @@ const SBPLUS = {
 
     /**
      * Calculate the table of content height dynamically
-     **/
+     */
     calcTocHeight: function () {
         const self = this;
         const bannerEl = document.querySelector(self.banner.bar);
@@ -1474,20 +1193,16 @@ const SBPLUS = {
 
     /**
      * Update Page Status (or the status bar) next to the page controls
-     **/
+     */
     updatePageStatus: function (num) {
         const self = this;
-
-        // display current page number to the status
         const currentEl = document.querySelector(self.layout.pageStatus + ' span.current');
         if (currentEl) {
             currentEl.innerHTML = String(num);
         }
-    }, // end updatePageStatus function
+    },
 
-    /**************************************************************************
-        MENU FUNCTIONS
-    **************************************************************************/
+    // Main menu display and interaction handlers.
     openMenu: function () {
         const menuBtn = document.querySelector(this.button.menu);
         const menuList = document.querySelector(this.menu.menuList);
@@ -1545,7 +1260,7 @@ const SBPLUS = {
     /**
      * open a menu item under the menu
      * @param string
-     **/
+     */
     openMenuItem: function (id) {
         const self = this;
 
@@ -1568,9 +1283,6 @@ const SBPLUS = {
             menuContent.innerHTML = '';
         }
         self.closeMenu();
-
-        // Move focus into the menu content before hiding banner/content
-        // regions with aria-hidden to avoid focus-in-hidden warnings.
         if (menuContentWrapper) {
             menuContentWrapper.removeAttribute('aria-hidden');
             menuContentWrapper.style.display = 'block';
@@ -1631,7 +1343,6 @@ const SBPLUS = {
                                         }
                                     })
                                     .catch(function () {
-                                        // No fallback author image available.
                                     });
                             }
                         });
@@ -1731,7 +1442,7 @@ const SBPLUS = {
 
     /**
      * Close the menu and its content
-     **/
+     */
     closeMenuContent: function () {
         const self = this;
         const sbplusBanner = document.querySelector(self.banner.bar);
@@ -1769,7 +1480,7 @@ const SBPLUS = {
 
     /**
      * an easter egg to change the menu icon to a hamburger emoji
-     **/
+     */
     burgerBurger: function () {
         const self = this;
         const menuIcon = document.querySelector('span.menu-icon');
@@ -1790,64 +1501,45 @@ const SBPLUS = {
             }
         }
     },
-    /**************************************************************************
-        TABLE OF CONTENT (SIDEBAR) FUNCTIONS
-    **************************************************************************/
+    
+    // Table-of-contents and sidebar navigation helpers.
+
     /**
      * Toggling table of content sections
      * @param any
-     **/
+     */
     toggleSection: function (el) {
         const self = this;
-
-        // get total number of
         const headers = document.querySelectorAll(this.tableOfContents.header);
         const totalHeaderCount = headers.length;
-
-        // if total number of section is greater than 1...
         if (totalHeaderCount > 1) {
-            // declare a variable to hold current targeted section
             let targetSectionHeader;
-
-            // if the object is an click event object
             if (el instanceof Object) {
-                // set the current section to the current event click target
                 targetSectionHeader = el.currentTarget;
             } else {
-                // if argument is greater than total number of sections
                 if (Number(el) > totalHeaderCount - 1) {
-                    // exit function
                     return false;
                 }
-
-                // set the current section to the passed argument
                 targetSectionHeader = headers[Number(el)];
             }
 
             const targetList = targetSectionHeader ? targetSectionHeader.nextElementSibling : null;
             const isVisible = !!(targetList && (targetList.offsetWidth || targetList.offsetHeight || targetList.getClientRects().length));
-            // if target is visible...
             if (isVisible) {
                 self.closeSection(targetSectionHeader);
             } else {
                 self.openSection(targetSectionHeader);
             }
         }
-    }, // end toggleSection function
+    },
 
     /**
      * Close specified table of content section
      * @param object
-     **/
-
+     */
     closeSection: function (obj) {
-        // set the target to the list element under the section
         const target = obj ? obj.nextElementSibling : null;
-
-        // the open/collapse icon on the section title bar
         const icon = obj ? obj.querySelector('.icon') : null;
-
-        // slide up (hide) the list
         const titleBtn = obj ? obj.querySelector('button.title') : null;
         if (titleBtn) {
             titleBtn.setAttribute('aria-expanded', 'false');
@@ -1855,8 +1547,6 @@ const SBPLUS = {
         if (target) {
             target.style.display = 'none';
         }
-
-        // update the icon to open icon
         if (icon) {
             icon.innerHTML = '<span class="icon-open"></span>';
         }
@@ -1865,16 +1555,10 @@ const SBPLUS = {
     /**
      * Open specified table of content section
      * @param object
-     **/
-
+     */
     openSection: function (obj) {
-        // set the target to the list element under the section
         const target = obj ? obj.nextElementSibling : null;
-
-        // the open/collapse icon on the section title bar
         const icon = obj ? obj.querySelector('.icon') : null;
-
-        // slide down (show) the list
         const titleBtn = obj ? obj.querySelector('button.title') : null;
         if (titleBtn) {
             titleBtn.setAttribute('aria-expanded', 'true');
@@ -1882,8 +1566,6 @@ const SBPLUS = {
         if (target) {
             target.style.display = '';
         }
-
-        // update the icon to collapse icon
         if (icon) {
             icon.innerHTML = '<span class="icon-collapse"></span>';
         }
@@ -1892,51 +1574,29 @@ const SBPLUS = {
     /**
      * Selecting page on the table of contents
      * @param any
-     **/
+     */
     selectPage: function (el) {
         const self = this;
-
-        // if the argument is an click event object
         if (el instanceof Object) {
-            // set target to current click event target
             self.targetPage = el.currentTarget;
         } else {
-            // set target to the passed in argument
             self.targetPage = document.querySelector('.item[data-page="' + el + '"]');
-
-            // if targe page does not exist
             if (!self.targetPage) {
-                // exit function; stop further execution
                 return false;
             }
         }
-
-        // if target page does not have the sb_selected class
         if (!self.targetPage.classList.contains('sb_selected')) {
-            // get all pages
             const allPages = Array.from(document.querySelectorAll(self.tableOfContents.page));
-
-            // get section headers
             const sectionHeaders = Array.from(document.querySelectorAll(self.tableOfContents.header));
-
-            // if more than one section headers...
             if (sectionHeaders.length > 1) {
-                // set the target header to targeted page's header
                 const targetHeader = self.targetPage.parentElement ? self.targetPage.parentElement.previousElementSibling : null;
-
-                // if targeted header does not have the current class
                 if (targetHeader && !targetHeader.classList.contains('current')) {
-                    // remove current class from all section headers
                     sectionHeaders.forEach((headerEl) => headerEl.classList.remove('current'));
-
-                    // add current class to targeted header
                     targetHeader.classList.add('current');
                 }
 
                 self.openSection(targetHeader);
             }
-
-            // remove sb_selected class from all pages
             allPages.forEach((pageEl) => {
                 pageEl.classList.remove('sb_selected');
                 const btn = pageEl.querySelector('button');
@@ -1944,44 +1604,32 @@ const SBPLUS = {
                     btn.setAttribute('aria-selected', 'false');
                 }
             });
-
-            // add sb_selected class to targeted page
             self.targetPage.classList.add('sb_selected');
             const selectedBtn = self.targetPage.querySelector('button');
             if (selectedBtn) {
                 selectedBtn.setAttribute('aria-selected', 'true');
             }
-
-            // call the getPage function with targeted page data as parameter
             self.getPage(self.targetPage.getAttribute('data-page'));
-
-            // update the page status with the targeted page count data
             self.updatePageStatus(self.targetPage.getAttribute('data-count'));
-
-            // update screen reader status
             const srCurrentPage = document.querySelector(self.screenReader.currentPage);
             if (srCurrentPage) {
                 srCurrentPage.innerHTML = self.targetPage.getAttribute('data-count');
             }
-
-            // update the scroll bar to targeted page with a 1
             const sidebarEl = document.querySelector(self.layout.sidebar);
             if (sidebarEl && (sidebarEl.offsetWidth || sidebarEl.offsetHeight || sidebarEl.getClientRects().length)) {
                 self.updateScroll(self.targetPage);
             }
-
-            // hide table of content in mobile view
             const wrapperEl = document.querySelector(self.layout.wrapper);
             if (wrapperEl && wrapperEl.classList.contains('toc_displayed')) {
                 self.toggleToc();
             }
         }
-    }, // end selectPage function
+    },
 
     /**
      * Getting page after selected a page
      * @param string
-     **/
+     */
     getPage: function (page) {
         const self = this;
         const getAttrTrim = function (node, name, fallback = '') {
@@ -1996,53 +1644,32 @@ const SBPLUS = {
 
             return String(value).trim();
         };
-
-        // split the page value into an array
         page = page.split(',');
-
-        // set section to page array index 0
         const section = page[0];
-
-        // set item to page array index 1
         const item = page[1];
-
-        // get and set target based on the section and item variable
         const pageNodes = self.xml.sections[section].querySelectorAll('page');
         const target = pageNodes[item];
         if (!target) {
             return;
         }
-
-        // create a pageData object to hold page title and type
         const pageData = {
             xml: [target],
             title: getAttrTrim(target, 'title', ''),
             type: getAttrTrim(target, 'type', '').toLowerCase(),
         };
-
-        // set number property to the pageData object
         pageData.number = page;
-
-        // if page type is not quiz
         if (pageData.type !== 'quiz') {
-            // add/set additional property to the pageData object
             pageData.src = getAttrTrim(target, 'src', '');
-
-            // check for preventAutoplay attribute
             if (target.getAttribute('preventAutoplay') != undefined) {
                 pageData.preventAutoplay = getAttrTrim(target, 'preventAutoplay', 'false');
             } else {
                 pageData.preventAutoplay = 'false';
             }
-
-            // check for defaultPlayer attribute if it is youtube or vimeo
             if (target.getAttribute('useDefaultPlayer') !== undefined) {
                 pageData.useDefaultPlayer = getAttrTrim(target, 'useDefaultPlayer', 'true');
             } else {
                 pageData.useDefaultPlayer = 'true';
             }
-
-            // check for disableFullscreen attribute
             if (pageData.type == 'brightcove' || pageData.type == 'kaltura' || pageData.type == 'video' || (pageData.type == 'youtube' && pageData.useDefaultPlayer == 'true')) {
                 if (target.getAttribute('disableFullscreen') != undefined) {
                     pageData.disableFullscreen = getAttrTrim(target, 'disableFullscreen', 'false');
@@ -2050,8 +1677,6 @@ const SBPLUS = {
                     pageData.disableFullscreen = 'false';
                 }
             }
-
-            // if there is a note tag, set notes
             if (target.querySelectorAll('note').length) {
                 const noteNode = target.querySelector('note');
                 pageData.notes = noteNode ? self.noScript(self.noCDATA(noteNode.innerHTML || noteNode.textContent || '')) : '';
@@ -2074,38 +1699,26 @@ const SBPLUS = {
             if (pageData.type !== 'image') {
                 pageData.markers = target.querySelectorAll('markers');
             }
-
-            // create new page object using the pageData and set to SBPLUS's
-            // currentPage property
             self.currentPage = new Page(pageData);
         } else {
             self.currentPage = new Page(pageData, target);
         }
-
-        // get the page media
         self.currentPage.getPageMedia();
-
-        // update the page title to the screen reader
         const pageTitleEl = document.querySelector(self.screenReader.pageTitle);
         if (pageTitleEl) {
             pageTitleEl.innerHTML = pageData.title;
         }
-    }, // end getPage function
+    },
 
     /**
      * Updating the table of content's scroll bar position
      * @param object
-     **/
+     */
     updateScroll: function (obj) {
         const self = this;
         const scrollOption = { behavior: 'smooth', block: 'nearest', inline: 'start' };
-
-        // set the obj from the parameter
         let target = obj;
-
-        // if the target is not visible
         if (!(target.offsetWidth || target.offsetHeight || target.getClientRects().length)) {
-            // target its parent's siblings
             target = target.parentElement ? target.parentElement.previousElementSibling : target;
         }
 
@@ -2118,8 +1731,6 @@ const SBPLUS = {
 
             return;
         }
-
-        // get/set the scrollable height
         const tocContainerEl = document.querySelector(self.tableOfContents.container);
         const scrollHeight = tocContainerEl ? tocContainerEl.getBoundingClientRect().height : 0;
         const targetHeight = target.getBoundingClientRect().height;
@@ -2137,15 +1748,13 @@ const SBPLUS = {
         if (targetTop < targetHeight) {
             target.scrollIntoView(scrollOption);
         }
-    }, // end updateScroll function
+    },
 
-    /**************************************************************************
-        WIDGET FUNCTIONS
-    **************************************************************************/
+    // Widget tab lifecycle and content rendering helpers.
 
     /**
      * clear the widget area
-     **/
+     */
     clearWidget: function () {
         const self = this;
         const widgetSegmentEl = document.querySelector(self.widget.segment);
@@ -2160,7 +1769,7 @@ const SBPLUS = {
 
     /**
      * determine if the widget has content
-     **/
+     */
     hasWidgetContent: function () {
         const self = this;
         const widgetSegmentEl = document.querySelector(self.widget.segment);
@@ -2170,7 +1779,7 @@ const SBPLUS = {
     /**
      * select the tabs in the widget area
      * @param any
-     **/
+     */
     selectSegment: function (el) {
         const self = this;
         const buttons = Array.from(document.querySelectorAll(self.widget.segment + ' button'));
@@ -2256,8 +1865,6 @@ const SBPLUS = {
                 widgetContentEl.removeAttribute('tabindex');
                 widgetContentEl.removeAttribute('role');
             }
-
-            // show logo
             if (!self.isEmpty(self.logo)) {
                 if (widgetContentEl) {
                     widgetContentEl.style.backgroundImage = 'url(' + self.logo + ')';
@@ -2268,7 +1875,7 @@ const SBPLUS = {
 
     /**
      * select the first tab in the widget area
-     **/
+     */
     selectFirstSegment: function () {
         const self = this;
         const button = document.querySelector(self.widget.segment + ' button');
@@ -2277,7 +1884,6 @@ const SBPLUS = {
         if (target) {
             self.selectSegment(target);
         } else {
-            // Trigger empty widget state so logo fallback is shown.
             self.selectSegment('');
         }
     },
@@ -2285,7 +1891,7 @@ const SBPLUS = {
     /**
      * add a tab to the widget area
      * @param string
-     **/
+     */
     addSegment: function (str) {
         const self = this;
         const btn = '<button role="tab" id="sbplus_' + self.sanitize(str) + '" aria-controls="widget_content" aria-selected="false">' + str + '</button>';
@@ -2307,7 +1913,7 @@ const SBPLUS = {
 
     /**
      * clear all tabs and their content
-     **/
+     */
     clearWidgetSegment: function () {
         const self = this;
 
@@ -2326,16 +1932,14 @@ const SBPLUS = {
 
         self.widget.segments = [];
     },
-
-    /***************************************************************************
-        HELPER FUNCTIONS
-    ***************************************************************************/
+    
+    // Shared utility methods used by SBPLUS modules.
 
     /**
      * get and read file
      * @param string - the URL/path to the file
      * @param callback - callback function
-     **/
+     */
     requestFile(url, callback) {
         const request = new XMLHttpRequest();
 
@@ -2357,7 +1961,7 @@ const SBPLUS = {
      * check if file existing by requesting the HEAD
      * @param string - the URL/path to the file
      * @param callback - callback function
-     **/
+     */
     requestedFileExists(url, callback) {
         const request = new XMLHttpRequest();
 
@@ -2379,7 +1983,7 @@ const SBPLUS = {
      * show the error message screen based on error type
      * (visually covered up the presentation)
      * @param string
-     **/
+     */
     showErrorScreen: function (type) {
         const self = this;
 
@@ -2419,7 +2023,7 @@ const SBPLUS = {
 
     /**
      * calculate the height of the player
-     **/
+     */
     calcLayout: function () {
         const self = this;
 
@@ -2448,9 +2052,6 @@ const SBPLUS = {
                 tocContainerEl.style.height = '';
             }
         }
-
-        // if the media area is too large and covers up the table of content
-        // made the table of content pop out instead
         if (window.innerWidth >= 600 && window.innerWidth <= 899 && window.innerHeight <= 586) {
             if (tocContainerEl) {
                 tocContainerEl.classList.add('popout');
@@ -2464,7 +2065,7 @@ const SBPLUS = {
 
     /**
      * resize the player layout; alias for calcLayout function
-     **/
+     */
     resize: function () {
         const self = this;
         self.calcLayout();
@@ -2472,7 +2073,7 @@ const SBPLUS = {
 
     /**
      * get the sbplus.xml URL/path form the query parameter
-     **/
+     */
     getXMLPath: function () {
         const self = this;
         const presentationParam = 'p';
@@ -2485,7 +2086,6 @@ const SBPLUS = {
                 return self.isXMLFile(presentation) ? presentation : undefined;
             }
         } else {
-            // fallback if URLSearchParams is not available
 
             const query = windows.location.search.substring(1);
             const vars = query.split('&');
@@ -2505,7 +2105,7 @@ const SBPLUS = {
     /**
      * determine if the XML URL/path ends with sbplus.xml
      * @param string - the path or URL to the sbplus.xml file
-     **/
+     */
     isXMLFile: function (path) {
         return path.endsWith('sbplus.xml');
     },
@@ -2513,7 +2113,7 @@ const SBPLUS = {
     /**
      * extract the path to the assets directory from the XML URL
      * @param string - the path or URL to the sbplus.xml file
-     **/
+     */
     extractAssetsPath: function (path) {
         const parts = path.split('/');
 
@@ -2525,7 +2125,7 @@ const SBPLUS = {
     /**
      * extract the path to the root directory containing the assets directory from the XML URL
      * @param string - the path or URL to the sbplus.xml file
-     **/
+     */
     extractAssetsRoot: function (path) {
         const parts = path.split('/');
 
@@ -2541,7 +2141,7 @@ const SBPLUS = {
 
     /**
      * get the course or root directory name
-     **/
+     */
     getCourseDirectory: function () {
         const self = this;
 
@@ -2564,7 +2164,7 @@ const SBPLUS = {
     /**
      * clean the string to be web friendly
      * @param string
-     **/
+     */
     sanitize: function (str) {
         return str.replace(/[^\w.]/gi, '').toLowerCase();
     },
@@ -2572,7 +2172,7 @@ const SBPLUS = {
     /**
      * Capitalize the first letter of a word
      * @param string
-     **/
+     */
     capitalizeFirstLetter: function (str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     },
@@ -2580,7 +2180,7 @@ const SBPLUS = {
     /**
      * trim empty space before and after a string and set it to lowercase
      * @param string
-     **/
+     */
     trimAndLower: function (str) {
         return str.trim().toLowerCase();
     },
@@ -2588,7 +2188,7 @@ const SBPLUS = {
     /**
      * check if a string is empty
      * @param string
-     **/
+     */
     isEmpty: function (str) {
         return str === undefined || str === null || !str.trim() || str.trim().length === 0;
     },
@@ -2596,7 +2196,7 @@ const SBPLUS = {
     /**
      * escape string to be HTML attribute safe
      * @param string
-     **/
+     */
     escapeHTMLAttribute(str) {
         return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     },
@@ -2605,9 +2205,8 @@ const SBPLUS = {
      * get the color highlight based on the parameters
      * @param string - the hexadecimal
      * @param number - the luminosity rate between 0 to 1
-     **/
+     */
     colorLum: function (hex, lum) {
-        // validate hex string
         hex = String(hex).replace(/[^0-9a-f]/gi, '');
 
         if (hex.length < 6) {
@@ -2615,8 +2214,6 @@ const SBPLUS = {
         }
 
         lum = lum || 0;
-
-        // convert to decimal and change luminosity
         let rgb = '#',
             c,
             i;
@@ -2632,7 +2229,7 @@ const SBPLUS = {
     /**
      * get the color contrast for text colors based on the parameter
      * @param string - the hexadecimal
-     **/
+     */
     colorContrast: function (hex) {
         hex = hex.replace('#', '');
 
@@ -2647,7 +2244,7 @@ const SBPLUS = {
     /**
      * remove script tag in string value
      * @param string
-     **/
+     */
     noScript: function (str) {
         if (str === undefined || str === null) {
             return '';
@@ -2656,8 +2253,6 @@ const SBPLUS = {
         const container = document.createElement('span');
         container.innerHTML = String(str).trim();
         container.querySelectorAll('script,noscript,style').forEach((node) => node.remove());
-
-        // Drop inline event handlers and javascript: URLs.
         container.querySelectorAll('*').forEach((el) => {
             Array.from(el.attributes).forEach((attr) => {
                 const name = attr.name.toLowerCase();
@@ -2688,7 +2283,7 @@ const SBPLUS = {
     /**
      * remove CDATA from string value in XML
      * @param string
-     **/
+     */
     noCDATA: function (str) {
         if (str === undefined || str === '') {
             return '';
@@ -2703,7 +2298,7 @@ const SBPLUS = {
     /**
      * convert hexadecimal to RGB value
      * @param string - the hexadecimal
-     **/
+     */
     hexToRgb: function (hex) {
         const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 
@@ -2719,7 +2314,7 @@ const SBPLUS = {
     /**
      * remove empty items from an array
      * @param array
-     **/
+     */
     removeEmptyElements: function (array) {
         let found = false;
 
@@ -2746,7 +2341,7 @@ const SBPLUS = {
      * @param string - key
      * @param string - value
      * @param boolean - `true` for session storage; `false` for local storage
-     **/
+     */
     setStorageItem: function (key, value, toSession) {
         if (toSession) {
             if (this.hasSessionStorageSupport) {
@@ -2765,7 +2360,7 @@ const SBPLUS = {
      * get setting values from the local or session storage
      * @param string - key
      * @param boolean - `true` for session; `false` for local
-     **/
+     */
     getStorageItem: function (key, fromSession) {
         if (fromSession) {
             if (this.hasSessionStorageSupport) {
@@ -2784,7 +2379,7 @@ const SBPLUS = {
      * delete setting values from the local or session storage
      * @param string - key
      * @param boolean - `true` for session; `false` for local
-     **/
+     */
     deleteStorageItem: function (key, fromSession) {
         if (fromSession) {
             if (this.hasSessionStorageSupport) {
@@ -2803,7 +2398,7 @@ const SBPLUS = {
      * check for setting value existence from the local or session storage
      * @param string - key
      * @param boolean - `true` for session; `false` for local
-     **/
+     */
     hasStorageItem: function (key, fromSession) {
         const self = this;
 
@@ -2832,7 +2427,7 @@ const SBPLUS = {
 
     /**
      * delete all settings value in local and session storage
-     **/
+     */
     removeAllSessionStorage: function () {
         if (this.hasSessionStorageSupport) {
             return sessionStorage.clear();
@@ -2843,7 +2438,7 @@ const SBPLUS = {
      * decode strings that contain HTML/XMl tags
      * also remove any script tags and CDATA
      * @param object
-     **/
+     */
     getTextContent: function (obj) {
         const self = this;
         let str = obj.html();
@@ -2869,14 +2464,14 @@ const SBPLUS = {
 
     /**
      * determine if it is on a web browser in mobile device
-     **/
+     */
     isMobileDevice: function () {
         return navigator.userAgentData ? /iOS|Android/.test(navigator.userAgentData.platform) : /iPad|iPhone|iPod|Android/.test(navigator.platform);
     },
 
     /**
      * save settings to the local and session storages
-     **/
+     */
     afterSettingsLoaded: function () {
         const self = this;
 
@@ -2897,14 +2492,11 @@ const SBPLUS = {
 
             document.querySelectorAll('.settings input, .settings select').forEach(function (inputEl) {
                 inputEl.addEventListener('change', function () {
-                    // show msg
                     const savingMsgEl = document.querySelector(self.menu.menuSavingMsg);
                     if (savingMsgEl) {
                         savingMsgEl.style.display = '';
                         savingMsgEl.innerHTML = 'Saving...';
                     }
-
-                    // color mode
                     window.matchMedia('(prefers-color-scheme: dark)').off;
 
                     const selectedColorMode = document.querySelector('input[name="sbplus_color_mode"]:checked');
@@ -2930,8 +2522,6 @@ const SBPLUS = {
                     } else {
                         self.setStorageItem('sbplus-colormode', 'light');
                     }
-
-                    // autoplay
                     const autoplayEl = document.querySelector('#sbplus_va_autoplay');
                     if (autoplayEl && autoplayEl.checked) {
                         self.setStorageItem('sbplus-autoplay', 1);
@@ -2946,16 +2536,12 @@ const SBPLUS = {
                             wrapperEl.classList.remove('sbplus_autoplay_on');
                         }
                     }
-
-                    // subtitle
                     const subtitleEl = document.querySelector('#sbplus_va_subtitle');
                     if (subtitleEl && subtitleEl.checked) {
                         self.setStorageItem('sbplus-subtitle', 1);
                     } else {
                         self.setStorageItem('sbplus-subtitle', 0);
                     }
-
-                    // volume
                     const volumeEl = document.querySelector('#sbplus_va_volume');
                     let vol = volumeEl ? volumeEl.value : 0;
                     let volError = false;
@@ -2980,14 +2566,10 @@ const SBPLUS = {
                             nextEl.remove();
                         }
                     }
-
-                    // playback rate
                     const playbackRateEl = document.querySelector('#sbplus_va_playbackrate');
                     self.setStorageItem('sbplus-playbackrate', playbackRateEl ? playbackRateEl.value : '1');
 
                     self.setStorageItem('sbplus-' + self.presentationId + '-playbackrate-temp', playbackRateEl ? playbackRateEl.value : '1', true);
-
-                    // show msg
                     if (savingMsgEl) {
                         savingMsgEl.innerHTML = 'Settings saved!';
                     }
@@ -3005,15 +2587,13 @@ const SBPLUS = {
 
     /**
      * apply auto mode to toggle system default color mode
-     **/
+     */
     applyAutoColorMode: function () {
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark-mode');
         } else {
             document.documentElement.classList.add('auto-mode');
         }
-
-        // watch for color mode change
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
             const color = event.matches ? 'dark' : 'light';
 
@@ -3027,12 +2607,11 @@ const SBPLUS = {
 
     /**
      * load saved settings from the local and session storages
-     **/
+     */
     syncSettings: function () {
         const self = this;
 
         if (self.getStorageItem('sbplus-' + self.presentationId + '-settings-loaded', true) === '1') {
-            // color mode
             const colorMode = self.getStorageItem('sbplus-colormode');
 
             switch (colorMode) {
@@ -3049,8 +2628,6 @@ const SBPLUS = {
                     if (lightModeEl) lightModeEl.checked = true;
                     break;
             }
-
-            // autoplay
             const autoplayVal = self.getStorageItem('sbplus-autoplay');
 
             if (self.isMobileDevice() === false) {
@@ -3062,24 +2639,18 @@ const SBPLUS = {
                     if (autoplayEl) autoplayEl.checked = false;
                 }
             }
-
-            // volume
             const volumeVal = self.getStorageItem('sbplus-volume');
 
             const volumeEl = document.querySelector('#sbplus_va_volume');
             if (volumeEl) {
                 volumeEl.value = volumeVal * 100;
             }
-
-            // playback rate
             const playbackRateVal = self.getStorageItem('sbplus-playbackrate');
 
             const playbackRateEl = document.querySelector('#sbplus_va_playbackrate');
             if (playbackRateEl) {
                 playbackRateEl.value = playbackRateVal;
             }
-
-            //subtitle
             const subtitleVal = self.getStorageItem('sbplus-subtitle');
 
             if (subtitleVal === '1') {
@@ -3094,7 +2665,7 @@ const SBPLUS = {
 
     /**
      * Show an message if the user has not network/Internet connectivity
-     **/
+     */
     showConnectionMessage: function () {
         const self = this;
         const sbplusEl = document.querySelector(self.layout.sbplus);
@@ -3110,7 +2681,7 @@ const SBPLUS = {
 
     /**
      * hide the message if the user has network/Internet connectivity
-     **/
+     */
     hideConnectionMessage: function () {
         const self = this;
         const sbplusEl = document.querySelector(self.layout.sbplus);
@@ -3122,7 +2693,7 @@ const SBPLUS = {
 
     /**
      * hold the network/Internet connectivity status by pinging the index file
-     **/
+     */
     checkOnlineStatus: async () => {
         try {
             const online = await fetch('index.html' + '?_=' + new Date().getTime(), { method: 'HEAD' });
@@ -3135,7 +2706,7 @@ const SBPLUS = {
     /**
      * schedule network/Internet connectivity status check by pinging
      * the index.html HEAD every 3 minutes
-     **/
+     */
     scheduleOnlineStatusCheck: async function () {
         const online = await SBPLUS.checkOnlineStatus();
 
@@ -3151,9 +2722,8 @@ const SBPLUS = {
 
 export { SBPLUS };
 
-/*******************************************************************************
-        ON DOM READY
-*******************************************************************************/
+// Initialize SBPLUS once the DOM is ready.
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {
         window.SBPLUS = SBPLUS;
