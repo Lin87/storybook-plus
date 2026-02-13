@@ -1755,7 +1755,10 @@ const SBPLUS = {
             sbplusContentWrapper.removeAttribute('aria-hidden');
             sbplusContentWrapper.style.display = 'flex';
         }
-        document.querySelector(self.button.menu).focus();
+        const menuBtnEl = document.querySelector(self.button.menu);
+        if (menuBtnEl) {
+            menuBtnEl.focus();
+        }
 
         const menuCloseBtnEl = document.querySelector(this.button.menuClose);
         if (menuCloseBtnEl) {
@@ -2635,7 +2638,7 @@ const SBPLUS = {
 
         const r = parseInt(hex.substring(0, 2), 16);
         const g = parseInt(hex.substring(2, 4), 16);
-        const b = parseInt(hex.substring(4, 2), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
         const yiq = (r * 299 + g * 587 + b * 114) / 1000;
 
         return yiq >= 128 ? '#000' : '#fff';
@@ -2646,14 +2649,40 @@ const SBPLUS = {
      * @param string
      **/
     noScript: function (str) {
-        if (str !== '' || str !== undefined) {
-            const container = document.createElement('span');
-            container.innerHTML = str.trim();
-            container.querySelectorAll('script,noscript,style').forEach((node) => node.remove());
-            return container.innerHTML;
+        if (str === undefined || str === null) {
+            return '';
         }
 
-        return str;
+        const container = document.createElement('span');
+        container.innerHTML = String(str).trim();
+        container.querySelectorAll('script,noscript,style').forEach((node) => node.remove());
+
+        // Drop inline event handlers and javascript: URLs.
+        container.querySelectorAll('*').forEach((el) => {
+            Array.from(el.attributes).forEach((attr) => {
+                const name = attr.name.toLowerCase();
+                const value = attr.value ? attr.value.trim().toLowerCase() : '';
+
+                if (name.startsWith('on')) {
+                    el.removeAttribute(attr.name);
+                    return;
+                }
+
+                if (
+                    (name === 'href' || name === 'src' || name === 'xlink:href') &&
+                    value.startsWith('javascript:')
+                ) {
+                    el.removeAttribute(attr.name);
+                    return;
+                }
+
+                if (name === 'srcdoc') {
+                    el.removeAttribute(attr.name);
+                }
+            });
+        });
+
+        return container.innerHTML;
     },
 
     /**

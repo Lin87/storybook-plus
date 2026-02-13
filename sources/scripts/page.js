@@ -502,11 +502,14 @@ Page.prototype.removeCopyBtn = function () {
 
 function copyToClipboard() {
     const copyBtn = document.getElementById('copyToCbBtn');
-    const copyBtnTxt = copyBtn.querySelectorAll('.btn-txt')[0];
     const copyTxtArea = document.getElementById('copyableTxt');
-    const originalCopyBtnTxt = copyBtn.innerHTML;
 
     if (copyBtn && copyTxtArea) {
+        const copyBtnTxt = copyBtn.querySelectorAll('.btn-txt')[0];
+        if (!copyBtnTxt) {
+            return;
+        }
+        const originalCopyBtnTxt = copyBtn.innerHTML;
         const clipboard = navigator.clipboard;
 
         clipboard.writeText(copyTxtArea.innerHTML).then(() => {
