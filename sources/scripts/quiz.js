@@ -301,6 +301,8 @@ Quiz.prototype.renderQuiz = function () {
             let msInput = '<fieldset><legend>Choose your answer:</legend>';
 
             if (self.quiz.random) {
+                // Shuffle answer objects before rendering so value indexes still map
+                // to the shuffled order used by submitted input values.
                 shuffle(self.quiz.answers);
             }
 
@@ -333,6 +335,7 @@ Quiz.prototype.renderQuiz = function () {
             let mmInput = '<fieldset><legend>Choose your answers:</legend>';
 
             if (self.quiz.random) {
+                // Shuffle in-place once per render to keep labels and checkbox values aligned.
                 shuffle(self.quiz.answers);
             }
 
@@ -388,6 +391,8 @@ Quiz.prototype.renderQuiz = function () {
                 if (!SBPLUS.isEmpty(quizTracker[self.qIndex].stuAnswer)) {
                     for (const answer of self.quiz.answers) {
                         if (answer.correct !== undefined) {
+                            // Compare sanitized values instead of array position because
+                            // answers may have been randomized before render.
                             const sAnswer = SBPLUS.sanitize(self.quiz.answers[Number(quizTracker[self.qIndex].stuAnswer)].value);
                             quizTracker[self.qIndex].correct = sAnswer === SBPLUS.sanitize(answer.value);
                             break;
@@ -416,6 +421,7 @@ Quiz.prototype.renderQuiz = function () {
                 });
 
                 if (quizTracker[self.qIndex].stuAnswer.length < correctAnswers.length || quizTracker[self.qIndex].stuAnswer.length > correctAnswers.length) {
+                    // Fast-fail when selected count differs from expected correct count.
                     quizTracker[self.qIndex].correct = false;
                 } else if (quizTracker[self.qIndex].stuAnswer.length === correctAnswers.length) {
                     quizTracker[self.qIndex].correct = true;
@@ -661,6 +667,7 @@ Quiz.prototype.renderFeedback = function () {
     const tryAgainBtn = container.querySelector('button.sbplus_quiz_tryagain_btn');
     if (tryAgainBtn) {
         tryAgainBtn.addEventListener('click', function () {
+            // Reset only learner input; authored answers/feedback stay unchanged.
             quizTracker[self.qIndex].stuAnswer = '';
             self.renderQuiz();
         });

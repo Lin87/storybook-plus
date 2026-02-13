@@ -419,6 +419,7 @@ const SBPLUS = {
                 xSplashImg = self.trimAndLower(splashImg_temp);
             }
 
+            // XML attributes are optional; fall back to manifest/defaults for stable rendering.
             if (self.isEmpty(xAccent)) {
                 xAccent = self.manifest.sbplus_default_accent;
             }
@@ -955,6 +956,7 @@ const SBPLUS = {
                 let sectionHead = sectionNode.getAttribute('title');
                 const pages = Array.from(sectionNode.querySelectorAll('page'));
                 let sectionHTML = '<div class="section">';
+                // Collapsible section headers are only needed for multi-section presentations.
                 if (sections.length >= 2) {
                     if (self.isEmpty(sectionHead)) {
                         sectionHead = 'Section ' + (i + 1);
@@ -1514,6 +1516,7 @@ const SBPLUS = {
         const totalHeaderCount = headers.length;
         if (totalHeaderCount > 1) {
             let targetSectionHeader;
+            // Supports both event-driven calls and numeric index calls from internal code.
             if (el instanceof Object) {
                 targetSectionHeader = el.currentTarget;
             } else {
@@ -1595,6 +1598,7 @@ const SBPLUS = {
                     targetHeader.classList.add('current');
                 }
 
+                // Ensure the active page is not hidden inside a collapsed section.
                 self.openSection(targetHeader);
             }
             allPages.forEach((pageEl) => {
@@ -1632,6 +1636,7 @@ const SBPLUS = {
      */
     getPage: function (page) {
         const self = this;
+        // Local helper avoids repeated null guards while normalizing XML attributes.
         const getAttrTrim = function (node, name, fallback = '') {
             if (!node || !node.getAttribute) {
                 return fallback;
@@ -1670,6 +1675,7 @@ const SBPLUS = {
             } else {
                 pageData.useDefaultPlayer = 'true';
             }
+            // Fullscreen toggle applies only to player-backed media types.
             if (pageData.type == 'brightcove' || pageData.type == 'kaltura' || pageData.type == 'video' || (pageData.type == 'youtube' && pageData.useDefaultPlayer == 'true')) {
                 if (target.getAttribute('disableFullscreen') != undefined) {
                     pageData.disableFullscreen = getAttrTrim(target, 'disableFullscreen', 'false');
@@ -1722,6 +1728,7 @@ const SBPLUS = {
             target = target.parentElement ? target.parentElement.previousElementSibling : target;
         }
 
+        // First page needs special handling so the section header remains visible after scroll.
         if (target && target.getAttribute && target.getAttribute('data-page') == '0,0') {
             if (target.parentElement && target.parentElement.previousElementSibling) {
                 target.parentElement.previousElementSibling.scrollIntoView(scrollOption);
@@ -2166,6 +2173,7 @@ const SBPLUS = {
      * @param string
      */
     sanitize: function (str) {
+        // Keep IDs/selectors predictable by stripping non-word characters.
         return str.replace(/[^\w.]/gi, '').toLowerCase();
     },
 
@@ -2209,6 +2217,7 @@ const SBPLUS = {
     colorLum: function (hex, lum) {
         hex = String(hex).replace(/[^0-9a-f]/gi, '');
 
+        // Expand shorthand colors (e.g. "abc") to full six-digit hex.
         if (hex.length < 6) {
             hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
         }
@@ -2258,6 +2267,7 @@ const SBPLUS = {
                 const name = attr.name.toLowerCase();
                 const value = attr.value ? attr.value.trim().toLowerCase() : '';
 
+                // Block inline handlers like onclick=... regardless of quoting/spacing.
                 if (name.startsWith('on')) {
                     el.removeAttribute(attr.name);
                     return;

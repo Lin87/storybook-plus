@@ -77,6 +77,8 @@ Page.prototype.getPageMedia = function () {
     const mediaMsgEl = document.querySelector(SBPLUS.layout.mediaMsg);
     const mediaWrapperEl = document.querySelector(SBPLUS.layout.media);
     const widgetEl = document.querySelector(SBPLUS.layout.widget);
+    // Rebuilding media for each page can leak event handlers unless the previous
+    // player instance is fully disposed before replacing #mp.
     if (typeof videojs !== 'undefined' && typeof videojs.getPlayer === 'function') {
         const existingPlayer = videojs.getPlayer('mp');
         if (existingPlayer) {
@@ -743,6 +745,7 @@ Page.prototype.renderVideoJS = function (src) {
         isAutoplay = false;
     }
 
+    // XML-level preventAutoplay always wins over persisted player preference.
     if (self.preventAutoplay === 'true') {
         isAutoplay = false;
         const wrapperEl = document.querySelector(SBPLUS.layout.wrapper);
@@ -821,6 +824,8 @@ Page.prototype.renderVideoJS = function (src) {
             let vidSources = [];
 
             self.isBrightcove.sources.forEach((source) => {
+                // Brightcove can return HLS and MP4 renditions. We insert an explicit
+                // MP4 type for H264 entries so fallback playback remains available.
                 if (source.codec && source.codec == 'H264') {
                     vidSources.push({ type: 'video/mp4', src: source.src });
                 }
@@ -901,6 +906,7 @@ Page.prototype.renderVideoJS = function (src) {
                 self.cuepoints.forEach(function (_cuepoint, i) {
                     let endCue;
 
+                    // Last cuepoint runs until media duration; others end at the next cuepoint.
                     if (self.cuepoints[i + 1] === undefined) {
                         endCue = srcDuration;
                     } else {
@@ -1254,6 +1260,7 @@ Page.prototype.sendBrightcoveAnalyticsEvent = function (eventType, evt) {
     let urlStr = '';
     urlStr = 'event=' + eventType + '&session=' + self.isBrightcove.session + '&domain=videocloud&account=' + self.isBrightcove.accountId + '&time=' + time + '&destination=' + destination + '&video=' + self.isBrightcove.videoId + '&video_name=' + encodeURI(self.isBrightcove.name);
     if (source !== '' && source != destination) {
+        // Drop source when direct traffic equals destination to avoid noisy attribution.
         urlStr += '&source=' + source;
     }
 
@@ -1283,6 +1290,7 @@ Page.prototype.onBrightcoveTimeUpdate = function (evt) {
     const self = this;
     const currentTime = self.mediaPlayer.currentTime();
     const engagementThreshold = 10; // Brightcove engagement events are emitted in 10-second buckets.
+    // Collapse frequent timeupdate events into deterministic 10-second buckets.
     const currentSegment = Math.floor(currentTime / engagementThreshold) * engagementThreshold;
     let range = '';
 
