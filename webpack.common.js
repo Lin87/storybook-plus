@@ -53,7 +53,6 @@ module.exports = {
             chunks: ['sbplus'],
             inject: false,
             links: [
-                'sources/scripts/libs/modernizr.js',
                 'sources/scripts/libs/videojs/video-js.min.css',
                 'sources/scripts/libs/videojs/video.min.js'
             ],
