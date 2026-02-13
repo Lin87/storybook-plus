@@ -1,15 +1,15 @@
 /*
- * Storybook Plus
+ * Storybook Plus (SB+)
  *
  * @author: Ethan Lin
  * @url: https://github.com/Lin87/storybook-plus
- * @version: 3.6.3
- * Released 10/23/2025
+ * @version: 3.6.4
+ * Released xx/xx/2026
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
     Storybook Plus is an web application that serves multimedia contents.
-    Copyright (C) 2013-2025 Ethan Lin
+    Copyright (C) 2013-2026 Ethan Lin. Sponsored by Excelsior University.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,8 +33,19 @@ import "../sass/sbplus.scss";
 *******************************************************************************/
 'use strict';
 
-// import { MenuBar } from "./menubar";
 import { Page } from "./page";
+
+function supportsStorage( storageType ) {
+    try {
+        const storage = window[storageType];
+        const key = "__sbplus_storage_test__";
+        storage.setItem( key, key );
+        storage.removeItem( key );
+        return true;
+    } catch ( error ) {
+        return false;
+    }
+}
 
 const SBPLUS = {
     
@@ -69,6 +80,8 @@ const SBPLUS = {
     settings: null,
     
     // status flags
+    hasLocalStorageSupport: supportsStorage( "localStorage" ),
+    hasSessionStorageSupport: supportsStorage( "sessionStorage" ),
     manifestLoaded: false,
     splashScreenRendered: false,
     presentationRendered: false,
@@ -85,7 +98,7 @@ const SBPLUS = {
     playbackrate: 1,
 
     // version number
-    version: '3.6.3',
+    version: '3.6.4',
     
     // easter egg variables
     clickCount: 0,
@@ -267,13 +280,6 @@ const SBPLUS = {
                 
                 // set an event listener to resize elements on viewport resize
                 $( window ).on( 'resize', self.resize.bind( self ) );
-                
-                // show support error is any
-                if ( self.checkForSupport() === 0 ) {
-                    self.hasError = true;
-                    self.showErrorScreen( 'support' );
-                    return false; // EXIT & STOP FURTHER SCRIPT EXECUTION
-                }
 
                 // execute tasks before loading external XML data
                 self.beforeXMLLoading();
@@ -1662,7 +1668,7 @@ const SBPLUS = {
                 
                 menuTitle.html( 'Settings' );
                 
-                if ( Modernizr.localstorage && Modernizr.sessionstorage ) {
+                if ( self.hasLocalStorageSupport && self.hasSessionStorageSupport ) {
                     
                     if ( self.hasStorageItem( 'sbplus-' + self.presentationId + '-settings-loaded', true ) === false ) {
                     
@@ -2331,19 +2337,6 @@ const SBPLUS = {
         request.send();
         
     },
-        
-     /**
-     * check to see if the browser supports the listed features
-     **/
-    checkForSupport: function() {
-        
-        if ( Modernizr.video && Modernizr.eventlistener && Modernizr.json && Modernizr.flexbox && Modernizr.csscalc ) {
-            return 1;
-        }
-        
-        return 0;
-        
-    },
     
     /**
      * show the error message screen based on error type
@@ -2361,10 +2354,6 @@ const SBPLUS = {
             $( self.layout.sbplus ).hide();
             
             switch ( type ) {
-                
-                case 'support':
-                    errorTemplateUrl += 'scripts/templates/support_error.tpl';
-                break;
                 
                 case 'xml':
                     errorTemplateUrl += 'scripts/templates/xml_error.tpl';
@@ -2730,19 +2719,19 @@ const SBPLUS = {
      * @param boolean - `true` for session storage; `false` for local storage
      **/
     setStorageItem: function( key, value, toSession ) {
-        
-        if ( Modernizr.localstorage || Modernizr.sessionstorage ) {
-            
-            if ( toSession ) {
-            
+
+        if ( toSession ) {
+            if ( this.hasSessionStorageSupport ) {
                 return sessionStorage.setItem( key, value );
-                
             }
 
-            return localStorage.setItem( key, value );
-            
+            return;
         }
-        
+
+        if ( this.hasLocalStorageSupport ) {
+            return localStorage.setItem( key, value );
+        }
+
     },
     
     /**
@@ -2751,19 +2740,19 @@ const SBPLUS = {
      * @param boolean - `true` for session; `false` for local
      **/
     getStorageItem: function( key, fromSession ) {
-        
-        if ( Modernizr.localstorage || Modernizr.sessionstorage ) {
-            
-            if ( fromSession ) {
-            
+
+        if ( fromSession ) {
+            if ( this.hasSessionStorageSupport ) {
                 return sessionStorage.getItem( key );
-                
             }
 
-            return localStorage.getItem( key );
-            
+            return;
         }
-        
+
+        if ( this.hasLocalStorageSupport ) {
+            return localStorage.getItem( key );
+        }
+
     },
     
     /**
@@ -2772,19 +2761,19 @@ const SBPLUS = {
      * @param boolean - `true` for session; `false` for local
      **/
     deleteStorageItem: function( key, fromSession ) {
-        
-        if ( Modernizr.localstorage || Modernizr.sessionstorage ) {
-            
-            if ( fromSession ) {
-            
+
+        if ( fromSession ) {
+            if ( this.hasSessionStorageSupport ) {
                 return sessionStorage.removeItem( key );
-                
             }
 
-            return localStorage.removeItem( key );
-            
+            return;
         }
-        
+
+        if ( this.hasLocalStorageSupport ) {
+            return localStorage.removeItem( key );
+        }
+
     },
     
     /**
@@ -2793,42 +2782,42 @@ const SBPLUS = {
      * @param boolean - `true` for session; `false` for local
      **/
     hasStorageItem: function( key, fromSession ) {
-        
-        if ( Modernizr.localstorage || Modernizr.sessionstorage ) {
-            
-            const self = this;
 
-            if ( fromSession ) {
-            
-                if ( self.isEmpty( sessionStorage.getItem( key ) ) ) {
-                    return false;
-                }
-                
-                return true;
-                
-            }
+        const self = this;
 
-            if ( self.isEmpty( localStorage.getItem( key ) ) ) {
+        if ( fromSession ) {
+
+            if ( !self.hasSessionStorageSupport ) {
                 return false;
             }
-            
+
+            if ( self.isEmpty( sessionStorage.getItem( key ) ) ) {
+                return false;
+            }
+
             return true;
-            
         }
-        
+
+        if ( !self.hasLocalStorageSupport ) {
+            return false;
+        }
+
+        if ( self.isEmpty( localStorage.getItem( key ) ) ) {
+            return false;
+        }
+
+        return true;
     },
     
     /**
      * delete all settings value in local and session storage
      **/
     removeAllSessionStorage: function() {
-        
-        if ( Modernizr.sessionstorage ) {
-            
+
+        if ( this.hasSessionStorageSupport ) {
             return sessionStorage.clear();
-            
         }
-        
+
     },
     
     /**
