@@ -1918,9 +1918,9 @@ const SBPLUS = {
 
                     if ( itemId === menuId ) {
                         if ( menuTitle ) {
-                            menuTitle.innerHTML = customMenuItems[key].name;
+                            menuTitle.textContent = customMenuItems[key].name;
                         }
-                        content = customMenuItems[key].content;
+                        content = self.noScript( String( customMenuItems[key].content || '' ) );
                         break;
                     }
 

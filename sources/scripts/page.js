@@ -1155,7 +1155,10 @@ Page.prototype.renderVideoJS = function( src ) {
                 player.options( { inactivityTimeout: 2000 } );
             } else {
                 player.options( { inactivityTimeout: 0 } );
-                document.querySelector( '.video-js.vjs-default-skin' ).classList.remove( 'vjs-user-inactive' );
+                const defaultSkinEl = document.querySelector( '.video-js.vjs-default-skin' );
+                if ( defaultSkinEl ) {
+                    defaultSkinEl.classList.remove( 'vjs-user-inactive' );
+                }
             }
 
         } );
@@ -1357,7 +1360,7 @@ Page.prototype.showPageError = function( type, src ) {
             
         break;
 
-        case 'BTIGHTCOVE_NOT_AVAILABLE':
+        case 'BRIGHTCOVE_NOT_AVAILABLE':
 
         msg = '<p>The video is still processing or could not be loaded at the moment. Please try again later. Contact support if you continue to have issues.</p><p><strong>Expected video source</strong>: Brightcove video ID # ' + self.src + '<br><strong>Status</strong>: ';
 

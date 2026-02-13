@@ -489,7 +489,7 @@ Quiz.prototype.renderFeedback = function () {
 
   switch (self.quiz.type) {
     case "shortanswer":
-      html += '<p><strong>Your answer:</strong><br>' + quizTracker[self.qIndex].stuAnswer + "</p>";
+      html += '<p><strong>Your answer:</strong><br>' + SBPLUS.escapeHTMLAttribute(String(quizTracker[self.qIndex].stuAnswer)) + "</p>";
 
       if (!SBPLUS.isEmpty(self.quiz.feedback)) {
         html += '<p><strong>Feedback:</strong><br>' + self.quiz.feedback + "</p>";
@@ -497,7 +497,7 @@ Quiz.prototype.renderFeedback = function () {
       break;
 
     case "fillintheblank":
-      html += '<p><strong>Your answer:</strong><br>' + quizTracker[self.qIndex].stuAnswer + "</p>";
+      html += '<p><strong>Your answer:</strong><br>' + SBPLUS.escapeHTMLAttribute(String(quizTracker[self.qIndex].stuAnswer)) + "</p>";
       html += '<p><strong>Correct answer:</strong><br>' + self.quiz.answer + "</p>";
 
       if (quizTracker[self.qIndex].correct) {
