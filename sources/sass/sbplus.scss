@@ -452,13 +452,13 @@ body {
             font-weight: bold;
             
             #sbplus_lesson_title {
-                display: flex;
-                flex-flow: row nowrap;
-                flex: 2 1 auto;
-                align-items: center;
-                padding: 0 $gutter;
-                line-height: 1.25;
-                font-size: 120%;
+                padding: math.div($gutter, 3) $gutter 0;
+                flex: 1;
+                min-width: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: clamp(11px, 3.2vw, 100%);
             }
             
             #sbplus_menu_area {
@@ -753,7 +753,8 @@ body {
                             bottom: 0;
                             right: 0;
                             width: 100%;
-                            height: 360px;
+                            height: 100%;
+                            min-height: 360px;
                         }
                         
                         // external link
@@ -2715,15 +2716,6 @@ body {
             }
 
             #sbplus_banner_bar {
-                
-                #sbplus_lesson_title {
-                    display: block;
-                    width: 60%;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    align-self: center;
-                }
                 
                 #sbplus_menu_area {
                     
