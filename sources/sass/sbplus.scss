@@ -1461,6 +1461,8 @@ body {
                 
                 #sbplus_widget {
                     
+                    display: flex;
+                    flex-flow: column nowrap;
                     width: 100%;
                     background-color: #fff;
                     flex: 2 0 auto;
@@ -1522,7 +1524,8 @@ body {
                     
                     .segment_content {
                         
-                        padding: 10px 10px 0;
+                        flex: 1;
+                        padding: 10px;
                         width: 100%;
                         height: 100%;
                         overflow-y: auto;
@@ -2814,15 +2817,15 @@ body {
                         position: relative;
                         @include calc( height, '100% - ' + 393px );
 
-                        .widget_controls_bar {
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                        }
+                        // .widget_controls_bar {
+                        //     position: absolute;
+                        //     top: 0;
+                        //     left: 0;
+                        // }
 
-                        .segment_content {
-                            padding-top: 30px;
-                        }
+                        // .segment_content {
+                        //     padding-top: 30px;
+                        // }
 
                     }
                     

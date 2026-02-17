@@ -361,7 +361,7 @@ Page.prototype.getPageMedia = function () {
             if (quizContainerEl) {
                 quizContainerEl.classList.remove('hidden');
                 
-                if (!document.querySelector('body').classList.contains('sbplus-boxed')) {
+                if (!document.querySelector('main').classList.contains('sbplus_boxed')) {
                     let rafId = null;
 
                     const applyHeight = () => {
@@ -1217,14 +1217,14 @@ Page.prototype.setWidgets = function () {
                 const name = segment.getAttribute('name');
                 const key = 'sbplus_' + SBPLUS.sanitize(name);
 
-                self.widgetSegments[key] = segment.innerHTML;
+                self.widgetSegments[key] = SBPLUS.noScript(SBPLUS.noCDATA(segment.textContent));
                 SBPLUS.addSegment(name);
             });
         }
 
         SBPLUS.selectFirstSegment();
 
-        if (!document.querySelector('body').classList.contains('sbplus-boxed')) {
+        if (!document.querySelector('main').classList.contains('sbplus_boxed')) {
             const widgetEl = document.querySelector(SBPLUS.layout.widget);
             const mediaEl = document.querySelector(SBPLUS.layout.mediaContent);
             let rafId = null;
@@ -1277,12 +1277,9 @@ Page.prototype.getWidgetContent = function (id) {
     switch (id) {
         case 'sbplus_notes':
             displayWidgetContent(id, this.notes);
-
             break;
-
         default:
             displayWidgetContent(id, self.widgetSegments[id]);
-
             break;
     }
 };

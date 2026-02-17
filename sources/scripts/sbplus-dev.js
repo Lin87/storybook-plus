@@ -187,11 +187,14 @@ const SBPLUS = {
             self.requestFile(manifestUrl, (response) => {
                 if (!response) {
                     const wrapperEl = document.querySelector(self.layout.wrapper);
+
                     if (wrapperEl) {
                         wrapperEl.innerHTML = '<div class="sbplus-core-error"><h1><strong>Storybook Plus Error</strong></h1><p>The manifest.json file may be missing in the app\'s source directory, or it may contains errors.</P></div>';
                     }
+
                     return;
                 }
+
                 self.manifest = JSON.parse(response.responseText);
                 self.manifestLoaded = true;
                 window.addEventListener('unload', self.removeAllSessionStorage.bind(self));
@@ -199,6 +202,7 @@ const SBPLUS = {
                 if (self.isEmpty(self.manifest.sbplus_root_directory)) {
                     self.manifest.sbplus_root_directory = 'sources/';
                 }
+
                 /** @private Ensure template load is the final step of initialization. */
                 self.loadTemplate();
             });
@@ -210,8 +214,10 @@ const SBPLUS = {
      */
     loadTemplate: function () {
         const self = this;
+
         if (window.self !== window.top) {
             const wrapperEl = document.querySelector(self.layout.wrapper);
+
             if (wrapperEl) {
                 wrapperEl.classList.add('loaded-in-iframe');
             }
@@ -219,6 +225,7 @@ const SBPLUS = {
 
         if (self.manifestLoaded) {
             const templateUrl = self.manifest.sbplus_root_directory + 'scripts/templates/sbplus.tpl';
+
             fetchResource(templateUrl)
                 .then(function (data) {
                     const wrapperEl = document.querySelector(self.layout.wrapper);
@@ -248,9 +255,11 @@ const SBPLUS = {
             const date = new Date();
             const yearEl = document.querySelector('#copyright-footer .copyright-year');
             const noticeEl = document.querySelector('#copyright-footer .notice');
+
             if (yearEl) {
                 yearEl.textContent = date.getFullYear().toString();
             }
+
             if (noticeEl) {
                 noticeEl.innerHTML = self.manifest.sbplus_copyright_notice;
             }
@@ -267,10 +276,13 @@ const SBPLUS = {
         if (self.isEmpty(path)) {
             return;
         }
+
         const loadingLogoEl = document.querySelector(self.loadingScreen.logo);
+
         if (loadingLogoEl) {
             loadingLogoEl.innerHTML = '<img src="' + path + '" />';
         }
+
         const splashLogo = document.querySelector(self.splash.logo);
         const logo = document.createElement('img');
 
@@ -304,7 +316,9 @@ const SBPLUS = {
                 accentCssModified = accentCssModified.replace(/--var-hover/gi, hover);
                 accentCssModified = accentCssModified.replace(/--var-textColor/gi, textColor);
                 accentCssModified = accentCssModified.replace(/--var-markerColor/gi, markerColor);
+
                 const headEl = document.head;
+
                 if (headEl) {
                     headEl.insertAdjacentHTML('beforeend', '<style type="text/css">' + accentCssModified + '</style>');
                 }
@@ -345,19 +359,23 @@ const SBPLUS = {
 
         if (self.manifestLoaded) {
             const customMenuItems = self.manifest.sbplus_custom_menu_items;
+
             if (customMenuItems.length) {
                 for (let key in customMenuItems) {
                     const name = customMenuItems[key].name;
                     const sanitizedName = self.sanitize(name);
                     const item = '<li class="menu-item sbplus_' + sanitizedName + '" role="none"><button onclick="SBPLUS.openMenuItem(\'sbplus_' + sanitizedName + '\');" aria-controls="menu_item_content" role="menuitem"><span class="icon-' + sanitizedName + '"></span> ' + name + '</a></li>';
                     const menuListEl = document.querySelector(self.menu.menuList);
+
                     if (menuListEl) {
                         menuListEl.insertAdjacentHTML('beforeend', item);
                     }
                 }
             }
+
             const menuContentListEl = document.querySelector(self.menu.menuContentList);
             const menuListEl = document.querySelector(self.menu.menuList);
+
             if (menuContentListEl && menuListEl) {
                 menuContentListEl.innerHTML = menuListEl.innerHTML;
             }
@@ -370,6 +388,7 @@ const SBPLUS = {
     loadXML: function () {
         if (this.beforeXMLLoadingDone) {
             const self = this;
+
             fetchResource(self.xmlPath)
                 .then(function (data) {
                     self.xmlLoaded = true;
@@ -377,6 +396,7 @@ const SBPLUS = {
                 })
                 .catch(function (error) {
                     self.hasError = true;
+
                     if (error && error.type === 'parsererror') {
                         self.showErrorScreen('parser');
                     } else {
@@ -412,11 +432,13 @@ const SBPLUS = {
             let xSections = doc.querySelectorAll('section');
             let splashImgType_temp = xSb ? xSb.getAttribute('splashImgFormat') : '';
             let splashImg_temp = xSetup ? xSetup.getAttribute('splashImg') : '';
+
             if (splashImgType_temp) {
                 if (!self.isEmpty(splashImgType_temp)) {
                     xSplashImgType = self.trimAndLower(splashImgType_temp);
                 }
             }
+
             if (splashImg_temp) {
                 xSplashImg = self.trimAndLower(splashImg_temp);
             }
@@ -425,10 +447,13 @@ const SBPLUS = {
             if (self.isEmpty(xAccent)) {
                 xAccent = self.manifest.sbplus_default_accent;
             }
+
             if (self.isEmpty(xImgType)) {
                 xImgType = 'jpg';
             }
+
             const mathjaxAttr = xSb ? xSb.getAttribute('mathjax') : '';
+
             if (self.isEmpty(mathjaxAttr)) {
                 xMathjax = 'off';
             } else {
@@ -436,6 +461,7 @@ const SBPLUS = {
                     xMathjax = 'on';
                 }
             }
+
             self.xml = {
                 settings: {
                     accent: xAccent,
@@ -465,6 +491,7 @@ const SBPLUS = {
             self.getAuthorProfile();
             self.setAccent();
             self.setCopyright();
+
             if (self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true') {
                 loadScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML').then(function () {
                     MathJax.Hub.Config({
@@ -474,6 +501,7 @@ const SBPLUS = {
                     });
                 });
             }
+
             if (self.manifest.sbplus_hotjar_site_id != '') {
                 const id = Number(self.manifest.sbplus_hotjar_site_id);
 
@@ -491,6 +519,7 @@ const SBPLUS = {
                     a.appendChild(r);
                 })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
             }
+
             if (self.manifest.sbplus_ga_tracking && !self.isEmpty(self.manifest.sbplus_ga_tracking.measurement_id)) {
                 /** @private Load Google Analytics gtag.js script. */
                 const head = document.getElementsByTagName('head')[0];
@@ -577,6 +606,7 @@ const SBPLUS = {
 
                         if (self.splashScreenRendered) {
                             const splashAuthorEl = document.querySelector(self.splash.author);
+
                             if (splashAuthorEl) {
                                 splashAuthorEl.innerHTML = self.xml.setup.author;
                             }
@@ -601,29 +631,38 @@ const SBPLUS = {
             const splashSubtitleEl = document.querySelector(self.splash.subtitle);
             const splashAuthorEl = document.querySelector(self.splash.author);
             const splashDurationEl = document.querySelector(self.splash.duration);
+
             if (splashTitleEl) {
                 splashTitleEl.innerHTML = self.xml.setup.title;
             }
+
             if (splashSubtitleEl) {
                 splashSubtitleEl.innerHTML = self.xml.setup.subtitle;
             }
+
             if (splashAuthorEl) {
                 splashAuthorEl.innerHTML = self.xml.setup.author;
             }
+
             if (splashDurationEl) {
                 splashDurationEl.innerHTML = self.xml.setup.duration;
             }
+
             const startBtn = document.querySelector(self.button.start);
+
             if (startBtn) {
                 startBtn.addEventListener('click', self.startPresentation.bind(self));
             }
+
             if (self.hasStorageItem('sbplus-' + self.presentationId)) {
                 const resumeBtn = document.querySelector(self.button.resume);
+
                 if (resumeBtn) {
                     resumeBtn.addEventListener('click', self.resumePresentation.bind(self));
                 }
             } else {
                 const resumeBtn = document.querySelector(self.button.resume);
+
                 if (resumeBtn) {
                     resumeBtn.style.display = 'none';
                     resumeBtn.setAttribute('tabindex', '-1');
@@ -636,6 +675,7 @@ const SBPLUS = {
             self.showSplashScreen();
             self.resize();
             self.scheduleOnlineStatusCheck();
+
             if (self.gtmLoaded) {
                 dataLayer.push({
                     event: 'mediaPlayerLoaded',
@@ -693,8 +733,10 @@ const SBPLUS = {
         if (self.hasStorageItem('sbplus-subtitle') === false) {
             self.setStorageItem('sbplus-subtitle', 0);
         }
+
         if (self.getStorageItem('sbplus-autoplay') == '1') {
             const wrapperEl = document.querySelector(self.layout.wrapper);
+
             if (wrapperEl) {
                 wrapperEl.classList.add('sbplus_autoplay_on');
             }
@@ -717,10 +759,12 @@ const SBPLUS = {
                     self.setSplashImage('');
                     return;
                 }
+
                 if (self.isEmpty(self.xml.setup.splashImg)) {
                     self.setSplashImage('');
                     return;
                 }
+
                 const serverSplashImgUrl = self.manifest.sbplus_splash_directory + self.xml.setup.splashImg + '.' + self.xml.settings.splashImgType;
 
                 self.requestedFileExists(serverSplashImgUrl, (serverResult) => {
@@ -747,6 +791,7 @@ const SBPLUS = {
         img.addEventListener('load', function () {
             if (img.complete) {
                 const splashBgEl = document.querySelector(self.splash.background);
+
                 if (splashBgEl) {
                     splashBgEl.style.backgroundImage = 'url(' + img.src + ')';
                 }
@@ -761,12 +806,14 @@ const SBPLUS = {
         const self = this;
 
         const splashInfoBoxEl = document.querySelector(self.splash.infoBox);
+
         if (splashInfoBoxEl) {
             splashInfoBoxEl.style.display = 'block';
         }
 
         setTimeout(() => {
             const loadingWrapperEl = document.querySelector(self.loadingScreen.wrapper);
+
             if (loadingWrapperEl) {
                 loadingWrapperEl.classList.add('fadeOut');
                 onAnimationEnd(loadingWrapperEl, function () {
@@ -782,14 +829,17 @@ const SBPLUS = {
      */
     hideSplashScreen: function () {
         const self = this;
+
         if (self.presentationRendered) {
             const splashScreenEl = document.querySelector(self.splash.screen);
             const mainScreenEl = document.querySelector(self.layout.mainScreen);
+
             if (splashScreenEl) {
                 splashScreenEl.classList.add('fadeOut');
                 onAnimationEnd(splashScreenEl, function () {
                     splashScreenEl.classList.remove('fadeOut');
                     splashScreenEl.style.display = 'none';
+
                     if (mainScreenEl) {
                         mainScreenEl.removeAttribute('aria-hidden');
                         mainScreenEl.classList.remove('hide');
@@ -805,9 +855,11 @@ const SBPLUS = {
     determineDownloadableFiles: function () {
         const self = this;
         let fileName = self.xml.settings.downloadableFileName;
+
         if (self.isEmpty(fileName)) {
             fileName = self.sanitize(self.xml.setup.title);
         }
+
         self.manifest.sbplus_download_files.forEach(function (file) {
             const downloadableUrl = self.extractAssetsRoot(self.xmlPath) + fileName + '.' + file.format;
 
@@ -818,6 +870,7 @@ const SBPLUS = {
                     self.downloads[fileLabel] = { fileName: fileName, fileFormat: file.format, url: downloadableUrl };
 
                     const downloadBarEl = document.querySelector(self.splash.downloadBar);
+
                     if (downloadBarEl) {
                         downloadBarEl.insertAdjacentHTML('beforeend', '<a href="' + downloadableUrl + '" download="' + fileName + '.' + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + '</a>');
                     }
@@ -827,6 +880,7 @@ const SBPLUS = {
                 .finally(function () {
                     if (Object.keys(self.downloads).length <= 0) {
                         const splashCtaEl = document.querySelector(self.splash.cta);
+
                         if (splashCtaEl) {
                             splashCtaEl.classList.add('no_downloads');
                         }
@@ -912,6 +966,7 @@ const SBPLUS = {
      */
     startPresentation: function () {
         const self = this;
+
         if (self.presentationStarted === false) {
             self.renderPresentation();
             self.hideSplashScreen();
@@ -925,10 +980,12 @@ const SBPLUS = {
      */
     resumePresentation: function () {
         const self = this;
+
         if (self.presentationStarted === false) {
             self.renderPresentation();
             self.hideSplashScreen();
             self.selectPage(self.getStorageItem('sbplus-' + self.presentationId));
+
             window.setTimeout(function () {
                 self.updateScroll(self.targetPage);
             }, 1000);
@@ -947,58 +1004,77 @@ const SBPLUS = {
             document.querySelector(self.layout.sbplus).focus();
             const bannerTitleEl = document.querySelector(self.banner.title);
             const bannerAuthorEl = document.querySelector(self.banner.author);
+
             if (bannerTitleEl) {
                 bannerTitleEl.innerHTML = self.xml.setup.title;
             }
+
             if (bannerAuthorEl) {
                 bannerAuthorEl.innerHTML = self.xml.setup.author;
             }
+
             const sections = Array.from(self.xml.sections);
+
             sections.forEach(function (sectionNode, i) {
                 let sectionHead = sectionNode.getAttribute('title');
                 const pages = Array.from(sectionNode.querySelectorAll('page'));
                 let sectionHTML = '<div class="section">';
+
                 // Collapsible section headers are only needed for multi-section presentations.
                 if (sections.length >= 2) {
                     if (self.isEmpty(sectionHead)) {
                         sectionHead = 'Section ' + (i + 1);
                     }
+
                     sectionHTML += '<h3 class="header" >';
                     sectionHTML += '<button class="title" aria-expanded="true" aria-controls="toc-section-' + i + '">';
                     sectionHTML += sectionHead + '<div class="icon" aria-hidden="true"><span class="icon-collapse"></span></div></button>';
                     sectionHTML += '</h3>';
                 }
+
                 sectionHTML += '<ul id="toc-section-' + i + '" class="list" role="tablist">';
+
                 pages.forEach(function (pageNode, j) {
                     ++self.totalPages;
 
                     const pageType = pageNode.getAttribute('type');
                     const title = pageNode.getAttribute('title');
+
                     sectionHTML += '<li class="item" data-count="' + self.totalPages + '" data-page="' + i + ',' + j + '" role="presentation">';
                     sectionHTML += '<button role="tab" aria-selected="false" aria-controls="sbplus_main_content_col" aria-label="Slide ' + self.totalPages + ', ' + self.escapeHTMLAttribute(title) + '">';
+                    
                     if (pageType === 'quiz') {
                         sectionHTML += '<span class="icon-assessment"></span>';
                     } else {
                         sectionHTML += '<span class="numbering">' + self.totalPages + '.</span> ';
                     }
+
                     sectionHTML += title + '</button></li>';
                 });
+
                 sectionHTML += '</ul></div>';
+
                 const tocContainerEl = document.querySelector(self.tableOfContents.container);
+
                 if (tocContainerEl) {
                     tocContainerEl.insertAdjacentHTML('beforeend', sectionHTML);
                 }
             });
+
             const totalStatusEl = document.querySelector(self.layout.pageStatus + ' span.total');
             const totalPagesSrEl = document.querySelector(self.screenReader.totalPages);
+
             if (totalStatusEl) {
                 totalStatusEl.innerHTML = String(self.totalPages);
             }
+
             if (totalPagesSrEl) {
                 totalPagesSrEl.innerHTML = String(self.totalPages);
             }
+
             if (self.xml.setup.author.length) {
                 const authorBtnEl = document.querySelector(self.button.author);
+
                 if (authorBtnEl) {
                     authorBtnEl.addEventListener('click', function () {
                         self.openMenuItem('sbplus_author_profile');
@@ -1006,9 +1082,11 @@ const SBPLUS = {
                 }
             } else {
                 const authorBtnEl = document.querySelector(self.button.author);
+
                 if (authorBtnEl) {
                     authorBtnEl.disabled = true;
                 }
+
                 document.querySelectorAll('.sbplus_author_profile').forEach(function (el) {
                     el.style.display = 'none';
                 });
@@ -1017,12 +1095,15 @@ const SBPLUS = {
             const nextBtnEl = document.querySelector(self.button.next);
             const prevBtnEl = document.querySelector(self.button.prev);
             const mobileTocToggleEl = document.querySelector(self.button.mobileTocToggle);
+
             if (nextBtnEl) {
                 nextBtnEl.addEventListener('click', self.goToNextPage.bind(self));
             }
+
             if (prevBtnEl) {
                 prevBtnEl.addEventListener('click', self.goToPreviousPage.bind(self));
             }
+
             if (mobileTocToggleEl) {
                 mobileTocToggleEl.addEventListener('click', self.toggleToc.bind(self));
             }
@@ -1038,10 +1119,13 @@ const SBPLUS = {
             });
 
             const widgetSegmentEl = document.querySelector(self.widget.segment);
+
             if (widgetSegmentEl) {
                 self.widgetSegmentCleanup = onDelegate(widgetSegmentEl, 'click', 'button', self.selectSegment.bind(self));
             }
+
             const menuBtnEl = document.querySelector(self.button.menu);
+
             if (menuBtnEl) {
                 menuBtnEl.addEventListener('click', function (e) {
                     const expanded = e.currentTarget.getAttribute('aria-expanded');
@@ -1087,22 +1171,28 @@ const SBPLUS = {
                     downloadWrapperEl.style.display = 'none';
                 }
             }
+
             if (self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true') {
                 MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
             }
+
             const menuButtonEl = document.querySelector('#sbplus_menu_btn');
+
             if (menuButtonEl) {
                 menuButtonEl.addEventListener('click', self.burgerBurger.bind(self));
             }
+
             document.addEventListener('click', function (evt) {
                 const target = evt.target;
                 const downloadBtn = document.querySelector(self.button.download);
                 const menuBtn = document.querySelector(self.button.menu);
+
                 if (downloadBtn && target && target !== downloadBtn && !downloadBtn.contains(target)) {
                     if (downloadBtn.classList.contains('active')) {
                         self.closeDownloadMenu();
                     }
                 }
+
                 if (menuBtn && target && target !== menuBtn && !menuBtn.contains(target)) {
                     if (menuBtn.classList.contains('active')) {
                         self.closeMenu();
@@ -1130,14 +1220,19 @@ const SBPLUS = {
         let tPage = Number(currentPage[1]);
         const totalSections = self.xml.sections.length;
         const totalPagesInSection = self.xml.sections[tSection].querySelectorAll('page').length;
+        
         tPage++;
+
         if (tPage > totalPagesInSection - 1) {
             tSection++;
+
             if (tSection > totalSections - 1) {
                 tSection = 0;
             }
+
             tPage = 0;
         }
+
         self.selectPage(tSection + ',' + tPage);
     },
 
@@ -1150,14 +1245,19 @@ const SBPLUS = {
         const currentPage = currentSelected ? currentSelected.getAttribute('data-page').split(',') : ['0', '0'];
         let tSection = Number(currentPage[0]);
         let tPage = Number(currentPage[1]);
+
         tPage--;
+
         if (tPage < 0) {
             tSection--;
+
             if (tSection < 0) {
                 tSection = self.xml.sections.length - 1;
             }
+
             tPage = self.xml.sections[tSection].querySelectorAll('page').length - 1;
         }
+
         self.selectPage(tSection + ',' + tPage);
     },
 
@@ -1174,6 +1274,7 @@ const SBPLUS = {
             if (tocContainerEl) {
                 tocContainerEl.style.height = '';
             }
+
             sbplusWrapper.classList.remove('toc_displayed');
         } else {
             const tocContainerEl = document.querySelector(self.tableOfContents.container);
@@ -1208,6 +1309,7 @@ const SBPLUS = {
     updatePageStatus: function (num) {
         const self = this;
         const currentEl = document.querySelector(self.layout.pageStatus + ' span.current');
+
         if (currentEl) {
             currentEl.innerHTML = String(num);
         }
@@ -1222,6 +1324,7 @@ const SBPLUS = {
             menuBtn.setAttribute('aria-expanded', 'true');
             menuBtn.classList.add('active');
         }
+
         if (menuList) {
             menuList.classList.add('active');
         }
@@ -1235,6 +1338,7 @@ const SBPLUS = {
             menuBtn.setAttribute('aria-expanded', 'false');
             menuBtn.classList.remove('active');
         }
+
         if (menuList) {
             menuList.classList.remove('active');
         }
@@ -1248,6 +1352,7 @@ const SBPLUS = {
             downloadBtn.setAttribute('aria-expanded', 'true');
             downloadBtn.classList.add('active');
         }
+
         if (downloadMenuList) {
             downloadMenuList.removeAttribute('aria-hidden');
             downloadMenuList.style.display = 'block';
@@ -1262,6 +1367,7 @@ const SBPLUS = {
             downloadBtn.setAttribute('aria-expanded', 'false');
             downloadBtn.classList.remove('active');
         }
+
         if (downloadMenuList) {
             downloadMenuList.setAttribute('aria-hidden', 'true');
             downloadMenuList.style.display = 'none';
@@ -1293,12 +1399,16 @@ const SBPLUS = {
         if (menuContent) {
             menuContent.innerHTML = '';
         }
+
         self.closeMenu();
+
         if (menuContentWrapper) {
             menuContentWrapper.removeAttribute('aria-hidden');
             menuContentWrapper.style.display = 'block';
         }
+
         const menuCloseBtnForFocus = document.querySelector(self.button.menuClose);
+
         if (menuCloseBtnForFocus) {
             menuCloseBtnForFocus.focus();
         } else if (menuContent) {
@@ -1309,6 +1419,7 @@ const SBPLUS = {
             sbplusBanner.setAttribute('aria-hidden', 'true');
             sbplusBanner.style.display = 'none';
         }
+
         if (sbplusContentWrapper) {
             sbplusContentWrapper.setAttribute('aria-hidden', 'true');
             sbplusContentWrapper.style.display = 'none';
@@ -1316,7 +1427,6 @@ const SBPLUS = {
 
         document.querySelectorAll(self.menu.menuContentList + ' li').forEach((itemEl) => itemEl.classList.remove('active'));
         document.querySelectorAll(self.menu.menuContentList + ' .' + itemId).forEach((itemEl) => itemEl.classList.add('active'));
-
         document.querySelectorAll(self.menu.menuContentList + ' li button').forEach((btnEl) => btnEl.removeAttribute('aria-current'));
         document.querySelectorAll(self.menu.menuContentList + ' .' + itemId + ' button ').forEach((btnEl) => btnEl.setAttribute('aria-current', 'true'));
 
@@ -1339,6 +1449,7 @@ const SBPLUS = {
                     headRequest(photoUrl)
                         .then(function () {
                             const profileImgEl = document.querySelector('.profileImg');
+
                             if (profileImgEl) {
                                 profileImgEl.innerHTML = '<img src="' + photoUrl + '" alt="Photo of ' + author + '" crossorigin="Anonymous" />';
                             }
@@ -1346,9 +1457,11 @@ const SBPLUS = {
                         .catch(function () {
                             if (!self.isEmpty(self.manifest.sbplus_author_directory)) {
                                 const fallbackPhotoUrl = self.manifest.sbplus_author_directory + sanitizedAuthor + '.jpg';
+
                                 headRequest(fallbackPhotoUrl)
                                     .then(function () {
                                         const profileImgEl = document.querySelector('.profileImg');
+
                                         if (profileImgEl) {
                                             profileImgEl.innerHTML = '<img src="' + fallbackPhotoUrl + '" alt="Photo of ' + author + '" crossorigin="Anonymous" />';
                                         }
@@ -1389,11 +1502,14 @@ const SBPLUS = {
                         fetchResource(self.manifest.sbplus_root_directory + 'scripts/templates/settings.tpl').then(function (data) {
                             self.settings = data;
                             self.setStorageItem('sbplus-' + self.presentationId + '-settings-loaded', 1, true);
+
                             if (menuContent) {
                                 menuContent.insertAdjacentHTML('beforeend', data);
                             }
+
                             self.afterSettingsLoaded();
                             const versionEl = document.querySelector(self.menu.versionContainer);
+
                             if (versionEl) {
                                 versionEl.innerHTML = 'version ' + self.version;
                             }
@@ -1402,10 +1518,13 @@ const SBPLUS = {
                         if (menuContent) {
                             menuContent.insertAdjacentHTML('beforeend', self.settings);
                         }
+
                         const versionEl = document.querySelector(self.menu.versionContainer);
+
                         if (versionEl) {
                             versionEl.innerHTML = 'version ' + self.version;
                         }
+
                         self.afterSettingsLoaded();
                     }
                 } else {
@@ -1425,6 +1544,7 @@ const SBPLUS = {
                         if (menuTitle) {
                             menuTitle.textContent = customMenuItems[key].name;
                         }
+
                         content = self.noScript(String(customMenuItems[key].content || ''));
                         break;
                     }
@@ -1436,12 +1556,15 @@ const SBPLUS = {
             menuContentWrapper.removeAttribute('aria-hidden');
             menuContentWrapper.style.display = 'block';
         }
+
         if (menuContent) {
             menuContent.insertAdjacentHTML('beforeend', content);
         }
+
         document.querySelector(self.menu.menuContent).focus();
 
         const menuCloseBtnEl = document.querySelector(self.button.menuClose);
+
         if (menuCloseBtnEl) {
             menuCloseBtnEl.addEventListener('click', self.closeMenuContent.bind(self));
         }
@@ -1464,6 +1587,7 @@ const SBPLUS = {
         if (menuContent) {
             menuContent.innerHTML = '';
         }
+
         if (menuContentWrapper) {
             menuContentWrapper.setAttribute('aria-hidden', 'true');
             menuContentWrapper.style.display = 'none';
@@ -1473,16 +1597,20 @@ const SBPLUS = {
             sbplusBanner.removeAttribute('aria-hidden');
             sbplusBanner.style.display = 'flex';
         }
+
         if (sbplusContentWrapper) {
             sbplusContentWrapper.removeAttribute('aria-hidden');
             sbplusContentWrapper.style.display = 'flex';
         }
+
         const menuBtnEl = document.querySelector(self.button.menu);
+
         if (menuBtnEl) {
             menuBtnEl.focus();
         }
 
         const menuCloseBtnEl = document.querySelector(this.button.menuClose);
+
         if (menuCloseBtnEl) {
             const clone = menuCloseBtnEl.cloneNode(true);
             menuCloseBtnEl.parentNode.replaceChild(clone, menuCloseBtnEl);
@@ -1503,6 +1631,7 @@ const SBPLUS = {
                 menuIcon.classList.remove('icon-menu');
                 menuIcon.innerHTML = '🍔';
             }
+
             self.clickCount = 0;
             self.randomNum = Math.floor(Math.random() * 6 + 5);
         } else {
@@ -1523,8 +1652,10 @@ const SBPLUS = {
         const self = this;
         const headers = document.querySelectorAll(this.tableOfContents.header);
         const totalHeaderCount = headers.length;
+
         if (totalHeaderCount > 1) {
             let targetSectionHeader;
+
             // Supports both event-driven calls and numeric index calls from internal code.
             if (el instanceof Object) {
                 targetSectionHeader = el.currentTarget;
@@ -1532,11 +1663,13 @@ const SBPLUS = {
                 if (Number(el) > totalHeaderCount - 1) {
                     return false;
                 }
+
                 targetSectionHeader = headers[Number(el)];
             }
 
             const targetList = targetSectionHeader ? targetSectionHeader.nextElementSibling : null;
             const isVisible = !!(targetList && (targetList.offsetWidth || targetList.offsetHeight || targetList.getClientRects().length));
+
             if (isVisible) {
                 self.closeSection(targetSectionHeader);
             } else {
@@ -1553,12 +1686,15 @@ const SBPLUS = {
         const target = obj ? obj.nextElementSibling : null;
         const icon = obj ? obj.querySelector('.icon') : null;
         const titleBtn = obj ? obj.querySelector('button.title') : null;
+
         if (titleBtn) {
             titleBtn.setAttribute('aria-expanded', 'false');
         }
+
         if (target) {
             target.style.display = 'none';
         }
+
         if (icon) {
             icon.innerHTML = '<span class="icon-open"></span>';
         }
@@ -1572,12 +1708,15 @@ const SBPLUS = {
         const target = obj ? obj.nextElementSibling : null;
         const icon = obj ? obj.querySelector('.icon') : null;
         const titleBtn = obj ? obj.querySelector('button.title') : null;
+
         if (titleBtn) {
             titleBtn.setAttribute('aria-expanded', 'true');
         }
+
         if (target) {
             target.style.display = '';
         }
+
         if (icon) {
             icon.innerHTML = '<span class="icon-collapse"></span>';
         }
@@ -1589,19 +1728,24 @@ const SBPLUS = {
      */
     selectPage: function (el) {
         const self = this;
+
         if (el instanceof Object) {
             self.targetPage = el.currentTarget;
         } else {
             self.targetPage = document.querySelector('.item[data-page="' + el + '"]');
+
             if (!self.targetPage) {
                 return false;
             }
         }
+
         if (!self.targetPage.classList.contains('sb_selected')) {
             const allPages = Array.from(document.querySelectorAll(self.tableOfContents.page));
             const sectionHeaders = Array.from(document.querySelectorAll(self.tableOfContents.header));
+
             if (sectionHeaders.length > 1) {
                 const targetHeader = self.targetPage.parentElement ? self.targetPage.parentElement.previousElementSibling : null;
+
                 if (targetHeader && !targetHeader.classList.contains('current')) {
                     sectionHeaders.forEach((headerEl) => headerEl.classList.remove('current'));
                     targetHeader.classList.add('current');
@@ -1610,29 +1754,39 @@ const SBPLUS = {
                 // Ensure the active page is not hidden inside a collapsed section.
                 self.openSection(targetHeader);
             }
+
             allPages.forEach((pageEl) => {
                 pageEl.classList.remove('sb_selected');
                 const btn = pageEl.querySelector('button');
+
                 if (btn) {
                     btn.setAttribute('aria-selected', 'false');
                 }
             });
+
             self.targetPage.classList.add('sb_selected');
             const selectedBtn = self.targetPage.querySelector('button');
+
             if (selectedBtn) {
                 selectedBtn.setAttribute('aria-selected', 'true');
             }
+
             self.getPage(self.targetPage.getAttribute('data-page'));
             self.updatePageStatus(self.targetPage.getAttribute('data-count'));
             const srCurrentPage = document.querySelector(self.screenReader.currentPage);
+
             if (srCurrentPage) {
                 srCurrentPage.innerHTML = self.targetPage.getAttribute('data-count');
             }
+
             const sidebarEl = document.querySelector(self.layout.sidebar);
+
             if (sidebarEl && (sidebarEl.offsetWidth || sidebarEl.offsetHeight || sidebarEl.getClientRects().length)) {
                 self.updateScroll(self.targetPage);
             }
+
             const wrapperEl = document.querySelector(self.layout.wrapper);
+
             if (wrapperEl && wrapperEl.classList.contains('toc_displayed')) {
                 self.toggleToc();
             }
@@ -1645,6 +1799,7 @@ const SBPLUS = {
      */
     getPage: function (page) {
         const self = this;
+
         // Local helper avoids repeated null guards while normalizing XML attributes.
         const getAttrTrim = function (node, name, fallback = '') {
             if (!node || !node.getAttribute) {
@@ -1652,38 +1807,48 @@ const SBPLUS = {
             }
 
             const value = node.getAttribute(name);
+
             if (value === null || value === undefined) {
                 return fallback;
             }
 
             return String(value).trim();
         };
+
         page = page.split(',');
+
         const section = page[0];
         const item = page[1];
         const pageNodes = self.xml.sections[section].querySelectorAll('page');
         const target = pageNodes[item];
+
         if (!target) {
             return;
         }
+
         const pageData = {
             xml: [target],
             title: getAttrTrim(target, 'title', ''),
             type: getAttrTrim(target, 'type', '').toLowerCase(),
         };
+
         pageData.number = page;
+
         if (pageData.type !== 'quiz') {
             pageData.src = getAttrTrim(target, 'src', '');
+
             if (target.getAttribute('preventAutoplay') != undefined) {
                 pageData.preventAutoplay = getAttrTrim(target, 'preventAutoplay', 'false');
             } else {
                 pageData.preventAutoplay = 'false';
             }
+
             if (target.getAttribute('useDefaultPlayer') !== undefined) {
                 pageData.useDefaultPlayer = getAttrTrim(target, 'useDefaultPlayer', 'true');
             } else {
                 pageData.useDefaultPlayer = 'true';
             }
+
             // Fullscreen toggle applies only to player-backed media types.
             if (pageData.type == 'brightcove' || pageData.type == 'kaltura' || pageData.type == 'video' || (pageData.type == 'youtube' && pageData.useDefaultPlayer == 'true')) {
                 if (target.getAttribute('disableFullscreen') != undefined) {
@@ -1692,6 +1857,7 @@ const SBPLUS = {
                     pageData.disableFullscreen = 'false';
                 }
             }
+
             if (target.querySelectorAll('note').length) {
                 const noteNode = target.querySelector('note');
                 pageData.notes = noteNode ? self.noScript(self.noCDATA(noteNode.innerHTML || noteNode.textContent || '')) : '';
@@ -1714,12 +1880,16 @@ const SBPLUS = {
             if (pageData.type !== 'image') {
                 pageData.markers = target.querySelectorAll('markers');
             }
+
             self.currentPage = new Page(pageData);
         } else {
             self.currentPage = new Page(pageData, target);
         }
+
         self.currentPage.getPageMedia();
+
         const pageTitleEl = document.querySelector(self.screenReader.pageTitle);
+
         if (pageTitleEl) {
             pageTitleEl.innerHTML = pageData.title;
         }
@@ -1733,6 +1903,7 @@ const SBPLUS = {
         const self = this;
         const scrollOption = { behavior: 'smooth', block: 'nearest', inline: 'start' };
         let target = obj;
+
         if (!(target.offsetWidth || target.offsetHeight || target.getClientRects().length)) {
             target = target.parentElement ? target.parentElement.previousElementSibling : target;
         }
@@ -1747,6 +1918,7 @@ const SBPLUS = {
 
             return;
         }
+
         const tocContainerEl = document.querySelector(self.tableOfContents.container);
         const scrollHeight = tocContainerEl ? tocContainerEl.getBoundingClientRect().height : 0;
         const targetHeight = target.getBoundingClientRect().height;
@@ -1851,7 +2023,7 @@ const SBPLUS = {
                 target = document.getElementById(el);
                 targetId = el;
             } else {
-                target = el.currentTarget;
+                target = el.target.closest('button');
                 targetId = target.id;
             }
 
@@ -1927,11 +2099,13 @@ const SBPLUS = {
 
         if (str === 'Notes') {
             const segmentEl = document.querySelector(self.widget.segment);
+
             if (segmentEl) {
                 segmentEl.insertAdjacentHTML('afterbegin', btn);
             }
         } else {
             const segmentEl = document.querySelector(self.widget.segment);
+
             if (segmentEl) {
                 segmentEl.insertAdjacentHTML('beforeend', btn);
             }
@@ -1943,16 +2117,18 @@ const SBPLUS = {
      */
     clearWidgetSegment: function () {
         const self = this;
-
         const widgetSegmentEl = document.querySelector(self.widget.segment);
         const widgetContentEl = document.querySelector(self.widget.content);
         const widgetBgEl = document.querySelector(self.widget.bg);
+
         if (widgetSegmentEl) {
             widgetSegmentEl.innerHTML = '';
         }
+
         if (widgetContentEl) {
             widgetContentEl.innerHTML = '';
         }
+
         if (widgetBgEl) {
             widgetBgEl.style.backgroundImage = '';
         }
@@ -2018,6 +2194,7 @@ const SBPLUS = {
             let errorTemplateUrl = self.manifest.sbplus_root_directory;
 
             const sbplusEl = document.querySelector(self.layout.sbplus);
+
             if (sbplusEl) {
                 sbplusEl.style.display = 'none';
             }
@@ -2039,6 +2216,7 @@ const SBPLUS = {
             if (errorTemplateUrl.length) {
                 fetchResource(errorTemplateUrl).then(function (data) {
                     const errorScreenEl = document.querySelector(self.layout.errorScreen);
+
                     if (errorScreenEl) {
                         errorScreenEl.innerHTML = data;
                         errorScreenEl.style.display = 'flex';
@@ -2066,15 +2244,18 @@ const SBPLUS = {
         if (window.innerWidth < 900 || window.screen.width <= 414) {
             self.layout.isMobile = true;
             self.alreadyResized = true;
+
             if (wrapperEl) {
                 wrapperEl.classList.remove('sbplus_boxed');
             }
         } else {
             self.layout.isMobile = false;
+
             if (wrapperEl) {
                 wrapperEl.classList.add('sbplus_boxed');
                 wrapperEl.classList.remove('toc_displayed');
             }
+
             if (tocContainerEl) {
                 tocContainerEl.style.height = '';
             }
@@ -2509,9 +2690,11 @@ const SBPLUS = {
             if (self.isMobileDevice()) {
                 const autoplayLabel = document.querySelector('#autoplay_label');
                 const autoplayToggle = document.querySelector('#sbplus_va_autoplay');
+
                 if (autoplayLabel) {
                     autoplayLabel.insertAdjacentHTML('afterend', '<p class="error">Mobile devices do not support autoplay.</p>');
                 }
+
                 if (autoplayToggle) {
                     autoplayToggle.checked = false;
                     autoplayToggle.setAttribute('disabled', 'true');
@@ -2523,13 +2706,16 @@ const SBPLUS = {
             document.querySelectorAll('.settings input, .settings select').forEach(function (inputEl) {
                 inputEl.addEventListener('change', function () {
                     const savingMsgEl = document.querySelector(self.menu.menuSavingMsg);
+
                     if (savingMsgEl) {
                         savingMsgEl.style.display = '';
                         savingMsgEl.innerHTML = 'Saving...';
                     }
+
                     window.matchMedia('(prefers-color-scheme: dark)').off;
 
                     const selectedColorMode = document.querySelector('input[name="sbplus_color_mode"]:checked');
+
                     if (selectedColorMode) {
                         const mode = selectedColorMode.value;
 
@@ -2553,26 +2739,33 @@ const SBPLUS = {
                     } else {
                         self.setStorageItem('sbplus-colormode', 'light');
                     }
+
                     const autoplayEl = document.querySelector('#sbplus_va_autoplay');
+
                     if (autoplayEl && autoplayEl.checked) {
                         self.setStorageItem('sbplus-autoplay', 1);
                         const wrapperEl = document.querySelector(self.layout.wrapper);
+
                         if (wrapperEl) {
                             wrapperEl.classList.add('sbplus_autoplay_on');
                         }
                     } else {
                         self.setStorageItem('sbplus-autoplay', 0);
                         const wrapperEl = document.querySelector(self.layout.wrapper);
+
                         if (wrapperEl) {
                             wrapperEl.classList.remove('sbplus_autoplay_on');
                         }
                     }
+
                     const subtitleEl = document.querySelector('#sbplus_va_subtitle');
+
                     if (subtitleEl && subtitleEl.checked) {
                         self.setStorageItem('sbplus-subtitle', 1);
                     } else {
                         self.setStorageItem('sbplus-subtitle', 0);
                     }
+
                     const volumeEl = document.querySelector('#sbplus_va_volume');
                     let vol = volumeEl ? volumeEl.value : 0;
                     let volError = false;
@@ -2587,20 +2780,23 @@ const SBPLUS = {
 
                     if (volError) {
                         const volumeLabel = document.querySelector('#volume_label');
+
                         if (volumeLabel) {
                             volumeLabel.insertAdjacentHTML('afterend', '<p class="error">Value must be between 0 and 100.</p>');
                         }
                     } else {
                         const volumeLabel = document.querySelector('#volume_label');
                         const nextEl = volumeLabel ? volumeLabel.nextElementSibling : null;
+
                         if (nextEl && nextEl.classList.contains('error')) {
                             nextEl.remove();
                         }
                     }
+
                     const playbackRateEl = document.querySelector('#sbplus_va_playbackrate');
                     self.setStorageItem('sbplus-playbackrate', playbackRateEl ? playbackRateEl.value : '1');
-
                     self.setStorageItem('sbplus-' + self.presentationId + '-playbackrate-temp', playbackRateEl ? playbackRateEl.value : '1', true);
+
                     if (savingMsgEl) {
                         savingMsgEl.innerHTML = 'Settings saved!';
                     }
@@ -2641,6 +2837,7 @@ const SBPLUS = {
      */
     applyAutoColorMode: function () {
         const self = this;
+
         if (!window.matchMedia) {
             return;
         }
@@ -2684,14 +2881,17 @@ const SBPLUS = {
             switch (colorMode) {
                 case 'dark':
                     const darkModeEl = document.querySelector('#dark_color_mode');
+
                     if (darkModeEl) darkModeEl.checked = true;
                     break;
                 case 'auto':
                     const autoModeEl = document.querySelector('#auto_color_mode');
+
                     if (autoModeEl) autoModeEl.checked = true;
                     break;
                 default:
                     const lightModeEl = document.querySelector('#light_color_mode');
+
                     if (lightModeEl) lightModeEl.checked = true;
                     break;
             }
@@ -2700,31 +2900,38 @@ const SBPLUS = {
             if (self.isMobileDevice() === false) {
                 if (autoplayVal === '1') {
                     const autoplayEl = document.querySelector('#sbplus_va_autoplay');
+
                     if (autoplayEl) autoplayEl.checked = true;
                 } else {
                     const autoplayEl = document.querySelector('#sbplus_va_autoplay');
+
                     if (autoplayEl) autoplayEl.checked = false;
                 }
             }
-            const volumeVal = self.getStorageItem('sbplus-volume');
 
+            const volumeVal = self.getStorageItem('sbplus-volume');
             const volumeEl = document.querySelector('#sbplus_va_volume');
+
             if (volumeEl) {
                 volumeEl.value = volumeVal * 100;
             }
-            const playbackRateVal = self.getStorageItem('sbplus-playbackrate');
 
+            const playbackRateVal = self.getStorageItem('sbplus-playbackrate');
             const playbackRateEl = document.querySelector('#sbplus_va_playbackrate');
+
             if (playbackRateEl) {
                 playbackRateEl.value = playbackRateVal;
             }
+
             const subtitleVal = self.getStorageItem('sbplus-subtitle');
 
             if (subtitleVal === '1') {
                 const subtitleEl = document.querySelector('#sbplus_va_subtitle');
+
                 if (subtitleEl) subtitleEl.checked = true;
             } else {
                 const subtitleEl = document.querySelector('#sbplus_va_subtitle');
+                
                 if (subtitleEl) subtitleEl.checked = false;
             }
         }
