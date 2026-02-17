@@ -1861,6 +1861,7 @@ body {
                 #sbplus_download_btn_wrapper {
                     
                     position: relative;
+                    z-index: 10;
                     @extend .button-commons;
                     
                     #sbplus_download_btn {

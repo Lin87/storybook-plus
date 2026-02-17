@@ -1060,6 +1060,7 @@ const SBPLUS = {
             }
             if (Object.keys(self.downloads).length > 0) {
                 const downloadBtnEl = document.querySelector(self.button.download);
+
                 if (downloadBtnEl) {
                     downloadBtnEl.addEventListener('click', function (evt) {
                         if (evt.currentTarget.getAttribute('aria-expanded') === 'false') {
@@ -1069,9 +1070,11 @@ const SBPLUS = {
                         }
                     });
                 }
+
                 for (let key in self.downloads) {
                     if (self.downloads[key] != undefined) {
                         const downloadMenuEl = document.querySelector(self.button.downloadMenu);
+
                         if (downloadMenuEl) {
                             downloadMenuEl.insertAdjacentHTML('beforeend', '<li class="menu-item" role="menuitem"><a download="' + self.downloads[key].fileName + '.' + self.downloads[key].fileFormat + '" href="' + self.downloads[key].url + '" class="sbplus-download-link" aria-label="Download ' + self.escapeHTMLAttribute(key) + ' file">' + self.capitalizeFirstLetter(key) + '</a></li>');
                         }
@@ -1079,6 +1082,7 @@ const SBPLUS = {
                 }
             } else {
                 const downloadWrapperEl = document.querySelector(self.button.downloadWrapper);
+
                 if (downloadWrapperEl) {
                     downloadWrapperEl.style.display = 'none';
                 }
@@ -1243,7 +1247,7 @@ const SBPLUS = {
         }
         if (downloadMenuList) {
             downloadMenuList.removeAttribute('aria-hidden');
-            downloadMenuList.style.display = '';
+            downloadMenuList.style.display = 'block';
         }
     },
 
