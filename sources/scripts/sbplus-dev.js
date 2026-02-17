@@ -85,6 +85,8 @@ const SBPLUS = {
     version: '3.7.0',
     clickCount: 0,
     randomNum: Math.floor(Math.random() * 6 + 5),
+    colorModeMediaQuery: null,
+    colorModeChangeHandler: null,
 
     // Core bootstrapping and presentation lifecycle methods.
 
@@ -656,7 +658,7 @@ const SBPLUS = {
             self.setStorageItem('sbplus-colormode', 'light');
         } else {
             const colorMode = self.getStorageItem('sbplus-colormode');
-            window.matchMedia('(prefers-color-scheme: dark)').off;
+            self.removeAutoColorModeListener();
 
             switch (colorMode) {
                 case 'dark':
@@ -2514,6 +2516,7 @@ const SBPLUS = {
                         const mode = selectedColorMode.value;
 
                         self.setStorageItem('sbplus-colormode', mode);
+                        self.removeAutoColorModeListener();
 
                         switch (mode) {
                             case 'dark':
@@ -2598,21 +2601,57 @@ const SBPLUS = {
     /**
      * apply auto mode to toggle system default color mode
      */
-    applyAutoColorMode: function () {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark-mode');
-        } else {
-            document.documentElement.classList.add('auto-mode');
-        }
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
-            const color = event.matches ? 'dark' : 'light';
+    removeAutoColorModeListener: function () {
+        const self = this;
 
-            if (color === 'dark') {
+        if (!self.colorModeMediaQuery || !self.colorModeChangeHandler) {
+            return;
+        }
+
+        if (typeof self.colorModeMediaQuery.removeEventListener === 'function') {
+            self.colorModeMediaQuery.removeEventListener('change', self.colorModeChangeHandler);
+        } else if (typeof self.colorModeMediaQuery.removeListener === 'function') {
+            self.colorModeMediaQuery.removeListener(self.colorModeChangeHandler);
+        }
+
+        self.colorModeMediaQuery = null;
+        self.colorModeChangeHandler = null;
+    },
+
+    /**
+     * apply auto mode to toggle system default color mode
+     */
+    applyAutoColorMode: function () {
+        const self = this;
+        if (!window.matchMedia) {
+            return;
+        }
+
+        const colorModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        self.removeAutoColorModeListener();
+
+        const syncDarkMode = (isDark) => {
+            if (isDark) {
                 document.documentElement.classList.add('dark-mode');
             } else {
                 document.documentElement.classList.remove('dark-mode');
             }
-        });
+        };
+
+        syncDarkMode(colorModeMediaQuery.matches);
+
+        const onColorModeChange = (event) => {
+            syncDarkMode(event.matches);
+        };
+
+        if (typeof colorModeMediaQuery.addEventListener === 'function') {
+            colorModeMediaQuery.addEventListener('change', onColorModeChange);
+        } else if (typeof colorModeMediaQuery.addListener === 'function') {
+            colorModeMediaQuery.addListener(onColorModeChange);
+        }
+
+        self.colorModeMediaQuery = colorModeMediaQuery;
+        self.colorModeChangeHandler = onColorModeChange;
     },
 
     /**

@@ -79,13 +79,18 @@ Page.prototype.getPageMedia = function () {
     const widgetEl = document.querySelector(SBPLUS.layout.widget);
     // Rebuilding media for each page can leak event handlers unless the previous
     // player instance is fully disposed before replacing #mp.
-    if (typeof videojs !== 'undefined' && typeof videojs.getPlayer === 'function') {
-        const existingPlayer = videojs.getPlayer('mp');
-        if (existingPlayer) {
-            existingPlayer.dispose();
+    if (typeof videojs === 'function') {
+        if (typeof videojs.getPlayer === 'function') {
+            const existingPlayer = videojs.getPlayer('mp');
+            if (existingPlayer) {
+                existingPlayer.dispose();
+            }
+        } else if (document.querySelector('#mp')) {
+            const existingPlayer = videojs('mp');
+            if (existingPlayer && typeof existingPlayer.dispose === 'function') {
+                existingPlayer.dispose();
+            }
         }
-    } else if (document.querySelector('#mp')) {
-        videojs('mp').dispose();
     }
 
     if (quizContainerEl) {
@@ -515,10 +520,12 @@ function copyToClipboard() {
 
     if (copyBtn && copyTxtArea) {
         const copyBtnTxt = copyBtn.querySelectorAll('.btn-txt')[0];
+
         if (!copyBtnTxt) {
             return;
         }
-        const originalCopyBtnTxt = copyBtn.innerHTML;
+        
+        const originalCopyBtnTxt = copyBtnTxt.innerHTML;
         const clipboard = navigator.clipboard;
 
         clipboard.writeText(copyTxtArea.innerHTML).then(() => {

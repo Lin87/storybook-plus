@@ -64,7 +64,7 @@ function getNodeAttr(node, name) {
 let Quiz = function (obj, data) {
     const self = this;
     const cntx = getContextElement(data);
-    const qId = Number(obj.id.join().replace(',', ''));
+    const qId = Array.isArray(obj.id) ? obj.id.join(':') : String(obj.id);
 
     if (!cntx) {
         self.quiz = {
