@@ -7,6 +7,7 @@ import { Quiz } from './quiz';
  * @param {Object} obj Parsed page data from the table of contents entry.
  * @param {Array|NodeList|HTMLCollection|Element} data XML node context for the selected page.
  */
+let resizeObserver = null;
 let Page = function (obj, data) {
     this.pageXML = obj.xml[0];
     this.pageData = data;
@@ -77,6 +78,12 @@ Page.prototype.getPageMedia = function () {
     const mediaMsgEl = document.querySelector(SBPLUS.layout.mediaMsg);
     const mediaWrapperEl = document.querySelector(SBPLUS.layout.media);
     const widgetEl = document.querySelector(SBPLUS.layout.widget);
+
+    if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
+    }
+
     // Rebuilding media for each page can leak event handlers unless the previous
     // player instance is fully disposed before replacing #mp.
     if (typeof videojs === 'function') {
@@ -223,6 +230,7 @@ Page.prototype.getPageMedia = function () {
             if (mediaContentEl) {
                 mediaContentEl.innerHTML = '<img src="' + img.src + '" class="img_only"  alt="Content about ' + SBPLUS.escapeHTMLAttribute(self.title) + '" />';
             }
+
             self.setWidgets();
 
             if (!!self.description) {
@@ -335,12 +343,10 @@ Page.prototype.getPageMedia = function () {
             break;
 
         case 'quiz':
-            if (quizContainerEl) {
-                quizContainerEl.classList.remove('hidden');
-            }
             if (widgetEl) {
                 widgetEl.classList.add('hidden');
             }
+
             if (mediaWrapperEl) {
                 mediaWrapperEl.classList.add('hidden');
             }
@@ -351,6 +357,48 @@ Page.prototype.getPageMedia = function () {
 
             const quizItem = new Quiz(qObj, self.pageData);
             quizItem.getQuiz();
+
+            if (quizContainerEl) {
+                quizContainerEl.classList.remove('hidden');
+                
+                if (!document.querySelector('body').classList.contains('sbplus-boxed')) {
+                    let rafId = null;
+
+                    const applyHeight = () => {
+                        const nextHeight = `${SBPLUS.calcDynamicHeight()}px`;
+
+                        if (quizContainerEl.style.height !== nextHeight) {
+                            quizContainerEl.style.height = nextHeight;
+                        }
+                    };
+
+                    const queueApplyHeight = () => {
+                        if (rafId !== null) {
+                            return;
+                        }
+
+                        rafId = requestAnimationFrame(() => {
+                            rafId = null;
+                            applyHeight();
+                        });
+                    };
+
+                    // Run once after layout and then on future content-size changes.
+                    queueApplyHeight();
+
+                    if (window.ResizeObserver) {
+                        resizeObserver = new ResizeObserver(() => {
+                            queueApplyHeight();
+                        });
+
+                        // Avoid observing the same element
+                        const observeTarget = quizContainerEl.firstElementChild || quizContainerEl;
+                        resizeObserver.observe(observeTarget);
+                    }
+                } else {
+                    quizContainerEl.style.height = '';
+                }
+            }
 
             break;
 
@@ -364,11 +412,13 @@ Page.prototype.getPageMedia = function () {
             }
 
             const embedAttr = self.pageXML.getAttribute('embed');
+
             if (embedAttr !== null) {
                 embed = embedAttr.toLowerCase();
             }
 
             const audioNode = self.pageXML.querySelector('audio');
+
             if (audioNode) {
                 audioSrc = (audioNode.getAttribute('src') || '').toLowerCase();
             }
@@ -380,9 +430,11 @@ Page.prototype.getPageMedia = function () {
                     let audio = '<video id="mp" class="video-js vjs-default-skin"></video>';
 
                     self.isAudio = true;
+
                     if (mediaContentEl) {
                         mediaContentEl.insertAdjacentHTML('beforeend', audio);
                     }
+
                     self.addMarkers();
                     self.renderVideoJS(audioSrc);
                 } else {
@@ -403,6 +455,7 @@ Page.prototype.getPageMedia = function () {
                     mediaContentEl.classList.add('html');
                     mediaContentEl.innerHTML = holder;
                 }
+
                 window.open(path, '_blank');
             }
 
@@ -419,9 +472,11 @@ Page.prototype.getPageMedia = function () {
     if (self.type === 'image' || self.type === 'html') {
         if (mediaContentEl) {
             const transitionClass = typeof self.transition === 'string' ? self.transition.trim() : '';
+
             if (transitionClass) {
                 mediaContentEl.classList.add(transitionClass);
             }
+
             onAnimationEnd(mediaContentEl, function () {
                 if (transitionClass) {
                     mediaContentEl.classList.remove(transitionClass);
@@ -434,7 +489,9 @@ Page.prototype.getPageMedia = function () {
         if (document.activeElement) {
             document.activeElement.blur();
         }
+
         const mediaWrapper = document.querySelector(SBPLUS.layout.media);
+
         if (mediaWrapper) {
             mediaWrapper.focus();
         }
@@ -1166,6 +1223,46 @@ Page.prototype.setWidgets = function () {
         }
 
         SBPLUS.selectFirstSegment();
+
+        if (!document.querySelector('body').classList.contains('sbplus-boxed')) {
+            const widgetEl = document.querySelector(SBPLUS.layout.widget);
+            const mediaEl = document.querySelector(SBPLUS.layout.mediaContent);
+            let rafId = null;
+
+            const applyHeight = () => {
+                const nextHeight = `${SBPLUS.calcDynamicHeight()}px`;
+
+                if (widgetEl.style.height !== nextHeight) {
+                    widgetEl.style.height = nextHeight;
+                }
+            };
+
+            const queueApplyHeight = () => {
+                if (rafId !== null) {
+                    return;
+                }
+
+                rafId = requestAnimationFrame(() => {
+                    rafId = null;
+                    applyHeight();
+                });
+            };
+
+            // Run once after layout and then on future content-size changes.
+            queueApplyHeight();
+
+            if (window.ResizeObserver) {
+                resizeObserver = new ResizeObserver(() => {
+                    queueApplyHeight();
+                });
+
+                // Avoid observing the same element
+                const observeTarget = mediaEl;
+                resizeObserver.observe(observeTarget);
+            }
+        } else {
+            document.querySelector(SBPLUS.layout.widget).style.height = '';
+        }
     }
 };
 

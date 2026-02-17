@@ -1170,15 +1170,18 @@ const SBPLUS = {
 
         if (sbplusWrapper && sbplusWrapper.classList.contains('toc_displayed')) {
             const tocContainerEl = document.querySelector(self.tableOfContents.container);
+
             if (tocContainerEl) {
                 tocContainerEl.style.height = '';
             }
             sbplusWrapper.classList.remove('toc_displayed');
         } else {
             const tocContainerEl = document.querySelector(self.tableOfContents.container);
+
             if (tocContainerEl) {
-                tocContainerEl.style.height = self.calcTocHeight() + 'px';
+                tocContainerEl.style.height = self.calcDynamicHeight() + 'px';
             }
+
             if (sbplusWrapper) {
                 sbplusWrapper.classList.add('toc_displayed');
             }
@@ -1188,7 +1191,7 @@ const SBPLUS = {
     /**
      * Calculate the table of content height dynamically
      */
-    calcTocHeight: function () {
+    calcDynamicHeight: function () {
         const self = this;
         const bannerEl = document.querySelector(self.banner.bar);
         const mediaEl = document.querySelector(self.layout.media);
@@ -1772,9 +1775,11 @@ const SBPLUS = {
         const self = this;
         const widgetSegmentEl = document.querySelector(self.widget.segment);
         const widgetContentEl = document.querySelector(self.widget.content);
+
         if (widgetSegmentEl) {
             widgetSegmentEl.innerHTML = '';
         }
+
         if (widgetContentEl) {
             widgetContentEl.innerHTML = '';
         }
@@ -1786,6 +1791,7 @@ const SBPLUS = {
     hasWidgetContent: function () {
         const self = this;
         const widgetSegmentEl = document.querySelector(self.widget.segment);
+
         return widgetSegmentEl ? widgetSegmentEl.querySelectorAll('button').length : 0;
     },
 
@@ -1806,13 +1812,16 @@ const SBPLUS = {
                 widgetLayoutEl.classList.remove('noSegments');
                 widgetLayoutEl.removeAttribute('aria-hidden');
             }
+
             if (widgetContentEl) {
                 widgetContentEl.style.backgroundImage = '';
                 widgetContentEl.removeAttribute('aria-hidden');
             }
+
             if (srHasNotesEl) {
                 srHasNotesEl.innerHTML = 'This slide contains notes.';
             }
+
             if (notesBtnEl) {
                 notesBtnEl.disabled = false;
                 notesBtnEl.setAttribute('title', 'View Notes');
@@ -1859,25 +1868,30 @@ const SBPLUS = {
             if (self.xml.settings.mathjax === 'on' || self.xml.settings.mathjax === 'true') {
                 MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
             }
+
         } else {
             if (srHasNotesEl) {
                 srHasNotesEl.innerHTML = '';
             }
+
             if (widgetLayoutEl) {
                 widgetLayoutEl.classList.add('noSegments');
                 widgetLayoutEl.setAttribute('aria-hidden', 'true');
             }
+
             if (notesBtnEl) {
                 notesBtnEl.disabled = true;
                 notesBtnEl.setAttribute('title', '');
                 notesBtnEl.setAttribute('aria-label', '');
             }
+
             if (widgetContentEl) {
                 widgetContentEl.setAttribute('aria-hidden', 'true');
                 widgetContentEl.removeAttribute('aria-labelledby');
                 widgetContentEl.removeAttribute('tabindex');
                 widgetContentEl.removeAttribute('role');
             }
+
             if (!self.isEmpty(self.logo)) {
                 if (widgetContentEl) {
                     widgetContentEl.style.backgroundImage = 'url(' + self.logo + ')';
@@ -2045,7 +2059,7 @@ const SBPLUS = {
 
         if (wrapperEl && wrapperEl.classList.contains('toc_displayed')) {
             if (tocContainerEl) {
-                tocContainerEl.style.height = self.calcTocHeight() + 'px';
+                tocContainerEl.style.height = self.calcDynamicHeight() + 'px';
             }
         }
 
