@@ -3,7 +3,7 @@
  *
  * @author: Ethan Lin
  * @url: https://github.com/Lin87/storybook-plus
- * @version: 3.6.4
+ * @version: 3.7.0
  * Released xx/xx/2026
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
@@ -452,13 +452,13 @@ body {
             font-weight: bold;
             
             #sbplus_lesson_title {
-                display: flex;
-                flex-flow: row nowrap;
-                flex: 2 1 auto;
-                align-items: center;
-                padding: 0 $gutter;
-                line-height: 1.25;
-                font-size: 120%;
+                padding: math.div($gutter, 3) $gutter 0;
+                flex: 1;
+                min-width: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: clamp(11px, 3.2vw, 100%);
             }
             
             #sbplus_menu_area {
@@ -753,7 +753,8 @@ body {
                             bottom: 0;
                             right: 0;
                             width: 100%;
-                            height: 360px;
+                            height: 100%;
+                            min-height: 360px;
                         }
                         
                         // external link
@@ -1460,6 +1461,8 @@ body {
                 
                 #sbplus_widget {
                     
+                    display: flex;
+                    flex-flow: column nowrap;
                     width: 100%;
                     background-color: #fff;
                     flex: 2 0 auto;
@@ -1521,7 +1524,8 @@ body {
                     
                     .segment_content {
                         
-                        padding: 10px 10px 0;
+                        flex: 1;
+                        padding: 10px;
                         width: 100%;
                         height: 100%;
                         overflow-y: auto;
@@ -1861,6 +1865,7 @@ body {
                 #sbplus_download_btn_wrapper {
                     
                     position: relative;
+                    z-index: 10;
                     @extend .button-commons;
                     
                     #sbplus_download_btn {
@@ -2715,15 +2720,6 @@ body {
 
             #sbplus_banner_bar {
                 
-                #sbplus_lesson_title {
-                    display: block;
-                    width: 60%;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    align-self: center;
-                }
-                
                 #sbplus_menu_area {
                     
                     width: 258px;
@@ -2821,15 +2817,15 @@ body {
                         position: relative;
                         @include calc( height, '100% - ' + 393px );
 
-                        .widget_controls_bar {
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                        }
+                        // .widget_controls_bar {
+                        //     position: absolute;
+                        //     top: 0;
+                        //     left: 0;
+                        // }
 
-                        .segment_content {
-                            padding-top: 30px;
-                        }
+                        // .segment_content {
+                        //     padding-top: 30px;
+                        // }
 
                     }
                     

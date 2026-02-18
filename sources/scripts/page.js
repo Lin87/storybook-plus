@@ -1,18 +1,22 @@
-import $ from 'jquery';
-import { SBPLUS } from "./sbplus-dev";
-import { Quiz } from "./quiz";
+import { headRequest, loadScript, onAnimationEnd, onDelegate, isVisible } from './utilities';
+import { SBPLUS } from './sbplus-dev';
+import { Quiz } from './quiz';
 
-let Page = function ( obj, data ) {
-    
+/**
+ * Represents a presentation page and normalizes XML/media metadata for rendering.
+ * @param {Object} obj Parsed page data from the table of contents entry.
+ * @param {Array|NodeList|HTMLCollection|Element} data XML node context for the selected page.
+ */
+let resizeObserver = null;
+let Page = function (obj, data) {
     this.pageXML = obj.xml[0];
     this.pageData = data;
     this.title = obj.title;
     this.type = obj.type;
     this.transition = obj.transition;
-    this.pageNumber = obj.number; 
-    
-    if ( obj.type !== 'quiz' ) {
-        
+    this.pageNumber = obj.number;
+
+    if (obj.type !== 'quiz') {
         this.src = obj.src;
         this.preventAutoplay = obj.preventAutoplay;
         this.disableFullscreen = obj.disableFullscreen;
@@ -24,12 +28,12 @@ let Page = function ( obj, data ) {
         this.imgType = obj.imageFormat;
         this.description = obj.description;
 
-        if ( obj.type !== 'image' && obj.markers.length ) {
+        if (obj.type !== 'image' && obj.markers.length) {
             this.markersNode = obj.markers[0];
             this.markers = [];
         }
-        
-        if ( obj.frames.length ) {
+
+        if (obj.frames.length) {
             this.frames = obj.frames;
             this.cuepoints = [];
         }
@@ -43,538 +47,600 @@ let Page = function ( obj, data ) {
         this.isBundle = false;
         this.isPlaying = false;
         this.captionUrl = '';
-        
+
         this.hasImage = false;
         this.missingImgUrl = '';
         this.delayStorage = null;
-        
     }
-    
+
     this.root = SBPLUS.manifest.sbplus_root_directory;
     this.assetsRoot = SBPLUS.assetsPath;
     this.kaltura = {
-        id: SBPLUS.manifest.sbplus_kaltura_id
+        id: SBPLUS.manifest.sbplus_kaltura_id,
     };
     this.kalturaSrc = {};
-    
+
     this.mediaContent = SBPLUS.layout.mediaContent;
     this.quizContainer = SBPLUS.layout.quizContainer;
     this.mediaError = SBPLUS.layout.mediaError;
-    
 };
 
-Page.prototype.getPageMedia = function() {
-    
+/**
+ * Clears prior media state and renders the selected page's primary media.
+ * @returns {void}
+ */
+Page.prototype.getPageMedia = function () {
     const self = this;
-    
-    // reset
-    if ( $( SBPLUS.layout.quizContainer ).length ) {
-        $( SBPLUS.layout.quizContainer ).addClass( 'hidden' ).empty();
-    }
-    
-    $( self.mediaContent ).css('backgroundImage', '').removeClass('compat-object-fit').removeClass( 'show-vjs-poster' );
-    $( this.mediaError ).empty().hide();
 
-    if ( $( '#mp' ).length ) {
-        videojs( 'mp' ).dispose();
+    const quizContainerEl = document.querySelector(SBPLUS.layout.quizContainer);
+    const mediaContentEl = document.querySelector(self.mediaContent);
+    const mediaErrorEl = document.querySelector(this.mediaError);
+    const mediaMsgEl = document.querySelector(SBPLUS.layout.mediaMsg);
+    const mediaWrapperEl = document.querySelector(SBPLUS.layout.media);
+    const widgetEl = document.querySelector(SBPLUS.layout.widget);
+
+    if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
     }
-    
+
+    // Rebuilding media for each page can leak event handlers unless the previous
+    // player instance is fully disposed before replacing #mp.
+    if (typeof videojs === 'function') {
+        if (typeof videojs.getPlayer === 'function') {
+            const existingPlayer = videojs.getPlayer('mp');
+            if (existingPlayer) {
+                existingPlayer.dispose();
+            }
+        } else if (document.querySelector('#mp')) {
+            const existingPlayer = videojs('mp');
+            if (existingPlayer && typeof existingPlayer.dispose === 'function') {
+                existingPlayer.dispose();
+            }
+        }
+    }
+
+    if (quizContainerEl) {
+        quizContainerEl.classList.add('hidden');
+        quizContainerEl.innerHTML = '';
+    }
+
+    if (mediaContentEl) {
+        mediaContentEl.style.backgroundImage = '';
+        mediaContentEl.classList.remove('compat-object-fit', 'show-vjs-poster', 'iframeEmbed');
+        mediaContentEl.innerHTML = '';
+    }
+
+    if (mediaErrorEl) {
+        mediaErrorEl.innerHTML = '';
+        mediaErrorEl.style.display = 'none';
+    }
+
     SBPLUS.clearWidget();
-    
-    $( self.mediaContent ).removeClass( 'iframeEmbed' ).empty();
-    $( SBPLUS.layout.mediaMsg ).addClass( 'hide' ).empty('');
-    $( SBPLUS.layout.media ).removeClass('hidden');
-    $( SBPLUS.layout.widget ).removeClass('hidden');
+
+    if (mediaMsgEl) {
+        mediaMsgEl.classList.add('hide');
+        mediaMsgEl.innerHTML = '';
+    }
+    if (mediaWrapperEl) {
+        mediaWrapperEl.classList.remove('hidden');
+    }
+    if (widgetEl) {
+        widgetEl.classList.remove('hidden');
+    }
 
     removeSecondaryControls();
-
-    // show copy to clipboard button if applicable
     self.showCopyBtn();
-    
-    // end reset
-    
-    switch ( self.type ) {
-        
+
+    switch (self.type) {
         case 'kaltura':
-
-            if ( !isNaN( self.kaltura.id ) && self.kaltura.id !== 0 ) {
-
+            if (!isNaN(self.kaltura.id) && self.kaltura.id !== 0) {
                 self.addMarkers();
 
-                if ( SBPLUS.kalturaLoaded === false ) {
-
-                    $.getScript( self.root + 'scripts/libs/kaltura/mwembedloader.js', function() {
-    
-                        $.getScript( self.root +  'scripts/libs/kaltura/kwidgetgetsources.js', function() {
-    
+                if (SBPLUS.kalturaLoaded === false) {
+                    loadScript(self.root + 'scripts/libs/kaltura/mwembedloader.js')
+                        .then(() => loadScript(self.root + 'scripts/libs/kaltura/kwidgetgetsources.js'))
+                        .then(() => {
                             SBPLUS.kalturaLoaded = true;
                             self.loadKalturaVideoData();
-    
                         });
-    
-                    });
-    
                 } else {
-
                     self.loadKalturaVideoData();
-
                 }
-
             } else {
-
-                self.showPageError( 'KAL_NOT_AVAILABLE' );
-
+                self.showPageError('KAL_NOT_AVAILABLE');
             }
 
             self.setWidgets();
-            
-        break;
+
+            break;
 
         case 'brightcove':
-
             self.addMarkers();
             self.loadBrightcoveVideoData();
             self.setWidgets();
-            
-        break;
-        
-        case 'image-audio':
-            
-            self.isAudio = true;
-            
-            $.ajax( {
-                
-                url: SBPLUS.assetsPath + 'pages/' + self.src + '.' + self.imgType,
-                type: 'HEAD'
-                
-            } ).done( function() {
-                
-                self.hasImage = true;
-                
-            } ).fail( function() {
-                
-                self.showPageError( 'NO_IMG', this.url );
-                self.missingImgUrl = this.url;
-                
-            } ).always( function() {
-                
-                $.ajax( {
-                    
-                    url: SBPLUS.assetsPath + 'audio/' + self.src + '.vtt',
-                    type: 'HEAD'
-                    
-                } ).done( function() {
-                    
-                    self.captionUrl = this.url;
-                    
-                } ).always( function() {
-                    
-                    const html = '<video id="mp" class="video-js vjs-default-skin"></video>';
-                    
-                    $( self.mediaContent ).addClass( 'show-vjs-poster' );
-                    
-                    $( self.mediaContent ).html( html ).promise().done( function() {
-                
-                        self.addMarkers();
-                        self.renderVideoJS();
-                        self.setWidgets();
 
-                        if ( !!self.description ) {
-                            self.insertDescription();
-                        }
-                
-                    } );
-                    
-                } );
-                
-            } );
-            
-        break;
-        
+            break;
+
+        case 'image-audio':
+            self.isAudio = true;
+
+            const imageAudioUrl = SBPLUS.assetsPath + 'pages/' + self.src + '.' + self.imgType;
+
+            headRequest(imageAudioUrl)
+                .then(() => {
+                    self.hasImage = true;
+                })
+                .catch(() => {
+                    self.showPageError('NO_IMG', imageAudioUrl);
+                    self.missingImgUrl = imageAudioUrl;
+                })
+                .finally(() => {
+                    const captionPath = SBPLUS.assetsPath + 'audio/' + self.src + '.vtt';
+
+                    headRequest(captionPath)
+                        .then(() => {
+                            self.captionUrl = captionPath;
+                        })
+                        .catch(() => {
+                            self.captionUrl = '';
+                        })
+                        .finally(() => {
+                            const html = '<video id="mp" class="video-js vjs-default-skin"></video>';
+
+                            if (mediaContentEl) {
+                                mediaContentEl.classList.add('show-vjs-poster');
+                                mediaContentEl.innerHTML = html;
+                            }
+
+                            self.addMarkers();
+                            self.renderVideoJS();
+                            self.setWidgets();
+
+                            if (!!self.description) {
+                                self.insertDescription();
+                            }
+                        });
+                });
+
+            break;
+
         case 'image':
-            
             const img = new Image();
             img.src = SBPLUS.assetsPath + 'pages/' + self.src + '.' + self.imgType;
             img.alt = self.title;
-            
-            $( img ).on( 'load', function() {
-                
-                self.hasImage = true;
-                
-                $('.sbplus_media_content').each(function () {
-                    const $container = $(this),
-                        imgUrl = $container.find('img').prop('src');
-                    if (imgUrl) {
-                      $container
-                        .css('backgroundImage', 'url(' + imgUrl + ')');
-                    }  
-                });
-                
-            } );
-            
-            $( img ).on( 'error', function() {
-                self.hasImage = false;
-                self.showPageError( 'NO_IMG', img.src );
-            } );
-            
-            $( self.mediaContent ).html( '<img src="' + img.src + '" class="img_only"  alt="Content about ' + SBPLUS.escapeHTMLAttribute( self.title ) + '" />' ).promise().done( function() {
-                self.setWidgets();
 
-                if ( !!self.description ) {
-                    self.insertDescription();
-                }
-                
-                addSecondaryControls( true );
-            } );
-                        
-        break;
-        
+            img.addEventListener('load', function () {
+                self.hasImage = true;
+
+                document.querySelectorAll('.sbplus_media_content').forEach((container) => {
+                    const image = container.querySelector('img');
+                    const imgUrl = image ? image.src : '';
+                    if (imgUrl) {
+                        container.style.backgroundImage = 'url(' + imgUrl + ')';
+                    }
+                });
+            });
+
+            img.addEventListener('error', function () {
+                self.hasImage = false;
+                self.showPageError('NO_IMG', img.src);
+            });
+
+            if (mediaContentEl) {
+                mediaContentEl.innerHTML = '<img src="' + img.src + '" class="img_only"  alt="Content about ' + SBPLUS.escapeHTMLAttribute(self.title) + '" />';
+            }
+
+            self.setWidgets();
+
+            if (!!self.description) {
+                self.insertDescription();
+            }
+
+            addSecondaryControls(true);
+
+            break;
+
         case 'video':
-            
-            $.ajax( {
-                
-                url: SBPLUS.assetsPath + 'video/' + self.src + '.vtt',
-                type: 'HEAD'
-                
-            } ).done( function() {
-                
-                self.captionUrl = this.url;
-                
-            } ).always( function() {
-                
-                const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
-                
-                $( self.mediaContent ).html( html ).promise().done( function() {
-                    
-                    // call video js
+            const videoCaptionPath = SBPLUS.assetsPath + 'video/' + self.src + '.vtt';
+
+            headRequest(videoCaptionPath)
+                .then(() => {
+                    self.captionUrl = videoCaptionPath;
+                })
+                .catch(() => {
+                    self.captionUrl = '';
+                })
+                .finally(() => {
+                    const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
+
+                    if (mediaContentEl) {
+                        mediaContentEl.innerHTML = html;
+                    }
                     self.isVideo = true;
                     self.addMarkers();
                     self.renderVideoJS();
 
-                    if ( !!self.description ) {
-                        document.querySelector( '#mp_html5_api' ).setAttribute( 'aria-describedby', 'long-description' );
+                    if (!!self.description) {
+                        const html5Api = document.querySelector('#mp_html5_api');
+                        if (html5Api) {
+                            html5Api.setAttribute('aria-describedby', 'long-description');
+                        }
                         self.insertDescription();
                     }
 
                     self.setWidgets();
-                    
-                } );
-                
-            } );
-        
-        break;
-        
+                });
+
+            break;
+
         case 'youtube':
-            
             self.isYoutube = true;
-            
-            if ( self.useDefaultPlayer === "true" || self.useDefaultPlayer === "yes"  ) {
-                
-                $( self.mediaContent ).html( '<video id="mp" class="video-js vjs-default-skin"></video>' ).promise().done( function() {
 
-                    self.addMarkers();
-                    self.renderVideoJS();
+            if (self.useDefaultPlayer === 'true' || self.useDefaultPlayer === 'yes') {
+                if (mediaContentEl) {
+                    mediaContentEl.innerHTML = '<video id="mp" class="video-js vjs-default-skin"></video>';
+                }
 
-                    if ( !!self.description ) {
-                        document.querySelector( '.video-js' ).setAttribute( 'aria-describedby', 'long-description' );
-                        self.insertDescription();
-                    }
-                    
-                } );
+                self.addMarkers();
+                self.renderVideoJS();
 
+                if (!!self.description) {
+                    document.querySelector('.video-js').setAttribute('aria-describedby', 'long-description');
+                    self.insertDescription();
+                }
             } else {
-                
-                const autoplay = 
-                    self.preventAutoplay === "false" || self.preventAutoplay === "no" ? 1 : 0;
+                const autoplay = self.preventAutoplay === 'false' || self.preventAutoplay === 'no' ? 1 : 0;
 
-                $( self.mediaContent ).html( '<div class="yt-native"><iframe id="youtube-ui" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/' + self.src + '?autoplay=' + autoplay + '&playsinline=1&modestbranding=1&disablekb=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture, fullscreen"></iframe></div>' ).promise().done( function() {
-                
-                    addSecondaryControls();
-                    
-                } );
-
+                if (mediaContentEl) {
+                    mediaContentEl.innerHTML = '<div class="yt-native"><iframe id="youtube-ui" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/' + self.src + '?autoplay=' + autoplay + '&playsinline=1&modestbranding=1&disablekb=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture, fullscreen"></iframe></div>';
+                }
+                addSecondaryControls();
             }
-            
-            self.setWidgets();
-            
-        break;
-        
-        case 'bundle':
-            
-            $( self.frames ).each( function() {
-                const cue = toSeconds( $( this ).attr( 'start' ) );
-                self.cuepoints.push( cue );
-            } );
-            
-            $.ajax( {
-                
-                url: SBPLUS.assetsPath + 'audio/' + self.src + '.vtt',
-                type: 'HEAD'
-                
-            } ).done( function() {
-                
-                self.captionUrl = this.url;
-                
-            } ).always( function() {
-                
-                const html = '<video id="mp" class="video-js vjs-default-skin"></video>';
 
-                $( self.mediaContent ).addClass( 'show-vjs-poster' );
-                
-                $( self.mediaContent ).html( html ).promise().done( function() {
-            
+            self.setWidgets();
+
+            break;
+
+        case 'bundle':
+            Array.from(self.frames).forEach((frame) => {
+                const start = frame && frame.getAttribute ? frame.getAttribute('start') : '';
+                const cue = toSeconds(start);
+                self.cuepoints.push(cue);
+            });
+
+            const bundleCaptionPath = SBPLUS.assetsPath + 'audio/' + self.src + '.vtt';
+
+            headRequest(bundleCaptionPath)
+                .then(() => {
+                    self.captionUrl = bundleCaptionPath;
+                })
+                .catch(() => {
+                    self.captionUrl = '';
+                })
+                .finally(() => {
+                    const html = '<video id="mp" class="video-js vjs-default-skin"></video>';
+
+                    if (mediaContentEl) {
+                        mediaContentEl.classList.add('show-vjs-poster');
+                        mediaContentEl.innerHTML = html;
+                    }
+
                     self.isBundle = true;
                     self.addMarkers();
                     self.renderVideoJS();
                     self.setWidgets();
 
-                    if ( !!self.description ) {
-                        document.querySelector( '#mp_html5_api' ).setAttribute( 'aria-describedby', 'long-description' );
+                    if (!!self.description) {
+                        const html5Api = document.querySelector('#mp_html5_api');
+                        if (html5Api) {
+                            html5Api.setAttribute('aria-describedby', 'long-description');
+                        }
                         self.insertDescription();
                     }
-            
-                } );
-                
-            } );
-            
-        break;
-        
+                });
+
+            break;
+
         case 'quiz':
-            
-            $( self.quizContainer ).removeClass( 'hidden' );
-            $( SBPLUS.layout.widget ).addClass('hidden');
-            $( SBPLUS.layout.media ).addClass('hidden');
+            if (widgetEl) {
+                widgetEl.classList.add('hidden');
+            }
+
+            if (mediaWrapperEl) {
+                mediaWrapperEl.classList.add('hidden');
+            }
 
             const qObj = {
-                id: self.pageNumber
+                id: self.pageNumber,
             };
-            
-            const quizItem = new Quiz( qObj, self.pageData  );
+
+            const quizItem = new Quiz(qObj, self.pageData);
             quizItem.getQuiz();
-            
-        break;
-        
+
+            if (quizContainerEl) {
+                quizContainerEl.classList.remove('hidden');
+                
+                if (!document.querySelector('main').classList.contains('sbplus_boxed')) {
+                    let rafId = null;
+
+                    const applyHeight = () => {
+                        const nextHeight = `${SBPLUS.calcDynamicHeight()}px`;
+
+                        if (quizContainerEl.style.height !== nextHeight) {
+                            quizContainerEl.style.height = nextHeight;
+                        }
+                    };
+
+                    const queueApplyHeight = () => {
+                        if (rafId !== null) {
+                            return;
+                        }
+
+                        rafId = requestAnimationFrame(() => {
+                            rafId = null;
+                            applyHeight();
+                        });
+                    };
+
+                    // Run once after layout and then on future content-size changes.
+                    queueApplyHeight();
+
+                    if (window.ResizeObserver) {
+                        resizeObserver = new ResizeObserver(() => {
+                            queueApplyHeight();
+                        });
+
+                        // Avoid observing the same element
+                        const observeTarget = quizContainerEl.firstElementChild || quizContainerEl;
+                        resizeObserver.observe(observeTarget);
+                    }
+                } else {
+                    quizContainerEl.style.height = '';
+                }
+            }
+
+            break;
+
         case 'html':
-            
             let embed = false;
             let audioSrc = false;
             let path = self.src;
-                
-            if ( !isUrl(path) ) {
+
+            if (!isUrl(path)) {
                 path = SBPLUS.assetsPath + 'html/' + self.src + '/index.html';
             }
-            
-            if ( $(self.pageXML).attr('embed') !== undefined ) {
-                embed = $(self.pageXML).attr('embed').toLowerCase();
-            }
-            
-            if ( $(self.pageXML).find('audio').length >= 1 ) {
-                audioSrc = $($(self.pageXML).find('audio')[0]).attr('src').toLowerCase();
-            }
-            
-            if ( embed === 'yes' || embed === "true" ) {
-                
-                let iframe = '<iframe class="html" src="' + path + '" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen"></iframe>';
-                
-                if ( audioSrc.length ) {
 
+            const embedAttr = self.pageXML.getAttribute('embed');
+
+            if (embedAttr !== null) {
+                embed = embedAttr.toLowerCase();
+            }
+
+            const audioNode = self.pageXML.querySelector('audio');
+
+            if (audioNode) {
+                audioSrc = (audioNode.getAttribute('src') || '').toLowerCase();
+            }
+
+            if (embed === 'yes' || embed === 'true') {
+                let iframe = '<iframe class="html" src="' + path + '" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen"></iframe>';
+
+                if (audioSrc.length) {
                     let audio = '<video id="mp" class="video-js vjs-default-skin"></video>';
 
                     self.isAudio = true;
-                    $( self.mediaContent ).append( audio );
+
+                    if (mediaContentEl) {
+                        mediaContentEl.insertAdjacentHTML('beforeend', audio);
+                    }
+
                     self.addMarkers();
-                    self.renderVideoJS( audioSrc );
-
+                    self.renderVideoJS(audioSrc);
                 } else {
-
-                    addSecondaryControls( false );
-
+                    addSecondaryControls(false);
                 }
 
-                $( self.mediaContent ).addClass( 'iframeEmbed' ).prepend( iframe );
-                
+                if (mediaContentEl) {
+                    mediaContentEl.classList.add('iframeEmbed');
+                    mediaContentEl.insertAdjacentHTML('afterbegin', iframe);
+                }
             } else {
-                
-               let holder = '<div class="html exLink">';
-               holder += '<small>click the link to open it in a new tab/window</small>';
-               holder += '<a href="' + path + '" target="_blank">' + path + '</a>';
-               holder += '</div>'
-               
-               $( self.mediaContent ).addClass( 'html' ).html( holder );
-               window.open(path, '_blank');
-               
-            }
-            
-            self.setWidgets();
-            
-        break;
-        
-        default:
-            self.showPageError( 'UNKNOWN_TYPE', self.type);
-            self.setWidgets();
-        break;
-        
-    }
-    
-    if ( self.type === 'image' || self.type === 'html' ) {
-        
-        $( self.mediaContent ).addClass( self.transition )
-            .one( 'webkitAnimationEnd mozAnimationEnd animationend', function() {
-                $( this ).removeClass( self.transition );
-                $( this ).off();
-            }
-        );
-        
-    }
-    
-    window.setTimeout( function() {
-        document.activeElement.blur();
-        document.querySelector( SBPLUS.layout.media ).focus();
-    }, 750 );
+                let holder = '<div class="html exLink">';
+                holder += '<small>click the link to open it in a new tab/window</small>';
+                holder += '<a href="' + path + '" target="_blank">' + path + '</a>';
+                holder += '</div>';
 
-    // add current page index to local storage
-    
-    window.clearTimeout( self.delayStorage );
-    
-    self.delayStorage = window.setTimeout( function() {
-        
-        const presentation = SBPLUS.sanitize( SBPLUS.getCourseDirectory() );
-        const pSectionNumber = self.pageNumber[0] + ',' + self.pageNumber[1];
-        
-        if ( pSectionNumber !== '0,0' ) {
-            SBPLUS.setStorageItem( 'sbplus-' + presentation, pSectionNumber );
-        } else {
-            SBPLUS.deleteStorageItem( 'sbplus-' + presentation );
+                if (mediaContentEl) {
+                    mediaContentEl.classList.add('html');
+                    mediaContentEl.innerHTML = holder;
+                }
+
+                window.open(path, '_blank');
+            }
+
+            self.setWidgets();
+
+            break;
+
+        default:
+            self.showPageError('UNKNOWN_TYPE', self.type);
+            self.setWidgets();
+            break;
+    }
+
+    if (self.type === 'image' || self.type === 'html') {
+        if (mediaContentEl) {
+            const transitionClass = typeof self.transition === 'string' ? self.transition.trim() : '';
+
+            if (transitionClass) {
+                mediaContentEl.classList.add(transitionClass);
+            }
+
+            onAnimationEnd(mediaContentEl, function () {
+                if (transitionClass) {
+                    mediaContentEl.classList.remove(transitionClass);
+                }
+            });
         }
-        
-    }, 3000 );
-    
+    }
+
+    window.setTimeout(function () {
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
+
+        const mediaWrapper = document.querySelector(SBPLUS.layout.media);
+
+        if (mediaWrapper) {
+            mediaWrapper.focus();
+        }
+    }, 750);
+
+    window.clearTimeout(self.delayStorage);
+
+    self.delayStorage = window.setTimeout(function () {
+        const presentation = SBPLUS.sanitize(SBPLUS.getCourseDirectory());
+        const pSectionNumber = self.pageNumber[0] + ',' + self.pageNumber[1];
+
+        if (pSectionNumber !== '0,0') {
+            SBPLUS.setStorageItem('sbplus-' + presentation, pSectionNumber);
+        } else {
+            SBPLUS.deleteStorageItem('sbplus-' + presentation);
+        }
+    }, 3000);
 };
 
-// add Copy to clipboard button
-Page.prototype.showCopyBtn = function() {
-    
-    // clear it first
+/**
+ * Adds the copy-to-clipboard control when the current page exposes copyable text.
+ * @returns {void}
+ */
+Page.prototype.showCopyBtn = function () {
     this.removeCopyBtn();
 
-    if ( this.copyableContent ) {
-
-        // build the button
-        const copyBtn = document.createElement( 'button' );
+    if (this.copyableContent) {
+        const copyBtn = document.createElement('button');
         copyBtn.id = 'copyToCbBtn';
 
-        const copyBtnTxt = document.createElement( 'span' );
-        copyBtnTxt.classList.add( 'btn-txt' );
-        
-        if ( !SBPLUS.isEmpty( $(this.copyableContent).attr( 'name' ) ) ) {
-            copyBtnTxt.innerHTML = $(this.copyableContent).attr( 'name' );
+        const copyBtnTxt = document.createElement('span');
+        copyBtnTxt.classList.add('btn-txt');
+
+        const copyName = this.copyableContent && this.copyableContent[0] ? this.copyableContent[0].getAttribute('name') : '';
+        if (!SBPLUS.isEmpty(copyName)) {
+            copyBtnTxt.innerHTML = copyName;
         } else {
             copyBtnTxt.innerHTML = 'Copy to Clipboard';
         }
 
-        copyBtn.append( copyBtnTxt );
+        copyBtn.append(copyBtnTxt);
 
-        const copyTxtArea = document.createElement( 'textarea' );
+        const copyTxtArea = document.createElement('textarea');
         copyTxtArea.id = 'copyableTxt';
         copyTxtArea.readOnly = true;
         copyTxtArea.innerHTML = this.copyableContent[0].textContent;
-        copyTxtArea.setAttribute( 'aria-hidden', true );
+        copyTxtArea.setAttribute('aria-hidden', true);
 
-        $( SBPLUS.layout.media ).prepend( copyBtn );
-        $( SBPLUS.layout.media ).prepend( copyTxtArea );
-        $( SBPLUS.layout.media ).on( 'click', '#copyToCbBtn', copyToClipboard );
-
+        const mediaContainer = document.querySelector(SBPLUS.layout.media);
+        if (mediaContainer) {
+            mediaContainer.prepend(copyBtn);
+            mediaContainer.prepend(copyTxtArea);
+            this.copyDelegateCleanup = onDelegate(mediaContainer, 'click', '#copyToCbBtn', copyToClipboard);
+        }
     }
-
 };
 
-Page.prototype.removeCopyBtn = function() {
+/**
+ * Removes any existing copy-to-clipboard control from the media area.
+ * @returns {void}
+ */
+Page.prototype.removeCopyBtn = function () {
+    const copyBtn = document.getElementById('copyToCbBtn');
+    const copyTxtArea = document.getElementById('copyableTxt');
 
-    const copyBtn = document.getElementById( 'copyToCbBtn' );
-    const copyTxtArea = document.getElementById( 'copyableTxt' );
-
-    if ( copyBtn && copyTxtArea ) {
-        copyBtn.parentNode.removeChild( copyBtn );
-        copyTxtArea.parentNode.removeChild( copyTxtArea );
-        $( SBPLUS.layout.media ).off( 'click', '#copyToCbBtn', copyToClipboard );
+    if (copyBtn && copyTxtArea) {
+        copyBtn.parentNode.removeChild(copyBtn);
+        copyTxtArea.parentNode.removeChild(copyTxtArea);
+        if (this.copyDelegateCleanup) {
+            this.copyDelegateCleanup();
+            this.copyDelegateCleanup = null;
+        }
     }
-
 };
 
+/**
+ * Copies page text from the hidden source element into the system clipboard.
+ * @returns {void}
+ */
 function copyToClipboard() {
+    const copyBtn = document.getElementById('copyToCbBtn');
+    const copyTxtArea = document.getElementById('copyableTxt');
 
-    const copyBtn = document.getElementById( 'copyToCbBtn' );
-    const copyBtnTxt = copyBtn.querySelectorAll( '.btn-txt' )[0];
-    const copyTxtArea = document.getElementById( 'copyableTxt' );
-    const originalCopyBtnTxt = copyBtn.innerHTML;
-    
-    if ( copyBtn && copyTxtArea ) {
+    if (copyBtn && copyTxtArea) {
+        const copyBtnTxt = copyBtn.querySelectorAll('.btn-txt')[0];
 
+        if (!copyBtnTxt) {
+            return;
+        }
+        
+        const originalCopyBtnTxt = copyBtnTxt.innerHTML;
         const clipboard = navigator.clipboard;
 
-        clipboard.writeText( copyTxtArea.innerHTML ).then( () => {
-
+        clipboard.writeText(copyTxtArea.innerHTML).then(() => {
             copyBtn.focus();
-            copyBtnTxt.innerHTML = "Copied";
+            copyBtnTxt.innerHTML = 'Copied';
+        });
 
-        } );
-
-        setTimeout( () => {
+        setTimeout(() => {
             copyBtnTxt.innerHTML = originalCopyBtnTxt;
-        }, 3000 );
-
+        }, 3000);
     }
-
 }
 
-// insert long description
-Page.prototype.insertDescription = function() {
-
+/**
+ * Injects long-description content and wires toggle behavior for accessibility.
+ * @returns {void}
+ */
+Page.prototype.insertDescription = function () {
     const self = this;
 
-    if ( self.description ) {
-    
-        const longDescEl = document.createElement( 'div' );
+    if (self.description) {
+        const longDescEl = document.createElement('div');
 
         longDescEl.id = 'long-description';
-        longDescEl.classList.add( 'sr-only' );
+        longDescEl.classList.add('sr-only');
         longDescEl.innerText = self.description[0].textContent;
 
-        const imageOnly = document.querySelector( '.img_only' );
+        const imageOnly = document.querySelector('.img_only');
 
-        if ( imageOnly ) {
-            imageOnly.setAttribute( 'aria-describedby', 'long-description' );
+        if (imageOnly) {
+            imageOnly.setAttribute('aria-describedby', 'long-description');
         }
 
-        document.querySelector( self.mediaContent ).appendChild( longDescEl );
-        
+        document.querySelector(self.mediaContent).appendChild(longDescEl);
     }
+};
 
-}
-
-// kaltura api request
+/**
+ * Fetches Kaltura metadata/sources and initializes playback data for Video.js.
+ * @returns {void}
+ */
 Page.prototype.loadKalturaVideoData = function () {
-    
     const self = this;
 
     self.isKaltura = {
-        
         status: {
             entry: 0,
             low: 0,
             normal: 0,
-            medium: 0
+            medium: 0,
         },
-        duration: ''
-        
+        duration: '',
     };
 
-    kWidget.getSources( {
-
-        'partnerId': self.kaltura.id,
-        'entryId': self.src,
-        'callback': function( data ) {
-
+    kWidget.getSources({
+        partnerId: self.kaltura.id,
+        entryId: self.src,
+        callback: function (data) {
             const captions = data.caption;
 
             self.isKaltura.status.entry = data.status;
@@ -582,191 +648,187 @@ Page.prototype.loadKalturaVideoData = function () {
             self.isKaltura.poster = data.poster;
             self.isKaltura.playerSrc = [];
 
-            data.sources.forEach( ( source ) => {
-                
-                if ( source.type === "video/mp4" ) {
+            data.sources.forEach((source) => {
+                if (source.type === 'video/mp4') {
                     self.isKaltura.playerSrc.push({
                         src: source.src,
-                        type: source.type
+                        type: source.type,
                     });
                 }
 
-                if ( source.type === "application/vnd.apple.mpegurl" ) {
+                if (source.type === 'application/vnd.apple.mpegurl') {
                     self.isKaltura.playerSrc.push({
                         src: source.src,
-                        type: source.type
-                    } );
+                        type: source.type,
+                    });
                 }
+            });
 
-            } );
-
-            if ( self.isKaltura.status.entry == 2 ) {
-
-                if ( captions !== null ) {
-
+            if (self.isKaltura.status.entry == 2) {
+                if (captions !== null) {
                     self.captionUrl = [];
 
-                    captions.forEach( caption => {
-
-                        if ( caption.label.toLowerCase() != "english (autocaption)" ) {
-
-                            self.captionUrl.push( {
+                    captions.forEach((caption) => {
+                        if (caption.label.toLowerCase() != 'english (autocaption)') {
+                            self.captionUrl.push({
                                 kind: 'captions',
                                 language: caption.languageCode,
                                 label: caption.language,
-                                url: 'https://www.kaltura.com/api_v3/?service=caption_captionasset&action=servewebvtt&captionAssetId=' + caption.id + '&segmentDuration=' + self.isKaltura.duration + '&segmentIndex=1'
-                            } );
-
+                                url: 'https://www.kaltura.com/api_v3/?service=caption_captionasset&action=servewebvtt&captionAssetId=' + caption.id + '&segmentDuration=' + self.isKaltura.duration + '&segmentIndex=1',
+                            });
                         }
-                        
-                    } );
-
+                    });
                 }
-                
+
                 const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
-            
-                $( self.mediaContent ).html( html ).promise().done( function() {
-                    
-                    // call video js
-                    self.renderVideoJS();
 
-                    if ( !!self.description ) {
-                        document.querySelector( '#mp_html5_api' ).setAttribute( 'aria-describedby', 'long-description' );
-                        self.insertDescription();
+                const mediaContentEl = document.querySelector(self.mediaContent);
+                if (mediaContentEl) {
+                    mediaContentEl.innerHTML = html;
+                }
+                self.renderVideoJS();
+
+                if (!!self.description) {
+                    const html5Api = document.querySelector('#mp_html5_api');
+                    if (html5Api) {
+                        html5Api.setAttribute('aria-describedby', 'long-description');
                     }
-                    
-                } );
-                    
+                    self.insertDescription();
+                }
             } else {
-                self.showPageError( 'KAL_ENTRY_NOT_READY' );
+                self.showPageError('KAL_ENTRY_NOT_READY');
             }
-
-        }
-
-    } );
-    
+        },
+    });
 };
 
-// kaltura api request
+/**
+ * Fetches Brightcove playback data and prepares source/caption metadata.
+ * @returns {void}
+ */
 Page.prototype.loadBrightcoveVideoData = function () {
-    
     const self = this;
 
-    $( self.mediaContent ).html( '<span class="loading-spinner"></span>' );
-
-    fetch( 'https://api.academics.excelsior.edu/brightcove?vid=' + self.src ).then ( response => {
-
-        if ( !response.ok ) {
-            self.showPageError( 'BRIGHTCOVE_NOT_AVAILABLE' );
-            throw new Error( 'Failed to retrieve Brightcove video' );
-        }
-
-        return response.json();
-
-    } ).then( data => {
-
-        const now = new Date().toISOString();
-        const rand = Math.random() * 1000000;
-        const session = parseInt( rand ).toString() + '_' + now;
-
-        self.isBrightcove = {
-            name: data.response.name, 
-            sources: data.response.sources,
-            poster: data.response.poster,
-            duration: 0,
-            session: session,
-            videoId: self.src,
-            accountId: SBPLUS.manifest.sbplus_brightcove_id,
-            lastEngagedTime: -1,
-            firstPlayRequestTime: Date().valueOf(),
-        };
-
-        self.captionUrl = [];
-
-        if ( data.response.text_tracks.length ) {
-
-            data.response.text_tracks.forEach( caption => {
-
-                if ( caption.label.toLowerCase() != "english (autocaption)" ) {
-    
-                    self.captionUrl.push( {
-                        kind: caption.kind,
-                        language: caption.srclang,
-                        label: caption.label,
-                        url: caption.src
-                    } );
-    
-                }
-                
-            } );
-
-        }
-
-        const html = '<video id="mp" class="video-js vjs-default-skin animated fadeIn" crossorigin="anonymous" width="100%" height="100%"></video>';
-                    
-        $( self.mediaContent ).html( html ).promise().done( function() {
-            self.renderVideoJS();
-            if ( !!self.description ) {
-                document.querySelector( '#mp_html5_api' ).setAttribute( 'aria-describedby', 'long-description' );
-                self.insertDescription();
-            }
-        } );
-        
-    } ).catch( error => {
-        self.showPageError( 'BRIGHTCOVE_NOT_AVAILABLE' );
-    } );
-    
-};
-
-Page.prototype.addMarkers = function() {
-
-    if ( this.markersNode != undefined ) {
-
-        Array.from( this.markersNode.children ).forEach( ( marker ) => {
-
-            const m = {
-                time: toSeconds( marker.getAttribute( 'timecode' ) ),
-                text: marker.innerHTML.trim().length ? SBPLUS.noScript( marker.innerHTML.trim() ) : '',
-                color: marker.getAttribute( 'color' ) ? marker.getAttribute( 'color' ) : ''
-            };
-
-            this.markers.push( m );
-
-        } );
-
+    const mediaContentEl = document.querySelector(self.mediaContent);
+    if (mediaContentEl) {
+        mediaContentEl.innerHTML = '<span class="loading-spinner"></span>';
     }
 
+    fetch('https://api.academics.excelsior.edu/brightcove?vid=' + self.src)
+        .then((response) => {
+            if (!response.ok) {
+                self.showPageError('BRIGHTCOVE_NOT_AVAILABLE');
+                throw new Error('Failed to retrieve Brightcove video');
+            }
+
+            return response.json();
+        })
+        .then((data) => {
+            const now = new Date().toISOString();
+            const rand = Math.random() * 1000000;
+            const session = parseInt(rand).toString() + '_' + now;
+
+            self.isBrightcove = {
+                name: data.response.name,
+                sources: data.response.sources,
+                poster: data.response.poster,
+                duration: 0,
+                session: session,
+                videoId: self.src,
+                accountId: SBPLUS.manifest.sbplus_brightcove_id,
+                lastEngagedTime: -1,
+                firstPlayRequestTime: Date().valueOf(),
+            };
+
+            self.captionUrl = [];
+
+            if (data.response.text_tracks.length) {
+                data.response.text_tracks.forEach((caption) => {
+                    if (caption.label.toLowerCase() != 'english (autocaption)') {
+                        self.captionUrl.push({
+                            kind: caption.kind,
+                            language: caption.srclang,
+                            label: caption.label,
+                            url: caption.src,
+                        });
+                    }
+                });
+            }
+
+            const html = '<video id="mp" class="video-js vjs-default-skin animated fadeIn" crossorigin="anonymous" width="100%" height="100%"></video>';
+
+            const contentEl = document.querySelector(self.mediaContent);
+            if (contentEl) {
+                contentEl.innerHTML = html;
+            }
+            self.renderVideoJS();
+            if (!!self.description) {
+                const html5Api = document.querySelector('#mp_html5_api');
+                if (html5Api) {
+                    html5Api.setAttribute('aria-describedby', 'long-description');
+                }
+                self.insertDescription();
+            }
+        })
+        .catch((error) => {
+            self.showPageError('BRIGHTCOVE_NOT_AVAILABLE');
+        });
 };
 
-// render videojs
-Page.prototype.renderVideoJS = function( src ) {
-    
+/**
+ * Parses marker data from XML into Video.js marker configuration entries.
+ * @returns {void}
+ */
+Page.prototype.addMarkers = function () {
+    if (this.markersNode != undefined) {
+        Array.from(this.markersNode.children).forEach((marker) => {
+            const m = {
+                time: toSeconds(marker.getAttribute('timecode')),
+                text: marker.innerHTML.trim().length ? SBPLUS.noScript(marker.innerHTML.trim()) : '',
+                color: marker.getAttribute('color') ? marker.getAttribute('color') : '',
+            };
+
+            this.markers.push(m);
+        });
+    }
+};
+
+/**
+ * Builds and configures a Video.js instance for the current page.
+ * @param {string=} src Optional direct media source URL override.
+ * @returns {void}
+ */
+Page.prototype.renderVideoJS = function (src) {
     const self = this;
-    
+
     src = typeof src !== 'undefined' ? src : self.src;
 
     let isAutoplay = true;
-    
-    if ( SBPLUS.getStorageItem( 'sbplus-autoplay' ) === '0' ) {
+
+    if (SBPLUS.getStorageItem('sbplus-autoplay') === '0') {
         isAutoplay = false;
     }
-    
-    if ( self.preventAutoplay === "true" ) {
-        
+
+    // XML-level preventAutoplay always wins over persisted player preference.
+    if (self.preventAutoplay === 'true') {
         isAutoplay = false;
-        $( SBPLUS.layout.wrapper ).addClass( 'preventAutoplay' ); 
-        
+        const wrapperEl = document.querySelector(SBPLUS.layout.wrapper);
+        if (wrapperEl) {
+            wrapperEl.classList.add('preventAutoplay');
+        }
     } else {
-        $( SBPLUS.layout.wrapper ).removeClass( 'preventAutoplay' ); 
+        const wrapperEl = document.querySelector(SBPLUS.layout.wrapper);
+        if (wrapperEl) {
+            wrapperEl.classList.remove('preventAutoplay');
+        }
     }
 
     const options = {
-        
         techOrder: ['html5'],
         controls: true,
         inactivityTimeout: 0,
         autoplay: isAutoplay,
-        preload: "auto",
+        preload: 'auto',
         playbackRates: [0.5, 1, 1.5, 2],
         controlBar: {
             fullscreenToggle: false,
@@ -775,841 +837,806 @@ Page.prototype.renderVideoJS = function( src ) {
             seekToLive: false,
             skipButtons: {
                 forward: 10,
-                backward: 10
+                backward: 10,
             },
         },
         plugins: {
-            qualityMenu: {}
-        }
-
+            qualityMenu: {},
+        },
     };
-    
-    // autoplay is off for iPhone or iPod
-    if ( SBPLUS.isMobileDevice() ) {
+    if (SBPLUS.isMobileDevice()) {
         options.autoplay = false;
         options.playsinline = true;
         options.nativeControlsForTouch = false;
     }
-    
-    // set tech order and plugins
-    if ( self.isYoutube ) {
+    if (self.isYoutube) {
         options.techOrder = ['youtube'];
-        options.sources = [{ type: "video/youtube", src: "https://www.youtube.com/watch?v=" + src }];
-        options.youtube = { "iv_load_policy": 3, "rel": 0 };;
+        options.sources = [{ type: 'video/youtube', src: 'https://www.youtube.com/watch?v=' + src }];
+        options.youtube = { iv_load_policy: 3, rel: 0 };
         options.playbackRates = null;
     }
 
-    if ( self.isBrightcove ) {
+    if (self.isBrightcove) {
         options.html5 = {
             vhs: {
-              withCredentials: false,
-              overrideNative: false,
+                withCredentials: false,
+                overrideNative: false,
             },
         };
     }
-    
-    if ( self.isKaltura || self.isBrightcove || self.isYoutube || self.isVideo ) {
-        options.controlBar.fullscreenToggle = self.disableFullscreen === "true" ? false : true;
+
+    if (self.isKaltura || self.isBrightcove || self.isYoutube || self.isVideo) {
+        options.controlBar.fullscreenToggle = self.disableFullscreen === 'true' ? false : true;
     }
 
-    self.mediaPlayer = videojs( 'mp', options, function onPlayerReady() {
-
+    self.mediaPlayer = videojs('mp', options, function onPlayerReady() {
         const player = this;
-        
-        if ( self.isKaltura ) {
-            
-            if ( isAutoplay === false ) {
-                player.poster( self.isKaltura.poster + '/width/900/quality/100' );
+
+        if (self.isKaltura) {
+            if (isAutoplay === false) {
+                player.poster(self.isKaltura.poster + '/width/900/quality/100');
             }
-            
-            player.src( self.isKaltura.playerSrc.reverse() );
-            
+
+            player.src(self.isKaltura.playerSrc.reverse());
         }
 
-        if ( self.isBrightcove ) {
-
-            if ( isAutoplay === false && self.isBrightcove.poster.length ) {
-                player.poster( self.isBrightcove.poster[0].src );
+        if (self.isBrightcove) {
+            if (isAutoplay === false && self.isBrightcove.poster.length) {
+                player.poster(self.isBrightcove.poster[0].src);
             }
 
             let vidSources = [];
 
-            self.isBrightcove.sources.forEach( source => {
-                
-                if ( source.codec && source.codec == 'H264' ) {
-                    vidSources.push( { type: 'video/mp4', src: source.src } );
+            self.isBrightcove.sources.forEach((source) => {
+                // Brightcove can return HLS and MP4 renditions. We insert an explicit
+                // MP4 type for H264 entries so fallback playback remains available.
+                if (source.codec && source.codec == 'H264') {
+                    vidSources.push({ type: 'video/mp4', src: source.src });
                 }
 
-                vidSources.push( { type: source.type, src: source.src } );
+                vidSources.push({ type: source.type, src: source.src });
+            });
 
-            } );
+            player.src(vidSources);
 
-            player.src( vidSources );
-
-            player.on( 'loadedmetadata', ( evt ) => {
-
-                Array.from( player.textTracks() ).filter( ({kind}) => !['chapters','metadata'].includes(kind)).forEach((track) => track.mode = 'disabled' );
-                
-                // event: video started loading
+            player.on('loadedmetadata', (evt) => {
+                Array.from(player.textTracks())
+                    .filter(({ kind }) => !['chapters', 'metadata'].includes(kind))
+                    .forEach((track) => (track.mode = 'disabled'));
                 self.isBrightcove.duration = player.duration();
-                self.sendBrightcoveAnalyticsEvent( 'video_impression', evt );
+                self.sendBrightcoveAnalyticsEvent('video_impression', evt);
+            });
 
-            } );
+            player.on('ready', function (evt) {
+                self.sendBrightcoveAnalyticsEvent('player_load', evt);
+            });
 
-            player.on( 'ready', function (evt) {
-                self.sendBrightcoveAnalyticsEvent( 'player_load', evt );
-            } );
-
-            player.one( 'play', function()  {
+            player.one('play', function () {
                 self.isBrightcove.firstPlayRequestTime = Date.now();
-            } );
+            });
 
-            player.on( 'playing', function( evt )  {
-                self.sendBrightcoveAnalyticsEvent( 'play_request', evt );
-                self.sendBrightcoveAnalyticsEvent( 'video_view', evt );
-            } );
+            player.on('playing', function (evt) {
+                self.sendBrightcoveAnalyticsEvent('play_request', evt);
+                self.sendBrightcoveAnalyticsEvent('video_view', evt);
+            });
 
-            player.on( 'timeupdate', function( evt ) {
-                self.onBrightcoveTimeUpdate( evt );
-            } );
+            player.on('timeupdate', function (evt) {
+                self.onBrightcoveTimeUpdate(evt);
+            });
 
-            player.on( 'ended', function( evt ) {
-                self.onBrightcoveTimeUpdate( evt );
-            } );
-
+            player.on('ended', function (evt) {
+                self.onBrightcoveTimeUpdate(evt);
+            });
         }
-        
-        if ( self.isAudio || self.isBundle ) {
-            
-            if ( self.isAudio && self.hasImage ) {
-                player.poster( SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType );
+
+        if (self.isAudio || self.isBundle) {
+            if (self.isAudio && self.hasImage) {
+                player.poster(SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType);
                 const imgPath = `${SBPLUS.assetsPath}pages/${src}.${self.imgType}`;
                 const imgAlt = `Content about ${SBPLUS.escapeHTMLAttribute(self.title)}`;
                 const imgElement = `<img src="${imgPath}" alt="${imgAlt}"${self.description ? ' aria-describedby="long-description"' : ''} tabindex="0" />`;
 
-                $('.vjs-poster')[0].innerHTML = imgElement;
-                
+                const posterEl = document.querySelector('.vjs-poster');
+                if (posterEl) {
+                    posterEl.innerHTML = imgElement;
+                }
             }
-            
-            if ( self.isBundle ) {
-                
+
+            if (self.isBundle) {
                 let srcDuration = 0;
                 const pageImage = new Image();
-                
-                player.on( 'loadedmetadata', function() {
-                    
-                    srcDuration = Math.floor( player.duration() );
-                    
-                } );
-                
+
+                player.on('loadedmetadata', function () {
+                    srcDuration = Math.floor(player.duration());
+                });
+
                 player.cuepoints();
-                player.addCuepoint( {
-                    	
-                	namespace: src + '-1',
-                	start: 0,
-                	end: self.cuepoints[0],
-                	onStart: function() {
-                    	
-                    	pageImage.src = SBPLUS.assetsPath + 'pages/' + src + '-1.' + self.imgType;
-                    	$('.vjs-poster')[0].innerHTML = "<img src=" + pageImage.src + " />";
-                    	player.poster( pageImage.src );
-                    	
-                	},
-                	onEnd: function() {
-                    	
-                	},
-                	params: ''
-                	
-            	} );
-                
-                $.each( self.cuepoints, function( i ) {
-            
+                player.addCuepoint({
+                    namespace: src + '-1',
+                    start: 0,
+                    end: self.cuepoints[0],
+                    onStart: function () {
+                        pageImage.src = SBPLUS.assetsPath + 'pages/' + src + '-1.' + self.imgType;
+                        const posterEl = document.querySelector('.vjs-poster');
+                        if (posterEl) {
+                            posterEl.innerHTML = '<img src=' + pageImage.src + ' />';
+                        }
+                        player.poster(pageImage.src);
+                    },
+                    onEnd: function () {},
+                    params: '',
+                });
+
+                self.cuepoints.forEach(function (_cuepoint, i) {
                     let endCue;
-                    
-                    if ( self.cuepoints[i+1] === undefined ) {
+
+                    // Last cuepoint runs until media duration; others end at the next cuepoint.
+                    if (self.cuepoints[i + 1] === undefined) {
                         endCue = srcDuration;
                     } else {
-                        endCue = self.cuepoints[i+1];
+                        endCue = self.cuepoints[i + 1];
                     }
-                    
-                    player.addCuepoint( {
-                        namespace: src + '-' + ( i + 2 ),
+
+                    player.addCuepoint({
+                        namespace: src + '-' + (i + 2),
                         start: self.cuepoints[i],
                         end: endCue,
-                        onStart: function() {
-                            
-                            pageImage.src = SBPLUS.assetsPath + 'pages/' + src + '-' + ( i + 2 )  + '.' + self.imgType;
-                    	    
-                            $( pageImage ).on( 'error', function() {
-                                self.showPageError( 'NO_IMG', pageImage.src );
-                            } );
-                            
-                            const imageEl = $('.vjs-poster')[0];
+                        onStart: function () {
+                            pageImage.src = SBPLUS.assetsPath + 'pages/' + src + '-' + (i + 2) + '.' + self.imgType;
+
+                            pageImage.onerror = function () {
+                                self.showPageError('NO_IMG', pageImage.src);
+                            };
+
+                            const imageEl = document.querySelector('.vjs-poster');
                             const img = document.createElement('img');
-                            
+
                             img.src = pageImage.src;
-                            
-                            $( imageEl ).append( img );
-                            $( img ).hide().fadeIn(250);
-                            
-                            player.poster( pageImage.src );
-                            
-                        }
-                    } );
-                    
-                } );
-                
-                player.on('seeking', function() {
-                    
-                    $('.vjs-poster')[0].innerHTML = "";
-                    
-                    	
-                	if ( player.currentTime() <= self.cuepoints[0] ) {
-                    	
-                    	player.poster( SBPLUS.assetsPath + 'pages/' + src + '-1.' + self.imgType );
-                    	
-                	}
-                	
-            	} );
-                
-            }
-            
-            player.src( { type: 'audio/mp3', src: SBPLUS.assetsPath + 'audio/' + src + '.mp3' } );
-            
-        }
-        
-        if ( self.isVideo ) {
-            player.src( { type: 'video/mp4', src: SBPLUS.assetsPath + 'video/' + src + '.mp4' } );
-        }
-        
-        // add caption
 
-        if ( self.isKaltura || self.isBrightcove ) {
+                            if (imageEl) {
+                                imageEl.appendChild(img);
+                            }
+                            img.style.display = 'none';
+                            window.setTimeout(() => {
+                                img.style.display = '';
+                            }, 250);
 
-            if ( self.captionUrl.length && player.currentSource().src.includes('.mp4') ) {
-            
-                self.captionUrl.forEach( caption => {
-    
-                    player.addRemoteTextTrack( {
-                        kind: caption.kind,
-                        language: caption.language,
-                        label: caption.label,
-                        src: caption.url
-                    }, true );
-    
-                } );
+                            player.poster(pageImage.src);
+                        },
+                    });
+                });
 
+                player.on('seeking', function () {
+                    const posterEl = document.querySelector('.vjs-poster');
+                    if (posterEl) {
+                        posterEl.innerHTML = '';
+                    }
+
+                    if (player.currentTime() <= self.cuepoints[0]) {
+                        player.poster(SBPLUS.assetsPath + 'pages/' + src + '-1.' + self.imgType);
+                    }
+                });
             }
 
+            player.src({ type: 'audio/mp3', src: SBPLUS.assetsPath + 'audio/' + src + '.mp3' });
+        }
+
+        if (self.isVideo) {
+            player.src({ type: 'video/mp4', src: SBPLUS.assetsPath + 'video/' + src + '.mp4' });
+        }
+
+        if (self.isKaltura || self.isBrightcove) {
+            if (self.captionUrl.length && player.currentSource().src.includes('.mp4')) {
+                self.captionUrl.forEach((caption) => {
+                    player.addRemoteTextTrack(
+                        {
+                            kind: caption.kind,
+                            language: caption.language,
+                            label: caption.label,
+                            src: caption.url,
+                        },
+                        true,
+                    );
+                });
+            }
         } else {
-
-            if ( self.captionUrl ) {
-
-                player.addRemoteTextTrack( {
-                    kind: 'captions',
-                    language: 'en',
-                    label: 'English',
-                    src: self.captionUrl
-                }, true );
-                
+            if (self.captionUrl) {
+                player.addRemoteTextTrack(
+                    {
+                        kind: 'captions',
+                        language: 'en',
+                        label: 'English',
+                        src: self.captionUrl,
+                    },
+                    true,
+                );
             }
         }
 
-        if ( self.isYoutube && self.useDefaultPlayer ) {
-
-            $.ajax( {
-                    
-                url: SBPLUS.assetsPath + 'video/yt-' + src + '.vtt',
-                type: 'HEAD'
-                
-            } ).done( function() {
-                
-                player.addRemoteTextTrack( {
-                    kind: 'captions',
-                    language: 'en',
-                    label: 'English',
-                    src: SBPLUS.assetsPath + 'video/yt-' + src + '.vtt'
-                }, true );
-                
-            } )
-
+        if (self.isYoutube && self.useDefaultPlayer) {
+            const ytCaptionPath = SBPLUS.assetsPath + 'video/yt-' + src + '.vtt';
+            headRequest(ytCaptionPath)
+                .then(function () {
+                    player.addRemoteTextTrack(
+                        {
+                            kind: 'captions',
+                            language: 'en',
+                            label: 'English',
+                            src: ytCaptionPath,
+                        },
+                        true,
+                    );
+                })
+                .catch(function () {
+                });
         }
-        
-        // set playback rate
-        if ( options.playbackRates !== null ) {
-            player.playbackRate( SBPLUS.playbackrate );
+        if (options.playbackRates !== null) {
+            player.playbackRate(SBPLUS.playbackrate);
         }
-        
-        // video events
-        player.on(['waiting', 'pause' ], function() {
-          self.isPlaying = false;
-        } );
-        
-        player.on( 'play', function() {
-            if ( $(SBPLUS.layout.mediaMsg).is( ':visible' ) ) {
-                $(SBPLUS.layout.mediaMsg).addClass( 'hide' ).html('');
-            }
-        } );
-        
-        player.on( 'playing', function() {
-            self.isPlaying = true;
-        } );
-        
-        player.on( 'ended', function() {      
+        player.on(['waiting', 'pause'], function () {
             self.isPlaying = false;
-        } );
-        
-        player.on( 'error', function() {
-          self.showPageError( 'NO_MEDIA', player.src() );
-        } );
-        
-        player.on( 'resolutionchange', function() {
-    		player.playbackRate( SBPLUS.playbackrate );
-		} );
+        });
 
-        player.on( 'fullscreenchange', () => {
-
-            if ( player.isFullscreen() ) {
-                player.options( { inactivityTimeout: 2000 } );
-            } else {
-                player.options( { inactivityTimeout: 0 } );
-                document.querySelector( '.video-js.vjs-default-skin' ).classList.remove( 'vjs-user-inactive' );
+        player.on('play', function () {
+            const mediaMsgEl = document.querySelector(SBPLUS.layout.mediaMsg);
+            if (isVisible(mediaMsgEl)) {
+                mediaMsgEl.classList.add('hide');
+                mediaMsgEl.innerHTML = '';
             }
+        });
 
-        } );
-        
-        player.on( 'ratechange', function() {
-            
+        player.on('playing', function () {
+            self.isPlaying = true;
+        });
+
+        player.on('ended', function () {
+            self.isPlaying = false;
+        });
+
+        player.on('error', function () {
+            self.showPageError('NO_MEDIA', player.src());
+        });
+
+        player.on('resolutionchange', function () {
+            player.playbackRate(SBPLUS.playbackrate);
+        });
+
+        player.on('fullscreenchange', () => {
+            if (player.isFullscreen()) {
+                player.options({ inactivityTimeout: 2000 });
+            } else {
+                player.options({ inactivityTimeout: 0 });
+                const defaultSkinEl = document.querySelector('.video-js.vjs-default-skin');
+                if (defaultSkinEl) {
+                    defaultSkinEl.classList.remove('vjs-user-inactive');
+                }
+            }
+        });
+
+        player.on('ratechange', function () {
             const rate = this.playbackRate();
-            
-            if ( SBPLUS.playbackrate !== rate ) {
+
+            if (SBPLUS.playbackrate !== rate) {
                 SBPLUS.playbackrate = rate;
                 this.playbackRate(rate);
             }
-    		
-		} );
-        
-        // volume
-        if ( SBPLUS.hasStorageItem( 'sbplus-' + SBPLUS.presentationId + '-volume-temp', true ) ) {
-            player.volume( Number( SBPLUS.getStorageItem( 'sbplus-' + SBPLUS.presentationId + '-volume-temp', true ) ) );
+        });
+        if (SBPLUS.hasStorageItem('sbplus-' + SBPLUS.presentationId + '-volume-temp', true)) {
+            player.volume(Number(SBPLUS.getStorageItem('sbplus-' + SBPLUS.presentationId + '-volume-temp', true)));
         } else {
-            player.volume( Number( SBPLUS.getStorageItem( 'sbplus-volume' ) ) );
+            player.volume(Number(SBPLUS.getStorageItem('sbplus-volume')));
         }
-        
-        player.on( 'volumechange', function() {
-            SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationId + '-volume-temp', this.volume(), true );
-        } );
-        
-        // subtitle
-        if ( self.isYoutube === false && player.textTracks().tracks_.length >= 1 ) {
-            
-            if ( SBPLUS.hasStorageItem( 'sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true ) ) {
-            
-                if ( SBPLUS.getStorageItem( 'sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true ) === '1' ) {
+
+        player.on('volumechange', function () {
+            SBPLUS.setStorageItem('sbplus-' + SBPLUS.presentationId + '-volume-temp', this.volume(), true);
+        });
+        if (self.isYoutube === false && player.textTracks().tracks_.length >= 1) {
+            if (SBPLUS.hasStorageItem('sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true)) {
+                if (SBPLUS.getStorageItem('sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true) === '1') {
                     player.textTracks().tracks_[0].mode = 'showing';
                 } else {
                     player.textTracks().tracks_[0].mode = 'disabled';
                 }
-                
             } else {
-                
-                if ( SBPLUS.getStorageItem( 'sbplus-subtitle' ) === '1' ) {
+                if (SBPLUS.getStorageItem('sbplus-subtitle') === '1') {
                     player.textTracks().tracks_[0].mode = 'showing';
                 } else {
                     player.textTracks().tracks_[0].mode = 'disabled';
                 }
-                
             }
-            
-            player.textTracks().addEventListener( 'change', function() {
-                
+
+            player.textTracks().addEventListener('change', function () {
                 const tracks = this.tracks_;
-                
-                $.each( tracks, function() {
-                    
-                    if ( this.mode === 'showing' ) {
-                        
-                        SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationId + '-subtitle-temp', 1, true );
-                        
+
+                Array.from(tracks).forEach(function (track) {
+                    if (track.mode === 'showing') {
+                        SBPLUS.setStorageItem('sbplus-' + SBPLUS.presentationId + '-subtitle-temp', 1, true);
                     } else {
-                        
-                        SBPLUS.setStorageItem( 'sbplus-' + SBPLUS.presentationId + '-subtitle-temp', 0, true );
-                        
+                        SBPLUS.setStorageItem('sbplus-' + SBPLUS.presentationId + '-subtitle-temp', 0, true);
                     }
-                    
-                } );
-                
-            } );
-            
+                });
+            });
         }
-
-        // add expand/contract button
-        addExpandContractButton( player );
-
-        // add markers
-        if ( self.markers ) {
-            setupMarkers( player, self.markers );
+        addExpandContractButton(player);
+        if (Array.isArray(self.markers) && self.markers.length > 0) {
+            setupMarkers(player, self.markers);
         }
-            
-    } );
-    
-    if ( $( '#mp_html5_api' ).length ) {
-        
-        $( '#mp_html5_api' ).addClass( 'animated ' + self.transition )
-            .one( 'webkitAnimationEnd mozAnimationEnd animationend', function() {
-                $( this ).removeClass( 'animated ' +  self.transition );
-                $( this ).off();
+    });
+
+    const transitionClass = typeof self.transition === 'string' ? self.transition.trim() : '';
+
+    const mpHtml5Api = document.querySelector('#mp_html5_api');
+    if (mpHtml5Api) {
+        mpHtml5Api.classList.add('animated');
+        if (transitionClass) {
+            mpHtml5Api.classList.add(transitionClass);
+        }
+        onAnimationEnd(mpHtml5Api, function () {
+            mpHtml5Api.classList.remove('animated');
+            if (transitionClass) {
+                mpHtml5Api.classList.remove(transitionClass);
             }
-        );
-        
-    }
-    
-    if ( $( '#mp_Youtube_api' ).length ) {
-        
-        const parent = $( '#mp_Youtube_api' ).parent();
-        
-        parent.addClass( 'animated ' + self.transition )
-            .one( 'webkitAnimationEnd mozAnimationEnd animationend', function() {
-                $( this ).removeClass( 'animated ' +  self.transition );
-                $( this ).off();
-            }
-        );
-        
+        });
     }
 
-}
+    const mpYoutubeApi = document.querySelector('#mp_Youtube_api');
+    if (mpYoutubeApi && mpYoutubeApi.parentElement) {
+        const parent = mpYoutubeApi.parentElement;
+        parent.classList.add('animated');
+        if (transitionClass) {
+            parent.classList.add(transitionClass);
+        }
+        onAnimationEnd(parent, function () {
+            parent.classList.remove('animated');
+            if (transitionClass) {
+                parent.classList.remove(transitionClass);
+            }
+        });
+    }
+};
 
-Page.prototype.setWidgets = function() {
-    
+/**
+ * Populates widget tabs and content based on page-level widget metadata.
+ * @returns {void}
+ */
+Page.prototype.setWidgets = function () {
     const self = this;
 
     SBPLUS.clearWidgetSegment();
-    
-    if ( this.type != 'quiz' ) {
-        
-        if ( !SBPLUS.isEmpty( this.notes ) ) {
-            SBPLUS.addSegment( 'Notes' );
+
+    if (this.type != 'quiz') {
+        if (!SBPLUS.isEmpty(this.notes)) {
+            SBPLUS.addSegment('Notes');
         }
-        
-        if ( this.widget.length ) {
-            
-            const segments = $( $( this.widget ).find( 'segment' ) );
-            
-            segments.each( function() {
-                
-                const name = $( this ).attr( 'name' );
-                const key = 'sbplus_' + SBPLUS.sanitize( name );
-                
-                self.widgetSegments[key] = SBPLUS.getTextContent( $( this ) );
-                SBPLUS.addSegment( name );
-                
-            } );
- 
-        } 
-        
+
+        if (this.widget.length) {
+            const widgetRoot = this.widget && this.widget[0] ? this.widget[0] : this.widget;
+            const segments = widgetRoot ? widgetRoot.querySelectorAll('segment') : [];
+
+            segments.forEach(function (segment) {
+                const name = segment.getAttribute('name');
+                const key = 'sbplus_' + SBPLUS.sanitize(name);
+
+                self.widgetSegments[key] = SBPLUS.noScript(SBPLUS.noCDATA(segment.textContent));
+                SBPLUS.addSegment(name);
+            });
+        }
+
         SBPLUS.selectFirstSegment();
-        
-    }
-    
-}
 
-Page.prototype.getWidgetContent = function( id ) {
-    
+        if (!document.querySelector('main').classList.contains('sbplus_boxed')) {
+            const widgetEl = document.querySelector(SBPLUS.layout.widget);
+            const mediaEl = document.querySelector(SBPLUS.layout.mediaContent);
+            let rafId = null;
+
+            const applyHeight = () => {
+                const nextHeight = `${SBPLUS.calcDynamicHeight()}px`;
+
+                if (widgetEl.style.height !== nextHeight) {
+                    widgetEl.style.height = nextHeight;
+                }
+            };
+
+            const queueApplyHeight = () => {
+                if (rafId !== null) {
+                    return;
+                }
+
+                rafId = requestAnimationFrame(() => {
+                    rafId = null;
+                    applyHeight();
+                });
+            };
+
+            // Run once after layout and then on future content-size changes.
+            queueApplyHeight();
+
+            if (window.ResizeObserver) {
+                resizeObserver = new ResizeObserver(() => {
+                    queueApplyHeight();
+                });
+
+                // Avoid observing the same element
+                const observeTarget = mediaEl;
+                resizeObserver.observe(observeTarget);
+            }
+        } else {
+            document.querySelector(SBPLUS.layout.widget).style.height = '';
+        }
+    }
+};
+
+/**
+ * Resolves widget content for a segment identifier from XML or page data.
+ * @param {string} id Widget segment identifier.
+ * @returns {string}
+ */
+Page.prototype.getWidgetContent = function (id) {
     const self = this;
-    
-    switch( id ) {
-        
+
+    switch (id) {
         case 'sbplus_notes':
-            
-            displayWidgetContent( id, this.notes );
-            
-        break;
-        
+            displayWidgetContent(id, this.notes);
+            break;
         default:
-            
-            displayWidgetContent( id, self.widgetSegments[id] );
-            
-        break;
-        
+            displayWidgetContent(id, self.widgetSegments[id]);
+            break;
     }
-    
-}
-
-// display page error
-Page.prototype.showPageError = function( type, src ) {
-    
+};
+/**
+ * Displays a user-facing media error with context for the failed source.
+ * @param {string} type Error code used to resolve a localized message.
+ * @param {string=} src Optional source URL that failed to load.
+ * @returns {void}
+ */
+Page.prototype.showPageError = function (type, src) {
     src = typeof src !== 'undefined' ? src : '';
-    
+
     const self = this;
-    
+
     let msg = '';
-    
-    switch ( type ) {
-                
+
+    switch (type) {
         case 'NO_IMG':
-        
             msg = '<p><strong>The content for this Storybook Page could not be loaded.</strong></p><p><strong>Expected image:</strong> ' + src + '</p><p>Please try refreshing your browser, or coming back later.</p><p>Contact support if you continue to have issues.</p>';
 
-        break;
+            break;
 
         case 'KAL_NOT_AVAILABLE':
-
             msg = '<p>The manifest file does not specify the Kaltura organization or partner ID. Consequently, Kaltura is unavailable for use throughout the presentation.</p><p><strong>Expected Kaltura video source</strong>: ' + self.src + '</p>';
 
-        break;
-        
+            break;
+
         case 'KAL_ENTRY_NOT_READY':
             msg = '<p>The video for this Storybook Page is still processing and could not be loaded at the moment. Please try again later. Contact support if you continue to have issues.</p><p><strong>Expected video source</strong>: Kaltura video ID ' + self.src + '<br><strong>Status</strong>: ';
-            
-            msg += getEntryKalturaStatus( self.isKaltura.status.entry ) + '</p>';
-            
-        break;
 
-        case 'BTIGHTCOVE_NOT_AVAILABLE':
+            msg += getEntryKalturaStatus(self.isKaltura.status.entry) + '</p>';
 
-        msg = '<p>The video is still processing or could not be loaded at the moment. Please try again later. Contact support if you continue to have issues.</p><p><strong>Expected video source</strong>: Brightcove video ID # ' + self.src + '<br><strong>Status</strong>: ';
+            break;
 
-        break;
-        
+        case 'BRIGHTCOVE_NOT_AVAILABLE':
+            msg = '<p>The video is still processing or could not be loaded at the moment. Please try again later. Contact support if you continue to have issues.</p><p><strong>Expected video source</strong>: Brightcove video ID # ' + self.src + '<br><strong>Status</strong>: ';
+
+            break;
+
         case 'NO_MEDIA':
-        
             msg = '<p><strong>The content for this Storybook Page could not be loaded.</strong></p>';
-            
-            if ( self.hasImage === false ) {
+
+            if (self.hasImage === false) {
                 msg += '<p><strong>Expected audio:</strong> ' + src + '<br>';
                 msg += '<strong>Expected image:</strong> ' + self.missingImgUrl + '</p>';
             } else {
                 msg += '<p><strong>Expected media:</strong> ' + src + '</p>';
             }
-            
+
             msg += '<p>Please try refreshing your browser, or coming back later.</p><p>Contact support if you continue to have issues.</p>';
-            
-        break;
-        
+
+            break;
+
         case 'UNKNOWN_TYPE':
             msg = '<p><strong>UNKNOWN PAGE TYPE</strong></p><p>Page type ("' + src + '") is not supported.</p><p>Contact support if you continue to have issues.</p>';
-        break;
-        
+            break;
     }
-    
-    $( self.mediaError ).html( msg ).show();
-    
-}
 
-Page.prototype.sendBrightcoveAnalyticsEvent = function( eventType, evt ) {
-    
+    const mediaErrorEl = document.querySelector(self.mediaError);
+    if (mediaErrorEl) {
+        mediaErrorEl.innerHTML = msg;
+        mediaErrorEl.style.display = 'block';
+    }
+};
+
+/**
+ * Sends a Brightcove analytics event to the SB+ telemetry endpoint.
+ * @param {string} eventType Analytics event name.
+ * @param {Object} evt Event payload from the player callback.
+ * @returns {void}
+ */
+Page.prototype.sendBrightcoveAnalyticsEvent = function (eventType, evt) {
     const self = this;
-    const baseURL = 'https://metrics.brightcove.com/tracker/v2/?'
+    const baseURL = 'https://metrics.brightcove.com/tracker/v2/?';
     const time = Date.now();
-    const destination = encodeURI( window.location.href );
-    const source = encodeURI( document.referrer );
+    const destination = encodeURI(window.location.href);
+    const source = encodeURI(document.referrer);
 
     let urlStr = '';
-    
-    // add params for all requests
-    urlStr = 'event=' + eventType + '&session=' + self.isBrightcove.session + '&domain=videocloud&account=' + self.isBrightcove.accountId + '&time=' + time + '&destination=' + destination + '&video=' + self.isBrightcove.videoId + '&video_name=' + encodeURI( self.isBrightcove.name );
-
-    // source will be empty for direct traffic
-    if ( source !== '' && source != destination ) {
+    urlStr = 'event=' + eventType + '&session=' + self.isBrightcove.session + '&domain=videocloud&account=' + self.isBrightcove.accountId + '&time=' + time + '&destination=' + destination + '&video=' + self.isBrightcove.videoId + '&video_name=' + encodeURI(self.isBrightcove.name);
+    if (source !== '' && source != destination) {
+        // Drop source when direct traffic equals destination to avoid noisy attribution.
         urlStr += '&source=' + source;
     }
 
-    if ( eventType === 'video_view' ) {
+    if (eventType === 'video_view') {
         urlStr += '&start_time_ms=' + self.isBrightcove.firstPlayRequestTime;
     }
 
-    if ( eventType !== 'player_load' ) {
+    if (eventType !== 'player_load') {
         urlStr += '&video_duration=' + self.isBrightcove.duration;
     }
-    
-    // add params specific to video_engagement events
-    if ( eventType === 'video_engagement' ) {
+    if (eventType === 'video_engagement') {
         const currentSource = self.mediaPlayer.currentSource();
-        urlStr += '&range=' + evt.range + '&rendition_url=' + encodeURI( currentSource.src.split('?')[0] ) + '&rendition_mime_type=' + encodeURI( currentSource.type );
+        urlStr += '&range=' + evt.range + '&rendition_url=' + encodeURI(currentSource.src.split('?')[0]) + '&rendition_mime_type=' + encodeURI(currentSource.type);
     }
-
-    // add the base URL
     urlStr = baseURL + urlStr;
-
-    // make the request
-    sendData( urlStr );
+    sendData(urlStr);
 
     return;
+};
 
-}
-
-Page.prototype.onBrightcoveTimeUpdate = function( evt ) {
-
+/**
+ * Throttles and emits Brightcove engagement metrics during playback.
+ * @param {Object} evt Time-update payload containing current playback progress.
+ * @returns {void}
+ */
+Page.prototype.onBrightcoveTimeUpdate = function (evt) {
     const self = this;
     const currentTime = self.mediaPlayer.currentTime();
-    const engagementThreshold = 10; // Trigger every 10 seconds
+    const engagementThreshold = 10; // Brightcove engagement events are emitted in 10-second buckets.
+    // Collapse frequent timeupdate events into deterministic 10-second buckets.
     const currentSegment = Math.floor(currentTime / engagementThreshold) * engagementThreshold;
     let range = '';
 
-    if ( currentSegment > self.isBrightcove.lastEngagedTime ) {
+    if (currentSegment > self.isBrightcove.lastEngagedTime) {
+        let endRange = Math.floor(currentTime) + engagementThreshold;
 
-        // set the range and add it to the evt object
-        let endRange = ( Math.floor( currentTime ) + engagementThreshold );
-
-        if ( endRange >= self.isBrightcove.duration ) {
-            endRange = Math.floor( self.isBrightcove.duration );
+        if (endRange >= self.isBrightcove.duration) {
+            endRange = Math.floor(self.isBrightcove.duration);
         }
 
-        range = ( Math.floor( currentTime ) + '..' + endRange ).toString();
+        range = (Math.floor(currentTime) + '..' + endRange).toString();
         evt.range = range;
-
-        // send video_enagement event
-        self.sendBrightcoveAnalyticsEvent( 'video_engagement', evt );
-
-        // Update last engaged time
+        self.sendBrightcoveAnalyticsEvent('video_engagement', evt);
         self.isBrightcove.lastEngagedTime = currentSegment;
     }
 
-    if ( evt.type === 'ended' ) {
-        const duration = Math.floor( self.isBrightcove.duration );
-        range = ( duration + '..' +  duration ).toString();
+    if (evt.type === 'ended') {
+        const duration = Math.floor(self.isBrightcove.duration);
+        range = (duration + '..' + duration).toString();
         evt.range = range;
-        self.sendBrightcoveAnalyticsEvent( 'video_engagement', evt );
+        self.sendBrightcoveAnalyticsEvent('video_engagement', evt);
         self.isBrightcove.lastEngagedTime = -1;
     }
+};
 
-}
-
-// function getKalturaStatus( code ) {
-//     let msg = '';
-//     switch( code ) {
-//         case -1:
-//         msg = 'ERROR';
-//         break;
-//         case 0:
-//         msg = 'QUEUED (queued for conversion)';
-//         break;
-//         case 1:
-//         msg = 'CONVERTING';
-//         break;
-//         case 2:
-//         msg = 'READY';
-//         break;
-//         case 3:
-//         msg = 'DELETED';
-//         break;
-//         case 4:
-//         msg = 'NOT APPLICABLE';
-//         break;
-//         default:
-//         msg = 'UNKNOWN ERROR (check main entry)';
-//         break;
-        
-//     }
-//     return msg;
-// }
-
-function getEntryKalturaStatus( code ) {
+/**
+ * Maps Kaltura API status codes to a status key used by error handling.
+ * @param {number|string} code Entry status code returned by Kaltura.
+ * @returns {string}
+ */
+function getEntryKalturaStatus(code) {
     let msg = '';
-    switch( code ) {
+    switch (code) {
         case -2:
-        msg = 'ERROR IMPORTING';
-        break;
+            msg = 'ERROR IMPORTING';
+            break;
         case -1:
-        msg = 'ERROR CONVERTING';
-        break;
+            msg = 'ERROR CONVERTING';
+            break;
         case 0:
-        msg = 'IMPORTING';
-        break;
+            msg = 'IMPORTING';
+            break;
         case 1:
-        msg = 'PRECONVERT';
-        break;
+            msg = 'PRECONVERT';
+            break;
         case 2:
-        msg = 'READY';
-        break;
+            msg = 'READY';
+            break;
         case 3:
-        msg = 'DELETED';
-        break;
+            msg = 'DELETED';
+            break;
         case 4:
-        msg = 'PENDING MODERATION';
-        break;
+            msg = 'PENDING MODERATION';
+            break;
         case 5:
-        msg = 'MODERATE';
-        break;
+            msg = 'MODERATE';
+            break;
         case 6:
-        msg = 'BLOCKED';
-        break;
+            msg = 'BLOCKED';
+            break;
         default:
-        msg = 'UNKNOWN ERROR (check entry ID)';
-        break;
-        
+            msg = 'UNKNOWN ERROR (check entry ID)';
+            break;
     }
     return msg;
 }
 
-// page class helper functions
-function addExpandContractButton( vjs ) {
-
-    class ExpandContractButton extends videojs.getComponent( 'Button' ) {
-
+/**
+ * Adds the expand/contract toggle to the Video.js control bar.
+ * @param {Object} vjs Video.js player instance.
+ * @returns {void}
+ */
+function addExpandContractButton(vjs) {
+    class ExpandContractButton extends videojs.getComponent('Button') {
         constructor(player, options) {
-
             super(player, options);
-            this.el().setAttribute( 'aria-label','Expand/Contract' );
-            this.controlText( 'Expand/Contract' );
+            this.el().setAttribute('aria-label', 'Expand/Contract');
+            this.controlText('Expand/Contract');
 
-            if (document.querySelector( SBPLUS.layout.sbplus ).classList.contains( 'sbplus-vjs-expanded' )) {
-                vjs.addClass( 'sbplus-vjs-expanded' );
+            if (document.querySelector(SBPLUS.layout.sbplus).classList.contains('sbplus-vjs-expanded')) {
+                vjs.addClass('sbplus-vjs-expanded');
             }
-
         }
 
         handleClick() {
-            
-            if ( vjs.hasClass( 'sbplus-vjs-expanded' ) ) {
-                vjs.removeClass( 'sbplus-vjs-expanded' );
-                document.querySelector( SBPLUS.layout.sbplus ).classList.remove( 'sbplus-vjs-expanded' );
+            if (vjs.hasClass('sbplus-vjs-expanded')) {
+                vjs.removeClass('sbplus-vjs-expanded');
+                document.querySelector(SBPLUS.layout.sbplus).classList.remove('sbplus-vjs-expanded');
             } else {
-                vjs.addClass( 'sbplus-vjs-expanded' );
-                document.querySelector( SBPLUS.layout.sbplus ).classList.add( 'sbplus-vjs-expanded' );
+                vjs.addClass('sbplus-vjs-expanded');
+                document.querySelector(SBPLUS.layout.sbplus).classList.add('sbplus-vjs-expanded');
             }
-                
         }
 
         buildCSSClass() {
             return 'vjs-expand-contract-button vjs-control vjs-button';
         }
-
     }
 
-    videojs.registerComponent( 'ExpandContractButton', ExpandContractButton );
-    vjs.getChild( 'controlBar' ).addChild( 'ExpandContractButton', {}, 15 );
-    
-}
-
-function toggleExpandContractView(evt) {
-
-    const layout = document.querySelector( SBPLUS.layout.sbplus );
-
-    if ( layout.classList.contains( 'sbplus-vjs-expanded' ) ) {
-        evt.target.classList.remove( 'expanded' );
-        layout.classList.remove( 'sbplus-vjs-expanded' );
-    } else {
-        evt.target.classList.add( 'expanded' )
-        layout.classList.add( 'sbplus-vjs-expanded' );
-    }
-
-}
-
-function addSecondaryControls( noAudio = false ) {
-
-    noAudio = typeof noAudio !== 'undefined' ? noAudio : false;
-
-    const secondaryControlDiv = document.createElement( 'div' );
-    secondaryControlDiv.classList.add( 'sbplus_secondary_controls' );
-
-    if ( noAudio ) {
-
-        const noAudioLabelEl = document.createElement( 'div' );
-        noAudioLabelEl.classList.add( 'no_audio_label' );
-        noAudioLabelEl.innerHTML = 'This slide is not narrated.';
-        secondaryControlDiv.appendChild( noAudioLabelEl );
-
-    }
-
-    const expandContractBtn = document.createElement( 'button' );
-    expandContractBtn.setAttribute( 'id', 'expand_contract_btn' );
-    expandContractBtn.setAttribute( 'title', 'Expand/Contract' );
-    expandContractBtn.setAttribute( 'aria-label', 'Expand/Contract' );
-
-    secondaryControlDiv.appendChild(expandContractBtn);
-    secondaryControlDiv.addEventListener( 'click', toggleExpandContractView );
-
-    $( SBPLUS.layout.mediaContent ).append( secondaryControlDiv );
-
-}
-
-function removeSecondaryControls() {
-
-    const secondaryControlsDiv = document.querySelector( '.sbplus_secondary_controls' );
-
-    if ( secondaryControlsDiv ) {
-        const expandBtn = document.querySelector( '#expand_contract_btn' );
-        expandBtn.removeEventListener( 'click', toggleExpandContractView );
-    }
-
-}
-
-function setupMarkers ( player, markers ) {
-
-    if ( markers ) {
-
-        player.markers( {
-            markers: markers
-        } );
-
-    }
-
-}
-
-function displayWidgetContent( id, str ) {
-    
-    $( SBPLUS.widget.content ).html( str ).promise().done( ( element ) => {
-
-            element.attr( 'role', 'tabpanel' );
-            element.attr( 'tabindex', 0 );
-            element.attr( 'aria-labelledby', id );
-            
-            if ( element.find( 'a' ).length ) {
-
-        		element.find( 'a' ).each( function() {
-            		
-        			$( this ).attr( "target", "_blank" );
-        
-                } );
-        
-            }
-            
-        } );
-    
-}
-
-// function guid() {
-    
-//     function s4() {
-//         return Math.floor( ( 1 + Math.random() ) * 0x10000 ).toString( 16 ).substring (1 );
-//     }
-    
-//     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-    
-// }
-
-function toSeconds( str ) {
-    
-    const arr = str.split( ':' );
-    
-    if ( arr.length >= 3 ) {
-        return Number( arr[0] * 60 ) * 60 + Number( arr[1] * 60 ) + Number( arr[2] );
-    } else {
-        return Number( arr[0] * 60 ) + Number( arr[1] );
-    }
-    
-}
-
-function isUrl(s) {
-   const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-   return regexp.test(s);
+    videojs.registerComponent('ExpandContractButton', ExpandContractButton);
+    vjs.getChild('controlBar').addChild('ExpandContractButton', {}, 15);
 }
 
 /**
- * Injects API calls into the head of a document
- * as the src for a img tag
- * img is better than script tag for CORS
- * @param {string} requestURL The URL to call to send the data
- * @return true
+ * Toggles expanded media layout mode for the active page.
+ * @param {Event} evt Click event from the expand/contract control.
+ * @returns {void}
  */
-function sendData( requestURL ) {
-    const scriptElement = document.createElement( 'img' );
-    scriptElement.setAttribute( 'src', requestURL );
-    scriptElement.setAttribute( 'alt', '' );
-    scriptElement.setAttribute( 'aria-hidden', 'true' );
+function toggleExpandContractView(evt) {
+    const layout = document.querySelector(SBPLUS.layout.sbplus);
+
+    if (layout.classList.contains('sbplus-vjs-expanded')) {
+        evt.target.classList.remove('expanded');
+        layout.classList.remove('sbplus-vjs-expanded');
+    } else {
+        evt.target.classList.add('expanded');
+        layout.classList.add('sbplus-vjs-expanded');
+    }
+}
+
+/**
+ * Injects non-media controls (copy, description, transcript) under media content.
+ * @param {boolean} [noAudio=false] Hides audio-specific controls when true.
+ * @returns {void}
+ */
+function addSecondaryControls(noAudio = false) {
+    noAudio = typeof noAudio !== 'undefined' ? noAudio : false;
+
+    const secondaryControlDiv = document.createElement('div');
+    secondaryControlDiv.classList.add('sbplus_secondary_controls');
+
+    if (noAudio) {
+        const noAudioLabelEl = document.createElement('div');
+        noAudioLabelEl.classList.add('no_audio_label');
+        noAudioLabelEl.innerHTML = 'This slide is not narrated.';
+        secondaryControlDiv.appendChild(noAudioLabelEl);
+    }
+
+    const expandContractBtn = document.createElement('button');
+    expandContractBtn.setAttribute('id', 'expand_contract_btn');
+    expandContractBtn.setAttribute('title', 'Expand/Contract');
+    expandContractBtn.setAttribute('aria-label', 'Expand/Contract');
+
+    secondaryControlDiv.appendChild(expandContractBtn);
+    secondaryControlDiv.addEventListener('click', toggleExpandContractView);
+
+    const mediaContentEl = document.querySelector(SBPLUS.layout.mediaContent);
+    if (mediaContentEl) {
+        mediaContentEl.appendChild(secondaryControlDiv);
+    }
+}
+
+/**
+ * Removes secondary controls previously inserted for a page.
+ * @returns {void}
+ */
+function removeSecondaryControls() {
+    const secondaryControlsDiv = document.querySelector('.sbplus_secondary_controls');
+
+    if (secondaryControlsDiv) {
+        const expandBtn = document.querySelector('#expand_contract_btn');
+        expandBtn.removeEventListener('click', toggleExpandContractView);
+    }
+}
+
+/**
+ * Configures marker plugin data for the active Video.js player.
+ * @param {Object} player Video.js player instance.
+ * @param {Array<Object>} markers Marker definitions with time and label data.
+ * @returns {void}
+ */
+function setupMarkers(player, markers) {
+    if (!Array.isArray(markers) || markers.length === 0) {
+        return;
+    }
+
+    if (typeof player.markers !== 'function') {
+        console.warn('Video.js markers plugin is not loaded; skipping marker setup.');
+        return;
+    }
+
+    player.markers({
+        markers: markers,
+    });
+}
+
+/**
+ * Renders widget HTML into the widget panel for the selected segment.
+ * @param {string} id Widget content container id.
+ * @param {string} str HTML content to render.
+ * @returns {void}
+ */
+function displayWidgetContent(id, str) {
+    const contentEl = document.querySelector(SBPLUS.widget.content);
+    if (!contentEl) {
+        return;
+    }
+
+    contentEl.innerHTML = str;
+    contentEl.setAttribute('role', 'tabpanel');
+    contentEl.setAttribute('tabindex', '0');
+    contentEl.setAttribute('aria-labelledby', id);
+
+    contentEl.querySelectorAll('a').forEach(function (link) {
+        link.setAttribute('target', '_blank');
+    });
+}
+
+/**
+ * Converts a time string (hh:mm:ss or seconds) into total seconds.
+ * @param {string|number} str Time value to convert.
+ * @returns {number}
+ */
+function toSeconds(str) {
+    const arr = str.split(':');
+
+    if (arr.length >= 3) {
+        return Number(arr[0] * 60) * 60 + Number(arr[1] * 60) + Number(arr[2]);
+    } else {
+        return Number(arr[0] * 60) + Number(arr[1]);
+    }
+}
+
+/**
+ * Tests whether a string appears to be an absolute URL.
+ * @param {string} s Candidate URL string.
+ * @returns {boolean}
+ */
+function isUrl(s) {
+    const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    return regexp.test(s);
+}
+
+/**
+ * Sends analytics data by creating a tracking image request.
+ * @param {string} requestURL Fully built analytics request URL.
+ * @returns {boolean}
+ */
+function sendData(requestURL) {
+    const scriptElement = document.createElement('img');
+    scriptElement.setAttribute('src', requestURL);
+    scriptElement.setAttribute('alt', '');
+    scriptElement.setAttribute('aria-hidden', 'true');
     scriptElement.style.display = 'none';
-    document.getElementsByTagName( 'body' )[0].appendChild( scriptElement );
+    document.getElementsByTagName('body')[0].appendChild(scriptElement);
     return true;
 }
 
