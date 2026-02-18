@@ -197,7 +197,15 @@ const SBPLUS = {
 
                 self.manifest = JSON.parse(response.responseText);
                 self.manifestLoaded = true;
-                window.addEventListener('unload', self.removeAllSessionStorage.bind(self));
+                
+                // `unload` is deprecated; use `pagehide` and skip BFCache transitions.
+                window.addEventListener('pagehide', function (event) {
+                    if (event && event.persisted) {
+                        return;
+                    }
+
+                    self.removeAllSessionStorage();
+                });
 
                 if (self.isEmpty(self.manifest.sbplus_root_directory)) {
                     self.manifest.sbplus_root_directory = 'sources/';
