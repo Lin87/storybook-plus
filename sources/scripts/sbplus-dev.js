@@ -868,7 +868,7 @@ const SBPLUS = {
                     const downloadBarEl = document.querySelector(self.splash.downloadBar);
 
                     if (downloadBarEl) {
-                        downloadBarEl.insertAdjacentHTML('beforeend', '<a href="' + downloadableUrl + '" download="' + fileName + '.' + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="icon-download"></span>' + file.label + '</a>');
+                        downloadBarEl.insertAdjacentHTML('beforeend', '<a href="' + downloadableUrl + '" download="' + fileName + '.' + file.format + '" aria-label="Download ' + fileLabel + ' file" class="sbplus-download-link"><span class="material-symbols-outlined" aria-hidden="true">download</span> ' + file.label + '</a>');
                     }
                 })
                 .catch(function () {
@@ -1024,7 +1024,7 @@ const SBPLUS = {
 
                     sectionHTML += '<h3 class="header" >';
                     sectionHTML += '<button class="title" aria-expanded="true" aria-controls="toc-section-' + i + '">';
-                    sectionHTML += sectionHead + '<div class="icon" aria-hidden="true"><span class="icon-collapse"></span></div></button>';
+                    sectionHTML += sectionHead + '<div class="icon" aria-hidden="true"><span class="material-symbols-outlined small" aria-hidden="true">do_not_disturb_on</span></div></button>';
                     sectionHTML += '</h3>';
                 }
 
@@ -1040,9 +1040,9 @@ const SBPLUS = {
                     sectionHTML += '<button role="tab" aria-selected="false" aria-controls="sbplus_main_content_col" aria-label="Slide ' + self.totalPages + ', ' + self.escapeHTMLAttribute(title) + '">';
                     
                     if (pageType === 'quiz') {
-                        sectionHTML += '<span class="icon-assessment"></span>';
+                        sectionHTML += '<span class="numbering">' + self.totalPages + '.</span><span class="material-symbols-outlined small" aria-hidden="true">cognition_2</span>';
                     } else {
-                        sectionHTML += '<span class="numbering">' + self.totalPages + '.</span> ';
+                        sectionHTML += '<span class="numbering">' + self.totalPages + '.</span>';
                     }
 
                     sectionHTML += title + '</button></li>';
@@ -1133,11 +1133,13 @@ const SBPLUS = {
                     }
                 });
             }
+
             if (self.isEmpty(self.xml.setup.generalInfo)) {
                 document.querySelectorAll('.sbplus_general_info').forEach(function (infoEl) {
                     infoEl.style.display = 'none';
                 });
             }
+
             if (Object.keys(self.downloads).length > 0) {
                 const downloadBtnEl = document.querySelector(self.button.download);
 
@@ -1692,7 +1694,7 @@ const SBPLUS = {
         }
 
         if (icon) {
-            icon.innerHTML = '<span class="icon-open"></span>';
+            icon.innerHTML = '<span class="material-symbols-outlined small" aria-hidden="false">add_circle</span>';
         }
     },
 
@@ -1714,7 +1716,7 @@ const SBPLUS = {
         }
 
         if (icon) {
-            icon.innerHTML = '<span class="icon-collapse"></span>';
+            icon.innerHTML = '<span class="material-symbols-outlined small" aria-hidden="false">do_not_disturb_on</span>';
         }
     },
 

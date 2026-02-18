@@ -5,6 +5,7 @@
 ### 3.7.0 (pending...)
 
 * Remove jQuery and refactor all jQuery code to native JavaScript.
+* Migrate icons to Material Symbols.
 * Fix table of content item color on dark mode.
 * Remove redundant Modernizr checks.
 * Optimize asset loading.

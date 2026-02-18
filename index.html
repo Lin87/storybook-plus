@@ -6,12 +6,13 @@
         <title>Storybook+</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">
-        <link href="<%= htmlWebpackPlugin.options.links[0] %>" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+        <link href="<%= htmlWebpackPlugin.options.links[0] %>" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link href="<%= htmlWebpackPlugin.options.links[1] %>" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+        <link href="<%= htmlWebpackPlugin.options.links[2] %>" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" />
         <% for (const href of htmlWebpackPlugin.files.css) { %>
         <link href="<%= href %>" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <% } %>
-        <script src="<%= htmlWebpackPlugin.options.links[1] %>" type="text/javascript" defer></script>
+        <script src="<%= htmlWebpackPlugin.options.links[3] %>" type="text/javascript" defer></script>
         <% for (const src of htmlWebpackPlugin.files.js) { %>
         <script defer src="<%= src %>" type="text/javascript"></script>
         <% } %>

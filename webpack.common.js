@@ -53,6 +53,8 @@ module.exports = {
             chunks: ['sbplus'],
             inject: false,
             links: [
+                'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap',
+                'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=add_circle,chevron_backward,chevron_forward,close,close_fullscreen,cognition_2,do_not_disturb_on,download,forward_10,info,list,more_horiz,notes,open_in_full,person,replay_10,settings&display=swap',
                 'sources/scripts/libs/videojs/video-js.min.css',
                 'sources/scripts/libs/videojs/video.min.js'
             ],

@@ -27,9 +27,7 @@
  */
 
 @use 'sass:math';
-
 @import "animate.css" screen, projection;
-@import "sbplus_fonts.css";
 
 $cntrlBarHeight: 46px;
 $titleBarHeight: 30px;
@@ -201,7 +199,9 @@ body {
     }
     
     button {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         border: none;
         width: 100%;
         min-width: 60px;
@@ -345,17 +345,18 @@ body {
 
                     .sb_cta {
 
+                        display: flex;
+                        flex-flow: column nowrap;
+                        gap: 0.5rem;
                         margin-top: $gutter * 2;
 
                         button {
                             display: block;
                             margin: 0 auto;
                             color: #fff;
-                            width: 36%;
                             min-height: unset;
                             padding: $gutter 0;
                             border-radius: 25px;
-                            margin-bottom: $gutter;
                             font-size: 140%;
                             font-weight: bold;
                             text-transform: capitalize;
@@ -370,34 +371,32 @@ body {
 
                     .sb_downloads {
 
+                        display: flex;
+                        flex-flow: row;
+                        gap: 0.5rem;
+                        align-items: center;
+                        justify-content: center;
                         font-size: 140%;
                         text-align: center;
                         margin-top: $gutter * 2;
                         
                         a {
-
+                            display: flex;
+                            flex-flow: row nowrap;
+                            align-items: center;
+                            justify-content: start;
+                            gap: 0.5rem;
                             position: relative;
-                            display: block;
                             text-decoration: none;
                             color: #000;
-                            margin-bottom: $gutter;
-
-                            .icon-download {
-                                display: inline-block;
-                                margin-right: 10px;
-                                color: #666666;
-                            }
-
-                            &:last-child {
-                                margin-bottom: 0;
-                            }
-
-                            
-
+                            padding: 0.25rem 0.5rem;
+                            border-radius: 0.5rem;
+                            background-color: rgba(255, 255, 255, 0.35);
                         }
                         
                         a:hover {
-                            text-decoration: underline;
+                            text-decoration: none;
+                            background-color: rgba(255, 255, 255, 0.6);
                         }
                         
                     }
@@ -519,6 +518,7 @@ body {
                                     display: flex;
                                     flex-flow: row nowrap;
                                     align-items: center;
+                                    justify-content: start;
                                     width: 100%;
                                     height: 35px;
                                     padding: 0 ($gutter + 5);
@@ -864,8 +864,8 @@ body {
                                 .vjs-skip-forward-10 {
 
                                     .vjs-icon-placeholder:before {
-                                        font-family: "sbplus";
-                                        content: '\e002';
+                                        font-family: 'Material Symbols Outlined';
+                                        content: '\e056';
                                     }
                                     
                                 }
@@ -873,8 +873,8 @@ body {
                                 .vjs-skip-backward-10 {
 
                                     .vjs-icon-placeholder:before {
-                                        font-family: "sbplus";
-                                        content: '\e000';
+                                        font-family: 'Material Symbols Outlined';
+                                        content: '\e059';
                                     }
                                     
                                 }
@@ -884,10 +884,8 @@ body {
                                     display: none;
 
                                     .vjs-icon-placeholder:before {
-                                        font-family: "sbplus";
-                                        content: '\e017';
-                                        // font-size: 1.26em;
-                                        // padding-top: 5px;
+                                        font-family: 'Material Symbols Outlined';
+                                        content: '\f1ce';
                                     }
                                     
                                 }
@@ -1053,8 +1051,8 @@ body {
                                         width: rem( 10px );
                                         height: 10px;
                                         height: rem( 10px );
-                                        font-family: 'sbplus';
-                                        content: '\e010';
+                                        font-family: "Material Symbols Outlined";
+                                        content: '\f46a';
                                         font-size: 10px;
                                         font-size: rem( 10px );
                                     }
@@ -1130,8 +1128,7 @@ body {
                             .vjs-expand-contract-button {
 
                                 .vjs-icon-placeholder:before {
-                                    font-family: "sbplus";
-                                    content: '\e018';
+                                    content: '\f1cf';
                                 }
                                 
                             }
@@ -1173,21 +1170,14 @@ body {
 
                                 &.expanded {
                                     &:before {
-                                        content: '\e018';
+                                        content: '\f1cf';
                                     }
                                 }
 
                                 &:before {
-                                    position: absolute;
-                                    top: 0;
-                                    left: 0;
-                                    width: 100%;
-                                    height: 100%;;
-                                    font-family: "sbplus";
-                                    font-size: 19.8px;
-                                    line-height: 1.67;
-                                    text-align: center;
-                                    content: '\e017';
+                                    font-family: 'Material Symbols Outlined';
+                                    font-size: 18px;
+                                    content: '\f1ce';
                                 }
 
                             }
@@ -1633,7 +1623,6 @@ body {
                         min-height: 35px;
                         padding: 5px ($gutter + 5);
                         border-bottom: 1px solid #e8e8e8;
-                        // cursor: pointer;
                     }
                     
                     .item:hover {
@@ -1647,6 +1636,9 @@ body {
                         button {
                             color: #fff;
                             background-color: $default-accent;
+                            .material-symbols-outlined {
+                                color: #f2f2f2 !important;
+                            }
                         }
                     }
                     
@@ -1710,24 +1702,32 @@ body {
                                 
                                 button {
 
-                                    display: block;
+                                    display: flex;
+                                    flex-flow: row nowrap;
+                                    align-items: start;
+                                    justify-content: start;
+                                    gap: math.div($gutter, 2);
                                     width: 100%;
                                     height: 100%;
-                                    text-indent: -35px;
+                                    padding: $gutter;
+                                    padding-right: $gutter * 2;
                                     text-align: left;
-                                    padding: 10px 10px 10px 35px;
 
-                                    [class^="icon-"],
                                     .numbering {
-                                        display: inline-block;
-                                        width: 20px;
-                                        margin: 0 0 0 10px;
+                                        min-width: 20px;
                                         text-align: right;
                                     }
-                                    
-                                    [class^="icon-"] {
-                                        margin: 0 5px 0 10px;
-                                        padding-right: 4px;
+
+                                    .material-symbols-outlined {
+                                        position: absolute;
+                                        right: math.div($gutter, 2);
+                                        color: rgba(0,0,0, 0.5);
+                                    }
+
+                                    &:hover {
+                                        .material-symbols-outlined {
+                                            color: #f2f2f2;
+                                        }
                                     }
 
                                 }
@@ -2163,6 +2163,7 @@ body {
                                 display: flex;
                                 flex-flow: row nowrap;
                                 align-items: center;
+                                justify-content: start;
                                 width: 100%;
                                 height: 35px;
                                 padding: 0 ($gutter + 5);
@@ -2315,11 +2316,11 @@ body {
             
                                 a {
                                     color: #fff;
-            
-                                    .icon-download {
-                                        color: rgba(222,226,230,.75);
+                                    background-color: rgba(0, 0, 0, 0.35);
+
+                                    &:hover {
+                                        background-color: rgba(0, 0, 0, 0.5);
                                     }
-            
                                 }
             
                             }
@@ -2666,30 +2667,18 @@ body {
                         align-items: center;
 
                         .sb_duration {
+                            min-width: 225px;
                             padding: 0 ($gutter * 4);
-                            flex: 1 0 25%;
                             text-align: right;
                         }
 
                         .sb_cta {
                         
-                            display: flex;
-                            flex-flow: column;
-                            flex: 2 0 30%;
+                            flex: 1;
                             padding: 0 ($gutter * 4);
                             border-left: 1px solid $border-color;
                             border-right: 1px solid $border-color;
-                            margin: 0;
-
-                            button {
-
-                                width: 100%;
-
-                                &:last-child {
-                                    margin: 0;
-                                }
-                                
-                            }
+                            margin-top: 0;
 
                             &.no_downloads {
                                 border-right: none;
@@ -2699,12 +2688,15 @@ body {
 
                         .sb_downloads {
 
-
-                            text-align: left;
-                            flex: 1 0 25%;
+                            flex-flow: column nowrap;
+                            gap: 0.25rem;
+                            min-width: 225px;
                             padding: 0 ($gutter * 4);
-                            margin: 0;
+                            margin-top: 0;
 
+                            a {
+                                width: 100%;
+                            }
                         }
 
                     }
@@ -2727,8 +2719,8 @@ body {
                     #sbplus_author_name {
                         display: flex;
                         flex: 2 1 auto;
-                        align-self: center;
                         align-items: center;
+                        justify-content: start;
                         height: 100%;
                         text-align: left;
                         font-weight: bold;
@@ -2946,6 +2938,7 @@ body {
                             #sbplus_new_note_btn {
                                 display: flex;
                                 flex: 1 0 15%;
+                                gap: math.div($gutter, 2);
                             }
 
                             #sbplus_page_status {
@@ -3038,4 +3031,17 @@ body {
         display: none;
     }
     
+}
+
+.material-symbols-outlined {
+
+    font-size: 24px;
+
+    &.small {
+        font-size: 18px;
+    }
+
+    &.large {
+        font-size: 34px;
+    }
 }
