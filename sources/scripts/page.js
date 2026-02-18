@@ -1,4 +1,4 @@
-import { headRequest, loadScript, onAnimationEnd, onDelegate, isVisible } from './utilities';
+import { headRequest, loadScript, onAnimationEnd, onDelegate, isVisible, toSeconds, isUrl, sendData } from './utilities';
 import { SBPLUS } from './sbplus-dev';
 import { Quiz } from './quiz';
 
@@ -1653,46 +1653,6 @@ function displayWidgetContent(id, str) {
     contentEl.querySelectorAll('a').forEach(function (link) {
         link.setAttribute('target', '_blank');
     });
-}
-
-/**
- * Converts a time string (hh:mm:ss or seconds) into total seconds.
- * @param {string|number} str Time value to convert.
- * @returns {number}
- */
-function toSeconds(str) {
-    const arr = str.split(':');
-
-    if (arr.length >= 3) {
-        return Number(arr[0] * 60) * 60 + Number(arr[1] * 60) + Number(arr[2]);
-    } else {
-        return Number(arr[0] * 60) + Number(arr[1]);
-    }
-}
-
-/**
- * Tests whether a string appears to be an absolute URL.
- * @param {string} s Candidate URL string.
- * @returns {boolean}
- */
-function isUrl(s) {
-    const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-    return regexp.test(s);
-}
-
-/**
- * Sends analytics data by creating a tracking image request.
- * @param {string} requestURL Fully built analytics request URL.
- * @returns {boolean}
- */
-function sendData(requestURL) {
-    const scriptElement = document.createElement('img');
-    scriptElement.setAttribute('src', requestURL);
-    scriptElement.setAttribute('alt', '');
-    scriptElement.setAttribute('aria-hidden', 'true');
-    scriptElement.style.display = 'none';
-    document.getElementsByTagName('body')[0].appendChild(scriptElement);
-    return true;
 }
 
 export { Page };

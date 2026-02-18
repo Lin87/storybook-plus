@@ -25,7 +25,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-import { fetchResource, headRequest, loadScript, onAnimationEnd, onDelegate } from './utilities';
+import { fetchResource, headRequest, loadScript, onAnimationEnd, onDelegate, supportsStorage } from './utilities';
 import '../sass/sbplus.scss';
 
 // Storybook Plus main object
@@ -33,18 +33,6 @@ import '../sass/sbplus.scss';
 ('use strict');
 
 import { Page } from './page';
-
-function supportsStorage(storageType) {
-    try {
-        const storage = window[storageType];
-        const key = '__sbplus_storage_test__';
-        storage.setItem(key, key);
-        storage.removeItem(key);
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
 
 const SBPLUS = {
     // Runtime state, configuration, and cached UI selectors.

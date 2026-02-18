@@ -1,31 +1,7 @@
 import { SBPLUS } from './sbplus-dev';
+import { getContextElement, getNodeAttr, shuffle } from './utilities';
 
 let quizTracker = [];
-
-/**
- * Resolves a usable Element from mixed XML/DOM collection inputs.
- * @param {Array|NodeList|HTMLCollection|Node|Object|null} data Source context value.
- * @returns {Element|null}
- */
-function getContextElement(data) {
-    if (!data) {
-        return null;
-    }
-
-    if (data.nodeType === Node.ELEMENT_NODE) {
-        return data;
-    }
-
-    if (Array.isArray(data) || data instanceof NodeList || data instanceof HTMLCollection) {
-        return data[0] || null;
-    }
-
-    if (typeof data === 'object' && data[0] && data[0].nodeType === Node.ELEMENT_NODE) {
-        return data[0];
-    }
-
-    return null;
-}
 
 /**
  * Reads XML node content and strips CDATA/script content for safe rendering.
@@ -39,21 +15,6 @@ function getXmlTextContent(node) {
 
     const html = node.innerHTML || node.textContent || '';
     return SBPLUS.noScript(SBPLUS.noCDATA(html));
-}
-
-/**
- * Gets an attribute value from an XML node, returning an empty string when missing.
- * @param {Element|null} node XML element.
- * @param {string} name Attribute name.
- * @returns {string}
- */
-function getNodeAttr(node, name) {
-    if (!node) {
-        return '';
-    }
-
-    const value = node.getAttribute(name);
-    return value == null ? '' : value;
 }
 
 /**
@@ -743,23 +704,6 @@ function questionExists(id) {
     }
 
     return false;
-}
-
-/**
- * Randomizes an array in place using Fisher-Yates shuffle.
- * @param {Array<any>} array Source array.
- * @returns {Array<any>}
- */
-function shuffle(array) {
-    let randomIndex;
-    let temp;
-
-    for (let index = array.length; index; index--) {
-        randomIndex = Math.floor(Math.random() * index);
-        temp = array[index - 1];
-        array[index - 1] = array[randomIndex];
-        array[randomIndex] = temp;
-    }
 }
 
 /**
