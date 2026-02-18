@@ -83,15 +83,15 @@ let Quiz = function (obj, data) {
     const qType = cntx.firstElementChild ? cntx.firstElementChild.nodeName.toLowerCase() : 'shortanswer';
     const question = cntx.querySelector('question');
     const qTitle = getXmlTextContent(question);
+    const questionImgAttr = getNodeAttr(question, 'image').trim();
+    const questionAudioAttr = getNodeAttr(question, 'audio').trim();
     let qImg = '';
     let qAudio = '';
 
-    const questionImgAttr = getNodeAttr(question, 'image').trim();
     if (!SBPLUS.isEmpty(questionImgAttr)) {
         qImg = SBPLUS.noScript(questionImgAttr);
     }
 
-    const questionAudioAttr = getNodeAttr(question, 'audio').trim();
     if (!SBPLUS.isEmpty(questionAudioAttr)) {
         qAudio = SBPLUS.noScript(questionAudioAttr);
     }
@@ -112,38 +112,37 @@ let Quiz = function (obj, data) {
         case 'multiplechoicesingle': {
             const mcs = cntx.querySelector('multipleChoiceSingle');
             const retryAttr = getNodeAttr(mcs, 'retry').trim().toLowerCase();
-            self.quiz.retry = retryAttr === 'yes' || retryAttr === 'true';
-
             const choicesNode = cntx.querySelector('choices');
             const randomAttr = getNodeAttr(choicesNode, 'random').trim().toLowerCase();
-            self.quiz.random = randomAttr === 'yes' || randomAttr === 'true';
+            const msChoices = choicesNode ? choicesNode.querySelectorAll('answer') : [];
 
+            self.quiz.retry = retryAttr === 'yes' || retryAttr === 'true';
+            self.quiz.random = randomAttr === 'yes' || randomAttr === 'true';
             self.quiz.answers = [];
 
-            const msChoices = choicesNode ? choicesNode.querySelectorAll('answer') : [];
             for (const choice of msChoices) {
                 const answer = {};
-
                 const valueNode = choice.querySelector('value');
+                const imgAttr = getNodeAttr(choice, 'image').trim();
+                const audioAttr = getNodeAttr(choice, 'audio').trim();
+                const correctAttr = getNodeAttr(choice, 'correct').trim().toLowerCase();
+                const feedbackNode = choice.querySelector('feedback');
+
                 answer.value = SBPLUS.noScript((valueNode ? valueNode.textContent : '').trim());
 
-                const imgAttr = getNodeAttr(choice, 'image').trim();
                 if (!SBPLUS.isEmpty(imgAttr)) {
                     answer.img = SBPLUS.noScript(imgAttr);
                 }
 
-                const audioAttr = getNodeAttr(choice, 'audio').trim();
                 if (!SBPLUS.isEmpty(audioAttr)) {
                     answer.audio = SBPLUS.noScript(audioAttr);
                     answer.value = answer.audio;
                 }
 
-                const correctAttr = getNodeAttr(choice, 'correct').trim().toLowerCase();
                 if (!SBPLUS.isEmpty(correctAttr) && (correctAttr === 'yes' || correctAttr === 'true')) {
                     answer.correct = SBPLUS.noScript(correctAttr);
                 }
 
-                const feedbackNode = choice.querySelector('feedback');
                 if (feedbackNode) {
                     answer.feedback = getXmlTextContent(feedbackNode);
                 }
@@ -156,42 +155,40 @@ let Quiz = function (obj, data) {
         case 'multiplechoicemultiple': {
             const mcm = cntx.querySelector('multipleChoiceMultiple');
             const retryAttr = getNodeAttr(mcm, 'retry').trim().toLowerCase();
-            self.quiz.retry = retryAttr === 'yes' || retryAttr === 'true';
-
             const choicesNode = cntx.querySelector('choices');
             const randomAttr = getNodeAttr(choicesNode, 'random').trim().toLowerCase();
-            self.quiz.random = randomAttr === 'yes' || randomAttr === 'true';
+            const mmChoices = choicesNode ? choicesNode.querySelectorAll('answer') : [];
+            const cFB = cntx.querySelector('correctFeedback');
+            const iFB = cntx.querySelector('incorrectFeedback');
 
+            self.quiz.retry = retryAttr === 'yes' || retryAttr === 'true';
+            self.quiz.random = randomAttr === 'yes' || randomAttr === 'true';
             self.quiz.answers = [];
 
-            const mmChoices = choicesNode ? choicesNode.querySelectorAll('answer') : [];
             for (const choice of mmChoices) {
                 const answer = {};
-
                 const valueNode = choice.querySelector('value');
+                const imgAttr = getNodeAttr(choice, 'image').trim();
+                const audioAttr = getNodeAttr(choice, 'audio').trim();
+                const correctAttr = getNodeAttr(choice, 'correct').trim().toLowerCase();
+
                 answer.value = SBPLUS.noScript((valueNode ? valueNode.textContent : '').trim());
 
-                const imgAttr = getNodeAttr(choice, 'image').trim();
                 if (!SBPLUS.isEmpty(imgAttr)) {
                     answer.img = SBPLUS.noScript(imgAttr);
                 }
-
-                const audioAttr = getNodeAttr(choice, 'audio').trim();
+                
                 if (!SBPLUS.isEmpty(audioAttr)) {
                     answer.audio = SBPLUS.noScript(audioAttr);
                     answer.value = answer.audio;
                 }
 
-                const correctAttr = getNodeAttr(choice, 'correct').trim().toLowerCase();
                 if (!SBPLUS.isEmpty(correctAttr) && (correctAttr === 'yes' || correctAttr === 'true')) {
                     answer.correct = SBPLUS.noScript(correctAttr);
                 }
 
                 self.quiz.answers.push(answer);
             }
-
-            const cFB = cntx.querySelector('correctFeedback');
-            const iFB = cntx.querySelector('incorrectFeedback');
 
             if (cFB) {
                 self.quiz.correctFeedback = getXmlTextContent(cFB);
@@ -200,20 +197,24 @@ let Quiz = function (obj, data) {
             if (iFB) {
                 self.quiz.incorrectFeedback = getXmlTextContent(iFB);
             }
+
             break;
         }
 
         case 'shortanswer': {
             const fb = cntx.querySelector('feedback');
+
             if (fb) {
                 self.quiz.feedback = getXmlTextContent(fb);
             }
+
             break;
         }
 
         case 'fillintheblank': {
             const fitbCFB = cntx.querySelector('correctFeedback');
             const fitbIFB = cntx.querySelector('incorrectFeedback');
+            const answerNode = cntx.querySelector('answer');
 
             if (fitbCFB) {
                 self.quiz.correctFeedback = getXmlTextContent(fitbCFB);
@@ -223,8 +224,8 @@ let Quiz = function (obj, data) {
                 self.quiz.incorrectFeedback = getXmlTextContent(fitbIFB);
             }
 
-            const answerNode = cntx.querySelector('answer');
             self.quiz.answer = SBPLUS.noScript((answerNode ? answerNode.textContent : '').trim());
+
             break;
         }
     }
@@ -274,7 +275,7 @@ Quiz.prototype.renderQuiz = function () {
     if (!container) {
         return;
     }
-
+    
     let questionImg = '';
     let questionAudio = '';
     let html = '<h2 class="sbplus_quiz_header"><span class="icon-assessment" aria-hidden="true"></span>';
@@ -295,6 +296,7 @@ Quiz.prototype.renderQuiz = function () {
     container.innerHTML = html;
 
     const inputContainer = container.querySelector('.sbplus_quiz_input');
+    const submitBtn = container.querySelector('button.sbplus_quiz_submit_btn');
 
     switch (self.quiz.type) {
         case 'multiplechoicesingle': {
@@ -325,9 +327,11 @@ Quiz.prototype.renderQuiz = function () {
             });
 
             msInput += '</fieldset>';
+
             if (inputContainer) {
                 inputContainer.innerHTML = msInput;
             }
+
             break;
         }
 
@@ -358,9 +362,11 @@ Quiz.prototype.renderQuiz = function () {
             });
 
             mmInput += '</fieldset>';
+
             if (inputContainer) {
                 inputContainer.innerHTML = mmInput;
             }
+
             break;
         }
 
@@ -368,16 +374,17 @@ Quiz.prototype.renderQuiz = function () {
             if (inputContainer) {
                 inputContainer.innerHTML = '<label class="for_text" for="quiz_response">Enter your response</label><textarea id="quiz_response"></textarea>';
             }
+
             break;
 
         case 'fillintheblank':
             if (inputContainer) {
                 inputContainer.innerHTML = '<label class="for_text" for="quiz_response">Enter your response</label><input id="quiz_response" type="text" />';
             }
+
             break;
     }
 
-    const submitBtn = container.querySelector('button.sbplus_quiz_submit_btn');
     if (!submitBtn) {
         return;
     }
@@ -395,6 +402,7 @@ Quiz.prototype.renderQuiz = function () {
                             // answers may have been randomized before render.
                             const sAnswer = SBPLUS.sanitize(self.quiz.answers[Number(quizTracker[self.qIndex].stuAnswer)].value);
                             quizTracker[self.qIndex].correct = sAnswer === SBPLUS.sanitize(answer.value);
+
                             break;
                         }
                     }
@@ -463,6 +471,7 @@ Quiz.prototype.renderQuiz = function () {
 
         if (!containsAnswer) {
             const header = container.querySelector('.sbplus_quiz_header');
+
             if (!header) {
                 return;
             }
@@ -470,6 +479,7 @@ Quiz.prototype.renderQuiz = function () {
             const error = document.createElement('div');
             error.className = 'quiz_error';
             error.innerHTML = '<span class="icon-warning"></span> Please answer the question before submitting.';
+
             header.insertAdjacentElement('afterend', error);
 
             window.setTimeout(() => {
@@ -530,6 +540,7 @@ Quiz.prototype.renderFeedback = function () {
             if (!SBPLUS.isEmpty(self.quiz.feedback)) {
                 html += '<p><strong>Feedback:</strong><br>' + self.quiz.feedback + '</p>';
             }
+
             break;
 
         case 'fillintheblank':
@@ -543,6 +554,7 @@ Quiz.prototype.renderFeedback = function () {
             } else if (!SBPLUS.isEmpty(self.quiz.incorrectFeedback)) {
                 html += '<p><strong>Feedback:</strong><br>' + self.quiz.incorrectFeedback + '</p>';
             }
+
             break;
 
         case 'multiplechoicesingle': {
@@ -605,6 +617,7 @@ Quiz.prototype.renderFeedback = function () {
             if (!quizTracker[self.qIndex].correct && self.quiz.retry) {
                 html += '<p><button class="sbplus_quiz_tryagain_btn">Try Again</button></p>';
             }
+
             break;
         }
 
@@ -665,6 +678,7 @@ Quiz.prototype.renderFeedback = function () {
     container.innerHTML = html;
 
     const tryAgainBtn = container.querySelector('button.sbplus_quiz_tryagain_btn');
+    
     if (tryAgainBtn) {
         tryAgainBtn.addEventListener('click', function () {
             // Reset only learner input; authored answers/feedback stay unchanged.
@@ -742,7 +756,6 @@ function shuffle(array) {
 
     for (let index = array.length; index; index--) {
         randomIndex = Math.floor(Math.random() * index);
-
         temp = array[index - 1];
         array[index - 1] = array[randomIndex];
         array[randomIndex] = temp;
