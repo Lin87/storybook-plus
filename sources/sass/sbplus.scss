@@ -595,6 +595,7 @@ body {
                     width: 100%;
                     background-color: #000;
                     overflow: hidden;
+                    min-height: 360px;
 
                     &.iframeFullHeight {
 
@@ -619,7 +620,10 @@ body {
                     #copyToCbBtn {
 
                         position: absolute;
-                        display: block;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: math.div($gutter, 2);
                         width: auto;
                         height: auto;
                         padding: rem( 8px ) rem( 10px );
@@ -631,18 +635,18 @@ body {
                         background-color: rgba( $default-accent, 0.65 );
                         z-index: 10;
                         border-radius: 16px;
-                        opacity: 0.25;
-                        transition: opacity 0.25s;
+                        opacity: 0.5;
+                        transition: opacity 0.5s ease-in-out;
 
                         .btn-txt {
-                            display: inline-block;
-                            margin-left: 4px;
+                            display: block;
                         }
 
                         &:before {
-                            display: inline-block;
-                            font-family: 'sbplus';
-                            content: "\e001";
+                            display: block;
+                            font-family: 'Material Symbols Outlined';
+                            font-size: 18px;
+                            content: "\e14d";
                         }
 
                         &:hover {
@@ -1281,6 +1285,10 @@ body {
                     }
                     
                     .quiz_error {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: math.div($gutter, 2);
                         padding: 8px;
                         background-color: #ed9033;
                         font-weight: bold;
@@ -1288,6 +1296,10 @@ body {
                     }
                     
                     .quiz_correct {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: math.div($gutter, 2);
                         padding: 8px;
                         background-color: #56f24e;
                         font-weight: bold;
@@ -1295,6 +1307,10 @@ body {
                     }
                     
                     .quiz_incorrect {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: math.div($gutter, 2);
                         padding: 8px;
                         background-color: #f27474;
                         font-weight: bold;
@@ -1811,7 +1827,7 @@ body {
             font-size: 120%;
             background-color: $control-bg-color;
             
-            #sbplus_new_note_btn {
+            #sbplus_view_note_btn {
 
                 display: none;
                 position: relative;
@@ -1820,12 +1836,6 @@ body {
                 justify-content: center;
                 font-size: 100%;
                 font-weight: bold;
-
-                [class^="icon-"] {
-                    display: inline-block;
-                    margin-right: 5px;
-                    color: #666;
-                }
 
                 &:disabled {
                     cursor: default;
@@ -2002,7 +2012,6 @@ body {
                 }
                 
                 #sbplus_menu_close_btn {
-                    
                     width: 100px;
                     height: 30px;
                     min-height: 25px;
@@ -2011,11 +2020,6 @@ body {
                     background-color: #B30000;
                     font-size: 75%;
                     text-transform: uppercase;
-                    
-                    .icon-close {
-                        font-size: 80%;
-                    }
-                    
                 }
                 
             }
@@ -2510,19 +2514,7 @@ body {
                         #sbplus_next_btn,
                         #sbplus_download_btn,
                         #mobile_toc_toggle_btn {
-
                             border-color: rgb(73, 80, 87);
-
-                            [class^="icon-"], [class*=" icon-"] {
-
-                                color: #fff;
-
-                                &:hover {
-                                    color: #1b1f22;
-                                }
-                                
-                            }
-
                         }
 
                     }
@@ -2603,7 +2595,7 @@ body {
 
                                 #sbplus_control_bar {
 
-                                    #sbplus_new_note_btn {
+                                    #sbplus_view_note_btn {
                                         color: #fff;
                                     }
 
@@ -2817,6 +2809,9 @@ body {
 
                             .html {
                                 height: calc(100% - 33px);
+                            }
+
+                            .html:not(.exLink) {
                                 max-height: 360px;
                             }
 
@@ -2968,7 +2963,7 @@ body {
                             flex-flow: row nowrap;
                             z-index: 999;
 
-                            #sbplus_new_note_btn {
+                            #sbplus_view_note_btn {
                                 display: flex;
                                 flex: 1 0 15%;
                                 gap: math.div($gutter, 2);

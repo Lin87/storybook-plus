@@ -135,7 +135,7 @@ const SBPLUS = {
         this.button = {
             start: '#sbplus_start_btn',
             resume: '#sbplus_resume_btn',
-            notes: '#sbplus_new_note_btn',
+            notes: '#sbplus_view_note_btn',
             downloadWrapper: '#sbplus_download_btn_wrapper',
             download: '#sbplus_download_btn',
             downloadMenu: '#sbplus_file_list',
@@ -360,7 +360,8 @@ const SBPLUS = {
                 for (let key in customMenuItems) {
                     const name = customMenuItems[key].name;
                     const sanitizedName = self.sanitize(name);
-                    const item = '<li class="menu-item sbplus_' + sanitizedName + '" role="none"><button onclick="SBPLUS.openMenuItem(\'sbplus_' + sanitizedName + '\');" aria-controls="menu_item_content" role="menuitem"><span class="icon-' + sanitizedName + '"></span> ' + name + '</a></li>';
+                    const icon = self.sanitize(customMenuItems[key].icon);
+                    const item = '<li class="menu-item sbplus_' + sanitizedName + '" role="none"><button onclick="SBPLUS.openMenuItem(\'sbplus_' + sanitizedName + '\');" aria-controls="menu_item_content" role="menuitem"><span class="material-symbols-outlined small">' + icon +'</span> ' + name + '</a></li>';
                     const menuListEl = document.querySelector(self.menu.menuList);
 
                     if (menuListEl) {
@@ -1626,7 +1627,7 @@ const SBPLUS = {
 
         if (self.clickCount === self.randomNum) {
             if (menuIcon) {
-                menuIcon.classList.remove('icon-menu');
+                menuIcon.classList.remove('material-symbols-outlined');
                 menuIcon.innerHTML = '🍔';
             }
 
@@ -1634,8 +1635,8 @@ const SBPLUS = {
             self.randomNum = Math.floor(Math.random() * 6 + 5);
         } else {
             if (menuIcon) {
-                menuIcon.classList.add('icon-menu');
-                menuIcon.innerHTML = '';
+                menuIcon.classList.add('material-symbols-outlined');
+                menuIcon.innerHTML = 'more_horiz';
             }
         }
     },

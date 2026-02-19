@@ -1,5 +1,5 @@
 <div id="sbplus_error_info">
-    <p class="center_icon"><span class="icon-warning"></span></p>
+    <p class="center_icon"><span class="material-symbols-outlined" aria-hidden="true">warning</span></p>
     <h1>Hmm, the XML is not quite right...</h1>
     <div id="validLink"></div>
     <script>

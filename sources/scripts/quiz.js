@@ -239,7 +239,7 @@ Quiz.prototype.renderQuiz = function () {
     
     let questionImg = '';
     let questionAudio = '';
-    let html = '<h2 class="sbplus_quiz_header"><span class="icon-assessment" aria-hidden="true"></span>';
+    let html = '<h2 class="sbplus_quiz_header"><span class="material-symbols-outlined small" aria-hidden="true">cognition_2</span>';
     html += ' Self Assessment</h2>';
 
     if (!SBPLUS.isEmpty(self.quiz.questionImg)) {
@@ -439,7 +439,7 @@ Quiz.prototype.renderQuiz = function () {
 
             const error = document.createElement('div');
             error.className = 'quiz_error';
-            error.innerHTML = '<span class="icon-warning"></span> Please answer the question before submitting.';
+            error.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">warning</span> Please answer the question before submitting.';
 
             header.insertAdjacentElement('afterend', error);
 
@@ -472,14 +472,14 @@ Quiz.prototype.renderFeedback = function () {
 
     let questionImg = '';
     let questionAudio = '';
-    let html = '<div class="sbplus_quiz_header"><span class="icon-assessment"></span>';
+    let html = '<div class="sbplus_quiz_header"><span class="material-symbols-outlined small" aria-hidden="true">cognition_2</span>';
     html += ' Self Assessment Feedback</div>';
 
     if (self.quiz.type !== 'shortanswer') {
         if (quizTracker[self.qIndex].correct) {
-            html += '<div class="quiz_correct" role="alert"><span class="icon-check"></span> Correct!</div>';
+            html += '<div class="quiz_correct" role="alert"><span class="material-symbols-outlined" aria-hidden="true">check</span> Correct!</div>';
         } else {
-            html += '<div class="quiz_incorrect" role="alert"><span class="icon-warning"></span> Incorrect!</div>';
+            html += '<div class="quiz_incorrect" role="alert"><span class="material-symbols-outlined" aria-hidden="true">warning</span> Incorrect!</div>';
         }
     }
 

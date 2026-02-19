@@ -490,7 +490,7 @@ Page.prototype.getPageMedia = function () {
                 self.setWidgets();
             }
 
-            if ((embed === 'yes' || embed === 'true') && useFullHeight != 'true' ) {
+            if (useFullHeight != 'true' ) {
                 addSecondaryControls(false);
             }
 

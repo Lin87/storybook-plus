@@ -53,7 +53,7 @@
                 
                 <nav id="sbplus_menu_btn_wrapper" aria-label="Main Menu">
                     <button id="sbplus_menu_btn" aria-label="Toggle Menu" aria-haspopup="menu" aria-expanded="false" aria-controls="sbplus_menu_list">
-                        <span class="material-symbols-outlined" aria-hidden="true">more_horiz</span>
+                        <span class="menu-icon material-symbols-outlined" aria-hidden="true">more_horiz</span>
                     </button>
                     <ul id="sbplus_menu_list" class="menu" aria-hidden="false" role="menu">
     
@@ -99,7 +99,7 @@
                 <!-- control bar -->
                 <div id="sbplus_control_bar">
             
-                    <button id="sbplus_new_note_btn" title="View Notes" aria-label="View Notes">
+                    <button id="sbplus_view_note_btn" title="View Notes" aria-label="View Notes">
                         <span class="material-symbols-outlined" aria-hidden="true">notes</span> View Notes
                     </button>
 
