@@ -77,10 +77,6 @@ module.exports = {
                     to: 'sources/images',
                 },
                 {
-                    from: 'sources/fonts',
-                    to: 'sources/fonts',
-                },
-                {
                     from: 'sources/manifest.json',
                     to: 'sources',
                 },
