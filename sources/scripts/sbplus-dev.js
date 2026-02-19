@@ -817,7 +817,7 @@ const SBPLUS = {
                     loadingWrapperEl.style.display = 'none';
                 });
             }
-        }, 1500);
+        }, 750);
     },
 
     /**
