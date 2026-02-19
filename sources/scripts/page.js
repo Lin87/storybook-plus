@@ -415,6 +415,7 @@ Page.prototype.getPageMedia = function () {
 
         case 'html':
             let embed = false;
+            let useFullHeight = false;
             let audioSrc = false;
             let path = self.src;
 
@@ -423,9 +424,14 @@ Page.prototype.getPageMedia = function () {
             }
 
             const embedAttr = self.pageXML.getAttribute('embed');
+            const fullHeightAttr = self.pageXML.getAttribute('fullHeight');
 
             if (embedAttr !== null) {
                 embed = embedAttr.toLowerCase();
+            }
+
+            if (fullHeightAttr !== null) {
+                useFullHeight = fullHeightAttr.toLowerCase();
             }
 
             const audioNode = self.pageXML.querySelector('audio');
@@ -448,8 +454,6 @@ Page.prototype.getPageMedia = function () {
 
                     self.addMarkers();
                     self.renderVideoJS(audioSrc);
-                } else {
-                    addSecondaryControls(false);
                 }
 
                 if (mediaContentEl) {
@@ -470,7 +474,25 @@ Page.prototype.getPageMedia = function () {
                 window.open(path, '_blank');
             }
 
-            self.setWidgets();
+            if (useFullHeight === 'yes' || useFullHeight === 'true') {
+                
+                const mediaWrapperEl = document.querySelector(SBPLUS.layout.media);
+
+                if (mediaWrapperEl) {
+                    mediaWrapperEl.classList.add('iframeFullHeight');
+                }
+
+                if (widgetEl) {
+                    widgetEl.classList.add('hidden');
+                }
+
+            } else {
+                self.setWidgets();
+            }
+
+            if ((embed === 'yes' || embed === 'true') && useFullHeight != 'true' ) {
+                addSecondaryControls(false);
+            }
 
             break;
 

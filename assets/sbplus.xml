@@ -444,7 +444,11 @@
             </markers>
         </page>
         
-        <page type="html" src="https://www.ecfr.gov/current/title-45" title="Open HTML page in a new tab/window" embed="true">
+        <page type="html" src="https://lc.excelsior.edu" title="Open HTML page with full height" embed="true" fullHeight="true">
+            <note />
+        </page>
+
+        <page type="html" src="https://lc.excelsior.edu" title="Open HTML page in a new tab/window" embed="false">
             <note />
         </page>
         
