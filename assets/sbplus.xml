@@ -126,10 +126,8 @@
         <page type="quiz" title="Question 2">
             
             <shortAnswer>
-                
                 <question image="" audio=""><![CDATA[What are your main take aways from this presentation?]]></question>
                 <feedback>I was hoping you would be surprised to hear how relatively young the Chocolate Chip cookie is. I am also hoping you noticed how important getting the ingredients right is to having good results.</feedback>
-                
             </shortAnswer>
             
         </page>
@@ -183,7 +181,7 @@
             <note />
         </page>
         
-        <page type="youtube" src="RzkD_rTEBYs" title="Video from YouTube" transition="" preventAutoplay="false" useDefaultPlayer="true">
+        <page type="youtube" src="RzkD_rTEBYs" title="Video from YouTube" transition="" preventAutoplay="false" useDefaultPlayer="false">
             <note><![CDATA[Release on December <strong>7th</strong>, 2021!]]></note>
             <widget>
                 <segment name="New Jobs">Reaper and Sage!!!</segment>
@@ -437,7 +435,7 @@
             
         </page>
 
-        <page type="html" src="https://media.uwex.edu" title="HTML Page with Audio and Markers" embed="true">
+        <page type="html" src="https://www.google.com" title="HTML Page with Audio and Markers" embed="true">
             <audio src="slide02" />
             <note />
             <markers>
@@ -446,12 +444,12 @@
             </markers>
         </page>
         
-        <page type="html" src="https://www.ecfr.gov/current/title-45" title="Open HTML page in a new tab/window" embed="false">
+        <page type="html" src="https://www.ecfr.gov/current/title-45" title="Open HTML page in a new tab/window" embed="true">
             <note />
         </page>
         
-        <page type="html" src="https://media.uwex.edu/sandbox/ethan/gvp_v4/index.html" title="HTML page containing a generic video player embed" embed="true">
-            <note />
+        <page type="html" src="https://academics.excelsior.edu/acadapp-gvp/?src=shared-resources%2Fdemos%2Fgvp%2Fgvp.xml" title="Generic Video Player" embed="true">
+            <note>HTML page containing a generic video player embed</note>
         </page>
                 
     </section>
