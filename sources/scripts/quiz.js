@@ -93,6 +93,9 @@ let Quiz = function (obj, data) {
 
                 if (!SBPLUS.isEmpty(imgAttr)) {
                     answer.img = SBPLUS.noScript(imgAttr);
+                    if (SBPLUS.isEmpty(answer.value)) {
+                        answer.value = answer.img;
+                    }
                 }
 
                 if (!SBPLUS.isEmpty(audioAttr)) {
@@ -137,6 +140,9 @@ let Quiz = function (obj, data) {
 
                 if (!SBPLUS.isEmpty(imgAttr)) {
                     answer.img = SBPLUS.noScript(imgAttr);
+                    if (SBPLUS.isEmpty(answer.value)) {
+                        answer.value = answer.img;
+                    }
                 }
                 
                 if (!SBPLUS.isEmpty(audioAttr)) {
