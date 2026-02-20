@@ -590,6 +590,7 @@ Quiz.prototype.renderFeedback = function () {
 
         case 'multiplechoicemultiple': {
             const stuAnswerAry = quizTracker[self.qIndex].stuAnswer;
+            const trackedAnswers = quizTracker[self.qIndex].answers;
 
             html += '<p><strong>Your answer:</strong><br>';
 
@@ -597,31 +598,31 @@ Quiz.prototype.renderFeedback = function () {
                 const saIndex = Number(answerIndex);
                 let mmAnswerType = 'text';
 
-                if (!SBPLUS.isEmpty(self.quiz.answers[saIndex].img)) {
+                if (!SBPLUS.isEmpty(trackedAnswers[saIndex].img)) {
                     mmAnswerType = 'img';
                 }
 
-                if (!SBPLUS.isEmpty(self.quiz.answers[saIndex].audio)) {
+                if (!SBPLUS.isEmpty(trackedAnswers[saIndex].audio)) {
                     mmAnswerType = 'audio';
                 }
 
                 switch (mmAnswerType) {
                     case 'img':
-                        html += '<img src="' + SBPLUS.assetsPath + 'images/' + self.quiz.answers[saIndex].img + '" alt="' + self.quiz.answers[saIndex].value + '" /><br>';
+                        html += '<img src="' + SBPLUS.assetsPath + 'images/' + trackedAnswers[saIndex].img + '" alt="' + trackedAnswers[saIndex].value + '" /><br>';
                         break;
 
                     case 'audio':
-                        html += '<audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + self.quiz.answers[saIndex].value + '" type="audio/mpeg"/></audio><br>';
+                        html += '<audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + trackedAnswers[saIndex].value + '" type="audio/mpeg"/></audio><br>';
                         break;
 
                     case 'text':
-                        html += self.quiz.answers[saIndex].value + '<br>';
+                        html += trackedAnswers[saIndex].value + '<br>';
                         break;
                 }
             });
 
             if (quizTracker[self.qIndex].correct || !self.quiz.retry) {
-                html += displayCorrectMultipleAnswers(self.quiz.answers);
+                html += displayCorrectMultipleAnswers(trackedAnswers);
             }
 
             if (quizTracker[self.qIndex].correct) {
