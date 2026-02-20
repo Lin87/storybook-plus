@@ -909,7 +909,7 @@ Page.prototype.renderVideoJS = function (src) {
         options.html5 = {
             vhs: {
                 withCredentials: false,
-                overrideNative: false,
+                overrideNative: true,
             },
         };
     }

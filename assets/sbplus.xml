@@ -177,11 +177,11 @@
             <note />
         </page>
 
-        <page type="brightcove" src="6348690126112" title="Video from Brightcove" transition="" preventAutoplay="false" allowFullscreen="true">
+        <page type="brightcove" src="6345049175112" title="Video from Brightcove" transition="" preventAutoplay="false" allowFullscreen="true">
             <note />
         </page>
         
-        <page type="youtube" src="RzkD_rTEBYs" title="Video from YouTube" transition="" preventAutoplay="false" useDefaultPlayer="false">
+        <page type="youtube" src="RzkD_rTEBYs" title="Video from YouTube" transition="" preventAutoplay="false" useDefaultPlayer="true">
             <note><![CDATA[Release on December <strong>7th</strong>, 2021!]]></note>
             <widget>
                 <segment name="New Jobs">Reaper and Sage!!!</segment>

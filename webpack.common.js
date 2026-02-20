@@ -97,7 +97,13 @@ module.exports = {
             bundles: [
                 {
                     dest: './dist/sources/scripts/libs/videojs/video.min.js',
-                    src: ['./sources/scripts/libs/videojs/video.min.js', './sources/scripts/libs/videojs/plugins/quality-selector/quality-selector.js', './sources/scripts/libs/videojs/plugins/cuepoint/videojs.cuepoints.js', './sources/scripts/libs/videojs/plugins/markers/videojs-markers.js', './sources/scripts/libs/videojs/plugins/youtube/youtube.js'],
+                    src: [
+                        './sources/scripts/libs/videojs/video.min.js',
+                        './sources/scripts/libs/videojs/plugins/quality-selector/quality-selector.js',
+                        './sources/scripts/libs/videojs/plugins/cuepoint/videojs.cuepoints.js',
+                        './sources/scripts/libs/videojs/plugins/markers/videojs-markers.js',
+                        './sources/scripts/libs/videojs/plugins/youtube/youtube.js'
+                    ],
                     transforms: {
                         after: async (code) => {
                             const minifiedCode = await terser.minify(code, { keep_fnames: true, keep_classnames: true });

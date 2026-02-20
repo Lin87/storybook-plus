@@ -9,6 +9,7 @@
 * Fix table of content item color on dark mode.
 * Remove redundant Modernizr checks.
 * Optimize asset loading.
+* Update VideoJS to version 8.23.4.
 
 ## 2025
 
