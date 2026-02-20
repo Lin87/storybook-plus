@@ -279,7 +279,7 @@ Quiz.prototype.renderQuiz = function () {
                 const msInputId = 'quiz_ms_' + SBPLUS.sanitize(self.quiz.id) + '_' + i;
 
                 if (!SBPLUS.isEmpty(answer.img)) {
-                    msInput += '<label class="img_val" for="' + msInputId + '"><input type="radio" id="' + msInputId + '" name="ms" value="' + i + '" /><img src="' + SBPLUS.assetsPath + 'images/' + answer.img + '" alt="' + answer.value + '"/ ></label>';
+                    msInput += '<label class="img_val" for="' + msInputId + '"><input type="radio" id="' + msInputId + '" name="ms" value="' + i + '" /><img src="' + SBPLUS.assetsPath + 'images/' + answer.img + '" alt="' + SBPLUS.escapeHTMLAttribute(String(answer.value)) + '"/ ></label>';
                     return;
                 }
 
@@ -288,7 +288,7 @@ Quiz.prototype.renderQuiz = function () {
                     return;
                 }
 
-                msInput += '<label for="' + msInputId + '"><input type="radio" id="' + msInputId + '" name="ms" value="' + i + '" /> ' + answer.value + '</label>';
+                msInput += '<label for="' + msInputId + '"><input type="radio" id="' + msInputId + '" name="ms" value="' + i + '" /> ' + SBPLUS.escapeHTMLAttribute(String(answer.value)) + '</label>';
             });
 
             msInput += '</fieldset>';
@@ -312,7 +312,7 @@ Quiz.prototype.renderQuiz = function () {
                 const mmInputId = 'quiz_mm_' + SBPLUS.sanitize(self.quiz.id) + '_' + i;
 
                 if (!SBPLUS.isEmpty(answer.img)) {
-                    mmInput += '<label class="img_val" for="' + mmInputId + '"><input type="checkbox" id="' + mmInputId + '" name="mm" value="' + i + '" /><img src="' + SBPLUS.assetsPath + 'images/' + answer.img + '" alt="' + answer.value + '"/></label>';
+                    mmInput += '<label class="img_val" for="' + mmInputId + '"><input type="checkbox" id="' + mmInputId + '" name="mm" value="' + i + '" /><img src="' + SBPLUS.assetsPath + 'images/' + answer.img + '" alt="' + SBPLUS.escapeHTMLAttribute(String(answer.value)) + '"/></label>';
                     return;
                 }
 
@@ -321,7 +321,7 @@ Quiz.prototype.renderQuiz = function () {
                     return;
                 }
 
-                mmInput += '<label for="' + mmInputId + '"><input type="checkbox" id="' + mmInputId + '" name="mm" value="' + i + '" /> ' + answer.value + '</label>';
+                mmInput += '<label for="' + mmInputId + '"><input type="checkbox" id="' + mmInputId + '" name="mm" value="' + i + '" /> ' + SBPLUS.escapeHTMLAttribute(String(answer.value)) + '</label>';
             });
 
             mmInput += '</fieldset>';
@@ -539,7 +539,7 @@ Quiz.prototype.renderFeedback = function () {
 
             switch (msAnswerType) {
                 case 'img':
-                    html += '<p><strong>Your answer:</strong><br><img src="' + SBPLUS.assetsPath + 'images/' + msAnswerNode.img + '" alt="' + msAnswerNode.value + '" /></p>';
+                    html += '<p><strong>Your answer:</strong><br><img src="' + SBPLUS.assetsPath + 'images/' + msAnswerNode.img + '" alt="' + SBPLUS.escapeHTMLAttribute(String(msAnswerNode.value)) + '" /></p>';
                     break;
 
                 case 'audio':
@@ -547,17 +547,17 @@ Quiz.prototype.renderFeedback = function () {
                     break;
 
                 case 'text':
-                    html += '<p><strong>Your answer:</strong><br>' + msAnswer + '</p>';
+                    html += '<p><strong>Your answer:</strong><br>' + SBPLUS.escapeHTMLAttribute(String(msAnswer)) + '</p>';
                     break;
             }
 
             for (let i = 0; i < self.quiz.answers.length; i++) {
                 if (self.quiz.answers[i].correct !== undefined) {
-                    let output = self.quiz.answers[i].value;
+                    let output = SBPLUS.escapeHTMLAttribute(String(self.quiz.answers[i].value));
 
                     switch (msAnswerType) {
                         case 'img':
-                            output = '<img src="' + SBPLUS.assetsPath + 'images/' + self.quiz.answers[i].img + '" alt="' + self.quiz.answers[i].value + '" />';
+                            output = '<img src="' + SBPLUS.assetsPath + 'images/' + self.quiz.answers[i].img + '" alt="' + SBPLUS.escapeHTMLAttribute(String(self.quiz.answers[i].value)) + '" />';
                             break;
 
                         case 'audio':
@@ -604,7 +604,7 @@ Quiz.prototype.renderFeedback = function () {
 
                 switch (mmAnswerType) {
                     case 'img':
-                        html += '<img src="' + SBPLUS.assetsPath + 'images/' + trackedAnswers[saIndex].img + '" alt="' + trackedAnswers[saIndex].value + '" /><br>';
+                        html += '<img src="' + SBPLUS.assetsPath + 'images/' + trackedAnswers[saIndex].img + '" alt="' + SBPLUS.escapeHTMLAttribute(String(trackedAnswers[saIndex].value)) + '" /><br>';
                         break;
 
                     case 'audio':
@@ -612,7 +612,7 @@ Quiz.prototype.renderFeedback = function () {
                         break;
 
                     case 'text':
-                        html += trackedAnswers[saIndex].value + '<br>';
+                        html += SBPLUS.escapeHTMLAttribute(String(trackedAnswers[saIndex].value)) + '<br>';
                         break;
                 }
             });
@@ -677,7 +677,7 @@ function displayCorrectMultipleAnswers(answers) {
 
         switch (aType) {
             case 'img':
-                result += '<img src="' + SBPLUS.assetsPath + 'images/' + answer.img + '" alt="' + answer.value + '" /><br>';
+                result += '<img src="' + SBPLUS.assetsPath + 'images/' + answer.img + '" alt="' + SBPLUS.escapeHTMLAttribute(String(answer.value)) + '" /><br>';
                 break;
 
             case 'audio':
@@ -685,7 +685,7 @@ function displayCorrectMultipleAnswers(answers) {
                 break;
 
             case 'text':
-                result += answer.value + '<br>';
+                result += SBPLUS.escapeHTMLAttribute(String(answer.value)) + '<br>';
                 break;
         }
     });
