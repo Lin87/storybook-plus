@@ -276,21 +276,19 @@ Quiz.prototype.renderQuiz = function () {
             }
 
             self.quiz.answers.forEach((answer, i) => {
-                let cleanMSValue = SBPLUS.sanitize(answer.value);
+                const msInputId = 'quiz_ms_' + SBPLUS.sanitize(self.quiz.id) + '_' + i;
 
                 if (!SBPLUS.isEmpty(answer.img)) {
-                    cleanMSValue = SBPLUS.sanitize(answer.img);
-                    msInput += '<label class="img_val" for="' + cleanMSValue + '"><input type="radio" id="' + cleanMSValue + '" name="ms" value="' + i + '" /><img src="' + SBPLUS.assetsPath + 'images/' + answer.img + '" alt="' + answer.value + '"/ ></label>';
+                    msInput += '<label class="img_val" for="' + msInputId + '"><input type="radio" id="' + msInputId + '" name="ms" value="' + i + '" /><img src="' + SBPLUS.assetsPath + 'images/' + answer.img + '" alt="' + answer.value + '"/ ></label>';
                     return;
                 }
 
                 if (!SBPLUS.isEmpty(answer.audio)) {
-                    cleanMSValue = SBPLUS.sanitize(answer.audio);
-                    msInput += '<label class="au_val" for="' + cleanMSValue + '"><input type="radio" id="' + cleanMSValue + '" name="ms" value="' + i + '" /> <audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + answer.audio + '" type="audio/mpeg"/></audio></label>';
+                    msInput += '<label class="au_val" for="' + msInputId + '"><input type="radio" id="' + msInputId + '" name="ms" value="' + i + '" /> <audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + answer.audio + '" type="audio/mpeg"/></audio></label>';
                     return;
                 }
 
-                msInput += '<label for="' + cleanMSValue + '"><input type="radio" id="' + cleanMSValue + '" name="ms" value="' + i + '" /> ' + answer.value + '</label>';
+                msInput += '<label for="' + msInputId + '"><input type="radio" id="' + msInputId + '" name="ms" value="' + i + '" /> ' + answer.value + '</label>';
             });
 
             msInput += '</fieldset>';
@@ -311,21 +309,19 @@ Quiz.prototype.renderQuiz = function () {
             }
 
             self.quiz.answers.forEach((answer, i) => {
-                let cleanMMValue = SBPLUS.sanitize(answer.value);
+                const mmInputId = 'quiz_mm_' + SBPLUS.sanitize(self.quiz.id) + '_' + i;
 
                 if (!SBPLUS.isEmpty(answer.img)) {
-                    cleanMMValue = SBPLUS.sanitize(answer.img);
-                    mmInput += '<label class="img_val" for="' + cleanMMValue + '"><input type="checkbox" id="' + cleanMMValue + '" name="mm" value="' + i + '" /><img src="' + SBPLUS.assetsPath + 'images/' + answer.img + '" alt="' + answer.value + '"/></label>';
+                    mmInput += '<label class="img_val" for="' + mmInputId + '"><input type="checkbox" id="' + mmInputId + '" name="mm" value="' + i + '" /><img src="' + SBPLUS.assetsPath + 'images/' + answer.img + '" alt="' + answer.value + '"/></label>';
                     return;
                 }
 
                 if (!SBPLUS.isEmpty(answer.audio)) {
-                    cleanMMValue = SBPLUS.sanitize(answer.audio);
-                    mmInput += '<label class="au_val" for="' + cleanMMValue + '"><input type="checkbox" id="' + cleanMMValue + '" name="mm" value="' + i + '" /> <audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + answer.audio + '" type="audio/mpeg"/></audio></label>';
+                    mmInput += '<label class="au_val" for="' + mmInputId + '"><input type="checkbox" id="' + mmInputId + '" name="mm" value="' + i + '" /> <audio controls><source src="' + SBPLUS.assetsPath + 'audio/' + answer.audio + '" type="audio/mpeg"/></audio></label>';
                     return;
                 }
 
-                mmInput += '<label for="' + cleanMMValue + '"><input type="checkbox" id="' + cleanMMValue + '" name="mm" value="' + i + '" /> ' + answer.value + '</label>';
+                mmInput += '<label for="' + mmInputId + '"><input type="checkbox" id="' + mmInputId + '" name="mm" value="' + i + '" /> ' + answer.value + '</label>';
             });
 
             mmInput += '</fieldset>';
