@@ -4,7 +4,7 @@
  * @author: Ethan Lin
  * @url: https://github.com/Lin87/storybook-plus
  * @version: 3.7.0
- * Released xx/xx/2026
+ * Released 02/23/2026
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *

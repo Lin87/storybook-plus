@@ -2,7 +2,7 @@
 
 ## 2026
 
-### 3.7.0 (pending...)
+### 3.7.0 (02/23/2026)
 
 * Remove jQuery and refactor all jQuery code to native JavaScript.
 * Migrate icons to Material Symbols.
