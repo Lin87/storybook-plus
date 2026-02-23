@@ -2,6 +2,8 @@
 
 version 3.7.0
 
+[![Build](https://github.com/Lin87/storybook-plus/actions/workflows/build-tag-release.yml/badge.svg)](https://github.com/Lin87/storybook-plus/actions/workflows/build-tag-release.yml)
+
 ---
 
 Storybook Plus (Storybook+) is an open-source web application transforming multimedia presentations for instructors and students alike. With an intuitive interface, instructors can curate diverse content types and deliver engaging materials, including videos, images, audios, quizzes, and more. The built-in quiz engine facilitates formative self-assessments, ensuring interactive learning experiences. Prioritizing accessibility, Storybook+ ensures inclusively with keyboard navigation support, captioning, and screen reader compatibility.
