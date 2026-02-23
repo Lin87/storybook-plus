@@ -3,13 +3,13 @@
  *
  * @author: Ethan Lin
  * @url: https://github.com/Lin87/storybook-plus
- * @version: 3.6.3
- * Released 10/23/2025
+ * @version: 3.7.0
+ * Released 02/23/2026
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
     Storybook Plus is an web application that serves multimedia contents.
-    Copyright (C) 2013-2025 Ethan Lin
+    Copyright (C) 2013-2026 Ethan Lin. Sponsored by Excelsior University.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,10 +27,7 @@
  */
 
 @use 'sass:math';
-
 @import "animate.css" screen, projection;
-@import "sbplus_fonts.css";
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 $cntrlBarHeight: 46px;
 $titleBarHeight: 30px;
@@ -202,7 +199,9 @@ body {
     }
     
     button {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         border: none;
         width: 100%;
         min-width: 60px;
@@ -346,17 +345,18 @@ body {
 
                     .sb_cta {
 
+                        display: flex;
+                        flex-flow: column nowrap;
+                        gap: 0.5rem;
                         margin-top: $gutter * 2;
 
                         button {
                             display: block;
                             margin: 0 auto;
                             color: #fff;
-                            width: 36%;
                             min-height: unset;
                             padding: $gutter 0;
                             border-radius: 25px;
-                            margin-bottom: $gutter;
                             font-size: 140%;
                             font-weight: bold;
                             text-transform: capitalize;
@@ -371,34 +371,32 @@ body {
 
                     .sb_downloads {
 
+                        display: flex;
+                        flex-flow: row;
+                        gap: 0.5rem;
+                        align-items: center;
+                        justify-content: center;
                         font-size: 140%;
                         text-align: center;
                         margin-top: $gutter * 2;
                         
                         a {
-
+                            display: flex;
+                            flex-flow: row nowrap;
+                            align-items: center;
+                            justify-content: start;
+                            gap: 0.5rem;
                             position: relative;
-                            display: block;
                             text-decoration: none;
                             color: #000;
-                            margin-bottom: $gutter;
-
-                            .icon-download {
-                                display: inline-block;
-                                margin-right: 10px;
-                                color: #666666;
-                            }
-
-                            &:last-child {
-                                margin-bottom: 0;
-                            }
-
-                            
-
+                            padding: 0.25rem 0.5rem;
+                            border-radius: 0.5rem;
+                            background-color: rgba(255, 255, 255, 0.35);
                         }
                         
                         a:hover {
-                            text-decoration: underline;
+                            text-decoration: none;
+                            background-color: rgba(255, 255, 255, 0.6);
                         }
                         
                     }
@@ -453,13 +451,13 @@ body {
             font-weight: bold;
             
             #sbplus_lesson_title {
-                display: flex;
-                flex-flow: row nowrap;
-                flex: 2 1 auto;
-                align-items: center;
-                padding: 0 $gutter;
-                line-height: 1.25;
-                font-size: 120%;
+                padding: math.div($gutter, 3) $gutter 0;
+                flex: 1;
+                min-width: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: clamp(11px, 3.2vw, 100%);
             }
             
             #sbplus_menu_area {
@@ -520,6 +518,7 @@ body {
                                     display: flex;
                                     flex-flow: row nowrap;
                                     align-items: center;
+                                    justify-content: start;
                                     width: 100%;
                                     height: 35px;
                                     padding: 0 ($gutter + 5);
@@ -596,6 +595,23 @@ body {
                     width: 100%;
                     background-color: #000;
                     overflow: hidden;
+                    min-height: 360px;
+
+                    &.iframeFullHeight {
+
+                        height: 100%;
+
+                        .iframeEmbed {
+
+                            height: 100%;
+
+                            .html {
+                                height: 100%;
+                                overflow: auto;
+                            }
+
+                        }
+                    }
 
                     &.hidden {
                         display: none;
@@ -604,7 +620,10 @@ body {
                     #copyToCbBtn {
 
                         position: absolute;
-                        display: block;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: math.div($gutter, 2);
                         width: auto;
                         height: auto;
                         padding: rem( 8px ) rem( 10px );
@@ -616,18 +635,18 @@ body {
                         background-color: rgba( $default-accent, 0.65 );
                         z-index: 10;
                         border-radius: 16px;
-                        opacity: 0.25;
-                        transition: opacity 0.25s;
+                        opacity: 0.5;
+                        transition: opacity 0.5s ease-in-out;
 
                         .btn-txt {
-                            display: inline-block;
-                            margin-left: 4px;
+                            display: block;
                         }
 
                         &:before {
-                            display: inline-block;
-                            font-family: 'sbplus';
-                            content: "\e001";
+                            display: block;
+                            font-family: 'Material Symbols Outlined';
+                            font-size: 18px;
+                            content: "\e14d";
                         }
 
                         &:hover {
@@ -754,7 +773,7 @@ body {
                             bottom: 0;
                             right: 0;
                             width: 100%;
-                            height: 360px;
+                            height: 100%;
                         }
                         
                         // external link
@@ -864,8 +883,8 @@ body {
                                 .vjs-skip-forward-10 {
 
                                     .vjs-icon-placeholder:before {
-                                        font-family: "sbplus";
-                                        content: '\e002';
+                                        font-family: 'Material Symbols Outlined';
+                                        content: '\e056';
                                     }
                                     
                                 }
@@ -873,8 +892,8 @@ body {
                                 .vjs-skip-backward-10 {
 
                                     .vjs-icon-placeholder:before {
-                                        font-family: "sbplus";
-                                        content: '\e000';
+                                        font-family: 'Material Symbols Outlined';
+                                        content: '\e059';
                                     }
                                     
                                 }
@@ -884,10 +903,8 @@ body {
                                     display: none;
 
                                     .vjs-icon-placeholder:before {
-                                        font-family: "sbplus";
-                                        content: '\e017';
-                                        // font-size: 1.26em;
-                                        // padding-top: 5px;
+                                        font-family: 'Material Symbols Outlined';
+                                        content: '\f1ce';
                                     }
                                     
                                 }
@@ -1053,8 +1070,8 @@ body {
                                         width: rem( 10px );
                                         height: 10px;
                                         height: rem( 10px );
-                                        font-family: 'sbplus';
-                                        content: '\e010';
+                                        font-family: "Material Symbols Outlined";
+                                        content: '\f46a';
                                         font-size: 10px;
                                         font-size: rem( 10px );
                                     }
@@ -1130,8 +1147,7 @@ body {
                             .vjs-expand-contract-button {
 
                                 .vjs-icon-placeholder:before {
-                                    font-family: "sbplus";
-                                    content: '\e018';
+                                    content: '\f1cf';
                                 }
                                 
                             }
@@ -1173,21 +1189,14 @@ body {
 
                                 &.expanded {
                                     &:before {
-                                        content: '\e018';
+                                        content: '\f1cf';
                                     }
                                 }
 
                                 &:before {
-                                    position: absolute;
-                                    top: 0;
-                                    left: 0;
-                                    width: 100%;
-                                    height: 100%;;
-                                    font-family: "sbplus";
-                                    font-size: 19.8px;
-                                    line-height: 1.67;
-                                    text-align: center;
-                                    content: '\e017';
+                                    font-family: 'Material Symbols Outlined';
+                                    font-size: 18px;
+                                    content: '\f1ce';
                                 }
 
                             }
@@ -1276,6 +1285,10 @@ body {
                     }
                     
                     .quiz_error {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: math.div($gutter, 2);
                         padding: 8px;
                         background-color: #ed9033;
                         font-weight: bold;
@@ -1283,6 +1296,10 @@ body {
                     }
                     
                     .quiz_correct {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: math.div($gutter, 2);
                         padding: 8px;
                         background-color: #56f24e;
                         font-weight: bold;
@@ -1290,6 +1307,10 @@ body {
                     }
                     
                     .quiz_incorrect {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: math.div($gutter, 2);
                         padding: 8px;
                         background-color: #f27474;
                         font-weight: bold;
@@ -1461,6 +1482,8 @@ body {
                 
                 #sbplus_widget {
                     
+                    display: flex;
+                    flex-flow: column nowrap;
                     width: 100%;
                     background-color: #fff;
                     flex: 2 0 auto;
@@ -1522,7 +1545,8 @@ body {
                     
                     .segment_content {
                         
-                        padding: 10px 10px 0;
+                        flex: 1;
+                        padding: 10px;
                         width: 100%;
                         height: 100%;
                         overflow-y: auto;
@@ -1630,7 +1654,6 @@ body {
                         min-height: 35px;
                         padding: 5px ($gutter + 5);
                         border-bottom: 1px solid #e8e8e8;
-                        // cursor: pointer;
                     }
                     
                     .item:hover {
@@ -1644,6 +1667,9 @@ body {
                         button {
                             color: #fff;
                             background-color: $default-accent;
+                            .material-symbols-outlined {
+                                color: #f2f2f2 !important;
+                            }
                         }
                     }
                     
@@ -1707,24 +1733,32 @@ body {
                                 
                                 button {
 
-                                    display: block;
+                                    display: flex;
+                                    flex-flow: row nowrap;
+                                    align-items: start;
+                                    justify-content: start;
+                                    gap: math.div($gutter, 2);
                                     width: 100%;
                                     height: 100%;
-                                    text-indent: -35px;
+                                    padding: $gutter;
+                                    padding-right: $gutter * 2;
                                     text-align: left;
-                                    padding: 10px 10px 10px 35px;
 
-                                    [class^="icon-"],
                                     .numbering {
-                                        display: inline-block;
-                                        width: 20px;
-                                        margin: 0 0 0 10px;
+                                        min-width: 20px;
                                         text-align: right;
                                     }
-                                    
-                                    [class^="icon-"] {
-                                        margin: 0 5px 0 10px;
-                                        padding-right: 4px;
+
+                                    .material-symbols-outlined {
+                                        position: absolute;
+                                        right: $gutter;
+                                        color: rgba(0,0,0, 0.45);
+                                    }
+
+                                    &:hover {
+                                        .material-symbols-outlined {
+                                            color: #f2f2f2;
+                                        }
                                     }
 
                                 }
@@ -1793,7 +1827,7 @@ body {
             font-size: 120%;
             background-color: $control-bg-color;
             
-            #sbplus_new_note_btn {
+            #sbplus_view_note_btn {
 
                 display: none;
                 position: relative;
@@ -1802,12 +1836,6 @@ body {
                 justify-content: center;
                 font-size: 100%;
                 font-weight: bold;
-
-                [class^="icon-"] {
-                    display: inline-block;
-                    margin-right: 5px;
-                    color: #666;
-                }
 
                 &:disabled {
                     cursor: default;
@@ -1862,6 +1890,7 @@ body {
                 #sbplus_download_btn_wrapper {
                     
                     position: relative;
+                    z-index: 10;
                     @extend .button-commons;
                     
                     #sbplus_download_btn {
@@ -1983,7 +2012,6 @@ body {
                 }
                 
                 #sbplus_menu_close_btn {
-                    
                     width: 100px;
                     height: 30px;
                     min-height: 25px;
@@ -1992,11 +2020,6 @@ body {
                     background-color: #B30000;
                     font-size: 75%;
                     text-transform: uppercase;
-                    
-                    .icon-close {
-                        font-size: 80%;
-                    }
-                    
                 }
                 
             }
@@ -2159,6 +2182,7 @@ body {
                                 display: flex;
                                 flex-flow: row nowrap;
                                 align-items: center;
+                                justify-content: start;
                                 width: 100%;
                                 height: 35px;
                                 padding: 0 ($gutter + 5);
@@ -2311,11 +2335,11 @@ body {
             
                                 a {
                                     color: #fff;
-            
-                                    .icon-download {
-                                        color: rgba(222,226,230,.75);
+                                    background-color: rgba(0, 0, 0, 0.35);
+
+                                    &:hover {
+                                        background-color: rgba(0, 0, 0, 0.5);
                                     }
-            
                                 }
             
                             }
@@ -2427,6 +2451,10 @@ body {
 
                     #sbplus_side_content_col {
 
+                        button {
+                            color: #fff;
+                        }
+
                         border-left-color: rgb(73, 80, 87);
 
                         #sbplus_sub_bar {
@@ -2486,19 +2514,7 @@ body {
                         #sbplus_next_btn,
                         #sbplus_download_btn,
                         #mobile_toc_toggle_btn {
-
                             border-color: rgb(73, 80, 87);
-
-                            [class^="icon-"], [class*=" icon-"] {
-
-                                color: #fff;
-
-                                &:hover {
-                                    color: #1b1f22;
-                                }
-                                
-                            }
-
                         }
 
                     }
@@ -2579,7 +2595,7 @@ body {
 
                                 #sbplus_control_bar {
 
-                                    #sbplus_new_note_btn {
+                                    #sbplus_view_note_btn {
                                         color: #fff;
                                     }
 
@@ -2658,30 +2674,18 @@ body {
                         align-items: center;
 
                         .sb_duration {
+                            min-width: 225px;
                             padding: 0 ($gutter * 4);
-                            flex: 1 0 25%;
                             text-align: right;
                         }
 
                         .sb_cta {
                         
-                            display: flex;
-                            flex-flow: column;
-                            flex: 2 0 30%;
+                            flex: 1;
                             padding: 0 ($gutter * 4);
                             border-left: 1px solid $border-color;
                             border-right: 1px solid $border-color;
-                            margin: 0;
-
-                            button {
-
-                                width: 100%;
-
-                                &:last-child {
-                                    margin: 0;
-                                }
-                                
-                            }
+                            margin-top: 0;
 
                             &.no_downloads {
                                 border-right: none;
@@ -2691,12 +2695,15 @@ body {
 
                         .sb_downloads {
 
-
-                            text-align: left;
-                            flex: 1 0 25%;
+                            flex-flow: column nowrap;
+                            gap: 0.25rem;
+                            min-width: 225px;
                             padding: 0 ($gutter * 4);
-                            margin: 0;
+                            margin-top: 0;
 
+                            a {
+                                width: 100%;
+                            }
                         }
 
                     }
@@ -2712,15 +2719,6 @@ body {
 
             #sbplus_banner_bar {
                 
-                #sbplus_lesson_title {
-                    display: block;
-                    width: 60%;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    align-self: center;
-                }
-                
                 #sbplus_menu_area {
                     
                     width: 258px;
@@ -2728,8 +2726,8 @@ body {
                     #sbplus_author_name {
                         display: flex;
                         flex: 2 1 auto;
-                        align-self: center;
                         align-items: center;
+                        justify-content: start;
                         height: 100%;
                         text-align: left;
                         font-weight: bold;
@@ -2809,6 +2807,27 @@ body {
 
                             }
 
+                            .html {
+                                height: calc(100% - 33px);
+                            }
+
+                            .html:not(.exLink) {
+                                max-height: 360px;
+                            }
+
+                        }
+
+                        &.iframeFullHeight {
+
+                            .iframeEmbed {
+
+                                padding: unset;
+
+                                .html {
+                                    max-height: unset;
+                                }
+
+                            }
                         }
 
                     }
@@ -2818,15 +2837,15 @@ body {
                         position: relative;
                         @include calc( height, '100% - ' + 393px );
 
-                        .widget_controls_bar {
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                        }
+                        // .widget_controls_bar {
+                        //     position: absolute;
+                        //     top: 0;
+                        //     left: 0;
+                        // }
 
-                        .segment_content {
-                            padding-top: 30px;
-                        }
+                        // .segment_content {
+                        //     padding-top: 30px;
+                        // }
 
                     }
                     
@@ -2944,9 +2963,10 @@ body {
                             flex-flow: row nowrap;
                             z-index: 999;
 
-                            #sbplus_new_note_btn {
+                            #sbplus_view_note_btn {
                                 display: flex;
                                 flex: 1 0 15%;
+                                gap: math.div($gutter, 2);
                             }
 
                             #sbplus_page_status {
@@ -3039,4 +3059,17 @@ body {
         display: none;
     }
     
+}
+
+.material-symbols-outlined {
+
+    font-size: 24px;
+
+    &.small {
+        font-size: 18px;
+    }
+
+    &.large {
+        font-size: 34px;
+    }
 }

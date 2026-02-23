@@ -53,27 +53,27 @@
                 
                 <nav id="sbplus_menu_btn_wrapper" aria-label="Main Menu">
                     <button id="sbplus_menu_btn" aria-label="Toggle Menu" aria-haspopup="menu" aria-expanded="false" aria-controls="sbplus_menu_list">
-                        <span class="icon-menu menu-icon"></span>
+                        <span class="menu-icon material-symbols-outlined" aria-hidden="true">more_horiz</span>
                     </button>
                     <ul id="sbplus_menu_list" class="menu" aria-hidden="false" role="menu">
     
                         <li class="menu-item sbplus_author_profile" role="none">
                             <button onclick="SBPLUS.openMenuItem('sbplus_author_profile');" aria-controls="menu_item_content" role="menuitem">
-                                <span class="icon-profile"></span>
+                                <span class="material-symbols-outlined small">person</span>
                                 Author Profile
                             </button>
                         </li>
                         
                         <li class="menu-item sbplus_general_info" role="none">
                             <button onclick="SBPLUS.openMenuItem('sbplus_general_info');" aria-controls="menu_item_content" role="menuitem">
-                                <span class="icon-info"></span>
+                                <span class="material-symbols-outlined small" aria-hidden="true">info</span>
                                 General Info
                             </button>
                         </li>
                         
                         <li class="menu-item sbplus_settings" role="none">
                             <button onclick="SBPLUS.openMenuItem('sbplus_settings');" aria-controls="menu_item_content" role="menuitem">
-                                <span class="icon-settings"></span>
+                                <span class="material-symbols-outlined small" aria-hidden="true">settings</span>
                                 Settings
                             </button>
                         </li>
@@ -99,8 +99,8 @@
                 <!-- control bar -->
                 <div id="sbplus_control_bar">
             
-                    <button id="sbplus_new_note_btn" title="View Notes" aria-label="View Notes">
-                        <span class="icon-notes"></span> View Notes
+                    <button id="sbplus_view_note_btn" title="View Notes" aria-label="View Notes">
+                        <span class="material-symbols-outlined" aria-hidden="true">notes</span> View Notes
                     </button>
 
                     <div id="sbplus_page_status">
@@ -113,20 +113,22 @@
                     <div class="controls">
 
                         <button id="sbplus_previous_btn" title="Previous" aria-label="Previous" aria-controls="sbplus_main_content_col">
-                        <span class="icon-left"></span>
+                            <span class="material-symbols-outlined large" aria-hidden="true">chevron_backward</span>
                         </button>
                         
                         <button id="sbplus_next_btn" title="Next" aria-label="Next" aria-controls="sbplus_main_content_col">
-                            <span class="icon-right"></span>
+                            <span class="material-symbols-outlined large" aria-hidden="true">chevron_forward</span>
                         </button>
 
                         <button id="mobile_toc_toggle_btn" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sbplus_table_of_contents_wrapper">
-                            <span class="icon-contents"></span>
+                            <span class="material-symbols-outlined" aria-hidden="true">list</span>
                         </button>
                         
                         <div id="sbplus_download_btn_wrapper">
                             
-                            <button id="sbplus_download_btn" aria-label="Toggle Downloadable Files" aria-expanded="false" aria-haspopup="menu" aria-expanded="false" aria-controls="sbplus_file_list"><span class="icon-download"></span></button>
+                            <button id="sbplus_download_btn" aria-label="Toggle Downloadable Files" aria-expanded="false" aria-haspopup="menu" aria-expanded="false" aria-controls="sbplus_file_list">
+                                <span class="material-symbols-outlined" aria-hidden="true">download</span>
+                            </button>
                             <ul id="sbplus_file_list" class="downloadFiles menu" role="menu" aria-hidden="true"></ul>
                             
                         </div>
@@ -168,7 +170,7 @@
         <div id="menu_item_content" class="animated">
             <div class="sbplus_menu_title_bar">
                 <div class="title"></div>
-                <button id="sbplus_menu_close_btn"><span class="icon-close"></span> Close</button>
+                <button id="sbplus_menu_close_btn"><span class="material-symbols-outlined" aria-hidden="true">close</span> Close</button>
             </div>
             <div class="container">
                 <div class="content" tabindex="0"></div>

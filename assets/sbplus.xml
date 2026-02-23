@@ -2,26 +2,12 @@
 
 <storybook accent="" pageImgFormat="jpg" splashImgFormat="jpg" analytics="off" mathjax="off" downloadableFileName="sbplus">
     
-    <setup splashImg="technology_color_purple">
+    <setup splashImg="technology_single_red">
         
         <title>BKN315 - Chocolate Chip Cookies</title>
         <subtitle>A Sample Storybook Plus Presentation</subtitle>
         <length>7 Minutes</length>
-        <author name="Bryan Bortz"><![CDATA[
-            Lorem ipsum dolor sit #7b3009 am et, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat..
-            <ul>
-                <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
-                <li>Item 2</li>
-                <li>Item 3</li>
-            </ul>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            <ol>
-                <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
-                <li>Item 2</li>
-                <li>Item 3</li>
-            </ol>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.]]>
-        </author>
+        <author name="Ethan Lin"></author>
         <generalInfo>
             <![CDATA[<p>This a sample Storybook Plus presentation on chocolate <strong>chip</strong> cookies.</p>]]>
         </generalInfo>
@@ -30,15 +16,14 @@
     
     <section title="Chocolate Chip Cookies">
         
-        <page type="image-audio" src="slide01" title="Cooking Baking: Chocolate Chip Cookies" transition="">
+        <page type="image-audio" src="slide01" title="Cooking Baking: Chocolate Chip Cookies" transition="" preventAutoplay="false" allowFullscreen="true">
             <note>
-              <![CDATA[<h1>Heading Level 1</h1>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip <em>ex ea commodo consequat</em>. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<ol><li>Hello</li><li>World</li></ol><h2>Heading Level 3</h2><p><a href="#">Loremipsumdolorsitametconsectetuadipisicingelitseddoeiusmodtemporincididuntutlaboreetdoloremagnaaliqua.</a> Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><ul><li>Hello</li><li>World</li></ul><script>onclick();</script>]]>
+              <![CDATA[<h1>Heading Level 1 (and 2)</h1>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip <em>ex ea commodo consequat</em>. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<ol><li>Hello</li><li>World</li></ol><h3>Heading Level 3</h3><p><a href="#">Loremipsumdolorsitametconsectetuadipisicingelitseddoeiusmodtemporincididuntutlaboreetdoloremagnaaliqua.</a> Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><ul><li>Hello</li><li>World</li></ul><script>onclick();</script>]]>
             </note>
             <markers>
                 <marker timecode="00:10" color="">Marker 1</marker>
                 <marker timecode="00:20" color="">Marker 2</marker>
             </markers>
-            <description><![CDATA[Close-up view of several chocolate chip cookies. The cookies are a light golden brown color, and are stacked or overlapping each other, showing the textures and the chocolate chips within.The cookies appear freshly baked, with visible cracks and a slightly uneven surface characteristic of baked goods. The text "BKN 315 - Week 2" is displayed at the top of the image in a light-colored font, above a larger title "Cookie Baking" in a bold, sans-serif font with a light background. Below that title, the words "Chocolate Chip Cookies" are also displayed in a smaller font. The focus is primarily on the textures and colors of the cookies,with the lighting highlighting the details. The image suggests a theme of baking or a baking project.]]></description>
         </page>
         
         <page type="image-audio" src="slide02" title="Overview" transition="">
@@ -51,7 +36,6 @@
         
         <page type="image-audio" src="slide03" title="Cookie Type" transition="">
             <note />
-            <description />
         </page>
         
         <page type="image-audio" src="slide04" title="History" transition="">
@@ -60,23 +44,19 @@
                 <marker timecode="00:10" color="">Marker 1</marker>
                 <marker timecode="00:20" color="#f00">Marker 2</marker>
             </markers>
-            <description />
         </page>
         
         <page type="image-audio" src="slide05" title="A Cookie Timeline" transition="">
             <note />
-            <description />
         </page>
         
         <page type="image-audio" src="slide06" title="The Recipe" transition="">
             <note />
             <copyableContent><![CDATA[2 cups chocolate morsels, 2 1/4 cups all-purpose flour]]></copyableContent>
-            <description />
         </page>
         
         <page type="image-audio" src="slide07" title="Tools" transition="" preventAutoplay="true">
             <note>Audio is intentionally forced to prevent autoplay</note>
-            <description />
         </page>
         
         <page type="image-audio" src="slide08" title="Part 1 - Preheating and Melting" transition="">
@@ -146,10 +126,8 @@
         <page type="quiz" title="Question 2">
             
             <shortAnswer>
-                
                 <question image="" audio=""><![CDATA[What are your main take aways from this presentation?]]></question>
                 <feedback>I was hoping you would be surprised to hear how relatively young the Chocolate Chip cookie is. I am also hoping you noticed how important getting the ingredients right is to having good results.</feedback>
-                
             </shortAnswer>
             
         </page>
@@ -197,12 +175,10 @@
 
         <page type="kaltura" src="0_1aesgu7f" title="Video from Kaltura" transition="" preventAutoplay="false">
             <note />
-            <description>A flock of geese swimming across the muddy pond on a windy day.</description>
         </page>
 
-        <page type="brightcove" src="6348690126112" title="Video from BrightCove" transition="" preventAutoplay="false" disableFullscreen="">
+        <page type="brightcove" src="6345049175112" title="Video from Brightcove" transition="" preventAutoplay="false" allowFullscreen="true">
             <note />
-            <description>A screen recording of how to add Sketch in Front Panel using SOLIDSWorks.</description>
         </page>
         
         <page type="youtube" src="RzkD_rTEBYs" title="Video from YouTube" transition="" preventAutoplay="false" useDefaultPlayer="true">
@@ -218,9 +194,8 @@
             <note />
         </page>
         
-        <page type="image" src="slide02" title="Image from Assets Directory">
+        <page type="image" src="slide03" title="Image from Assets Directory">
             <note />
-            <description>An overview of chocolate chip cookies. The text highlights four key topic areas: a brief history of Chocolate Chip Cookies, the recipe and instructions, troubleshooting, and common variants. The text is presented in a bulleted list format, typical of an outline or presentation. A blurry, out-of-focus background image of chocolate chip cookies is visible.</description>
         </page>
         
         <page type="html" src="testing" title="HTML from Local Assets" embed="yes">
@@ -288,27 +263,27 @@
                 <choices>
                     
                     <answer image="pikachu.gif" audio="" correct="yes">
-                        <value>pickachu</value>
+                        <value></value>
                     </answer>
                     
                     <answer image="mewtwo.gif" audio="" correct="yes">
-                        <value>mewtwo</value>
+                        <value></value>
                     </answer>
                     
                     <answer image="mew.gif" audio="">
-                        <value>mew</value>
+                        <value></value>
                     </answer>
                     
                     <answer image="rattata.gif" audio="">
-                        <value>rattata</value>
+                        <value></value>
                     </answer>
                     
                     <answer image="krabby.gif" audio="">
-                        <value>krabby</value>
+                        <value></value>
                     </answer>
                     
                     <answer image="rayquaza.gif" audio="">
-                        <value>rayquaza</value>
+                        <value></value>
                     </answer>
                     
                 </choices>
@@ -407,17 +382,17 @@
                 <choices>
                     
                     <answer image="mew.gif" audio="" correct="yes">
-                        <value>mew</value>
+                        <value />
                         <feedback>Congratulation! You can't have it.</feedback>
                     </answer>
                     
                     <answer image="mewtwo.gif" audio="">
-                        <value>mewtwo</value>
+                        <value />
                         <feedback>Close</feedback>
                     </answer>
                     
                     <answer image="rattata.gif" audio="">
-                        <value>rattata</value>
+                        <value />
                         <feedback>It is not a rat!</feedback>
                     </answer>
                     
@@ -460,7 +435,7 @@
             
         </page>
 
-        <page type="html" src="https://media.uwex.edu" title="HTML Page with Audio and Markers" embed="true">
+        <page type="html" src="https://www.google.com" title="HTML Page with Audio and Markers" embed="true">
             <audio src="slide02" />
             <note />
             <markers>
@@ -469,12 +444,16 @@
             </markers>
         </page>
         
-        <page type="html" src="https://www.ecfr.gov/current/title-45" title="Open HTML page in a new tab/window" embed="false">
+        <page type="html" src="https://lc.excelsior.edu" title="Open HTML page with full height" embed="true" fullHeight="true">
+            <note />
+        </page>
+
+        <page type="html" src="https://lc.excelsior.edu" title="Open HTML page in a new tab/window" embed="false">
             <note />
         </page>
         
-        <page type="html" src="https://media.uwex.edu/sandbox/ethan/gvp_v4/index.html" title="HTML page containing a generic video player embed" embed="true">
-            <note />
+        <page type="html" src="https://academics.excelsior.edu/acadapp-gvp/?src=shared-resources%2Fdemos%2Fgvp%2Fgvp.xml" title="Generic Video Player" embed="true">
+            <note>HTML page containing a generic video player embed</note>
         </page>
                 
     </section>
