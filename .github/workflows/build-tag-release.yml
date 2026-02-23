@@ -4,9 +4,26 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'sources/**'
+      - 'assets/**'
+      - 'webpack.common.js'
+      - 'webpack.dev.js'
+      - 'webpack.prod.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'postcss.config.js'
+      - '.babelrc.json'
+      - 'index.html'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to release (e.g., v3.7.0 — leave blank to auto-compute)'
+        required: false
+        type: string
 
 permissions:
-  contents: write   # required to create tags and releases
+  contents: write
 
 jobs:
   release:
@@ -18,24 +35,39 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Attempt to compute an auto tag
       - name: Bump version & create tag
         id: tag
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Fallback if no tag was generated
-      - name: Set fallback tag
-        if: ${{ steps.tag.outputs.new_tag == '' }}
-        id: fallback
+      - name: Determine effective tag
+        id: version
         run: |
-          TAG="v0.1.0"
-          echo "tag=${TAG}" >> $GITHUB_OUTPUT
-
-      - name: Compute effective tag
-        id: effective-tag
-        run: |
-          echo "tag=${{ steps.tag.outputs.new_tag != '' && steps.tag.outputs.new_tag || steps.fallback.outputs.tag }}" >> $GITHUB_OUTPUT
+          # If version input was provided manually, use it
+          if [ "${{ github.event.inputs.version }}" != "" ]; then
+            echo "Using manual version input: ${{ github.event.inputs.version }}"
+            echo "tag=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            # Fall back to auto-computed tag (if any)
+            AUTO="${{ steps.tag.outputs.new_tag }}"
+            if [ "$AUTO" != "" ]; then
+              echo "Using automatic inferred tag: $AUTO"
+              echo "tag=${AUTO}" >> $GITHUB_OUTPUT
+            else
+              # Fallback if no auto tag exists
+              DEFAULT="v0.1.0"
+              echo "No auto tag — using default: $DEFAULT"
+              echo "tag=${DEFAULT}" >> $GITHUB_OUTPUT
+            fi
+          fi
+          
+      - name: Validate version format
+        id: semver
+        uses: matt-usurp/validate-semver@v2
+        with:
+          version: ${{ steps.version.outputs.tag }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -49,13 +81,13 @@ jobs:
         run: npm run build
 
       - name: Package build output
-        run: zip -r sbplus-${{ steps.effective-tag.outputs.tag }}.zip dist/
+        run: zip -r sbplus-${{ steps.version.outputs.tag }}.zip dist/
 
-      - name: Create GitHub Release with auto notes
+      - name: Create GitHub Release
         run: |
-          gh release create "${{ steps.effective-tag.outputs.tag }}" \
-            sbplus-${{ steps.effective-tag.outputs.tag }}.zip \
-            --title "${{ steps.effective-tag.outputs.tag }}" \
+          gh release create "${{ steps.version.outputs.tag }}" \
+            sbplus-${{ steps.version.outputs.tag }}.zip \
+            --title "sbplus-${{ steps.version.outputs.tag }}" \
             --generate-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
