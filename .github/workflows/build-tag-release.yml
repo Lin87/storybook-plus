@@ -1,0 +1,61 @@
+name: Build, Tag & Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write   # required to create tags and releases
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Bump version & create tag
+        id: tag
+        uses: mathieudutour/github-tag-action@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Fallback if no tag was generated
+      - name: Set fallback tag
+        if: ${{ steps.tag.outputs.new_tag == '' }}
+        id: fallback
+        run: |
+          TAG="v0.1.0"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Compute effective tag
+        id: effective-tag
+        run: |
+          echo "tag=${{ steps.tag.outputs.new_tag != '' && steps.tag.outputs.new_tag || steps.fallback.outputs.tag }}" >> $GITHUB_OUTPUT
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build with Webpack
+        run: npm run build
+
+      - name: Package build output
+        run: zip -r sbplus-${{ steps.effective-tag.outputs.tag }}.zip dist/
+
+      - name: Create GitHub Release with auto notes
+        run: |
+          gh release create "${{ steps.effective-tag.outputs.tag }}" \
+            sbplus-${{ steps.effective-tag.outputs.tag }}.zip \
+            --title "${{ steps.effective-tag.outputs.tag }}" \
+            --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
