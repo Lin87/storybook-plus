@@ -62,9 +62,6 @@ module.exports = {
         new CopyWebpackPlugin({
             patterns: [
                 {
-                    from: 'sbplus.*',
-                },
-                {
                     from: 'assets',
                     to: 'assets',
                 },

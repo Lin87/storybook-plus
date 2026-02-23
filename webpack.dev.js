@@ -1,6 +1,7 @@
 const { merge } = require( 'webpack-merge' );
 const path = require( 'path' );
 const common = require( './webpack.common.js' );
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = merge( common, {
     mode: 'development',
@@ -12,6 +13,15 @@ module.exports = merge( common, {
         static: path.resolve( __dirname, 'dist' ),
         hot: true,
         watchFiles: ['index.html', './assets/**/*', './sources/**/*'],
-    }
+    },
+    plugins: [
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: 'sbplus.*',
+                }
+            ],
+        }),
+    ],
     
 } );
