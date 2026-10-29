@@ -39,7 +39,7 @@ module.exports = {
                         loader: 'sass-loader',
                         options: {
                             // Prefer `dart-sass`
-                            implementation: require.resolve('sass'),
+                            implementation: require('sass'),
                         },
                     },
                 ],
