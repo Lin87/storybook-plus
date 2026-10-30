@@ -1,4 +1,4 @@
-.sbplus_wrapper button:hover{color:--var-accent}
+.sbplus_wrapper button:not(:where(.media-skin *)):hover{color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_splash_screen #sb_splash_bg{background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button{color:--var-textColor;background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_splash_screen #sbplus_presentation_info .sb_context .sb_cta button:hover{background-color:--var-hover}
@@ -15,12 +15,9 @@
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_main_content_col #sbplus_media_wrapper #copyToCbBtn{color:--var-textColor;background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_main_content_col #sbplus_media_wrapper #copyToCbBtn:hover{background-color:--var-hover
 }
-.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_main_content_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar{background-color:--var-accent}
-.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_main_content_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar .vjs-control,.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_main_content_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin button:hover{color:--var-textColor}
-.video-js .vjs-volume-level,.video-js .vjs-play-progress{background-color:--var-textColor}
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_main_content_col #sbplus_quiz_wrapper .sbplus_quiz_submit_btn, .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_main_content_col #sbplus_quiz_wrapper .sbplus_quiz_tryagain_btn{color:--var-textColor;background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_main_content_col #sbplus_media_wrapper .sbplus_media_content .sbplus_secondary_controls{background-color:--var-accent}
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_main_content_col #sbplus_media_wrapper .sbplus_media_content .sbplus_secondary_controls #expand_contract_btn{color:--var-textColor}
 .sbplus_wrapper.toc_displayed #sbplus #sbplus_control_bar #mobile_toc_toggle_btn{color:--var-accent}
-.sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_main_content_col #sbplus_media_wrapper .sbplus_media_content .video-js.vjs-default-skin .vjs-control-bar .vjs-progress-control .vjs-marker{background-color:--var-markerColor}
 .sbplus_wrapper #sbplus #sbplus_content_wrapper #sbplus_main_content_col #sbplus_media_wrapper .sbplus_media_content .loading-spinner {border-bottom-color: --var-accent;}
+#sbplus .media-container{--media-accent-color:--var-accent;--media-accent-text-color:--var-textColor;--sbplus-controls-background:--var-accent;--sbplus-controls-color:--var-textColor;--sbplus-marker-color:--var-markerColor}

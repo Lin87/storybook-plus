@@ -2,6 +2,20 @@
 
 ## 2026
 
+### 3.8.0 (10/29/2026)
+
+* Move to Video.js 10 with npm packages and an editable Default skin. Remove the old bundled player and plugins.
+* Restore a compact control bar that uses the presentation accent color and stays below the media. Narrated slide images fill the available space.
+* Put playback speed and caption selection in Settings. Show the current time and total duration, with clearer menus, tooltips and playback icons.
+* Keep colored timeline markers and synchronized bundle images working when playing, seeking backward or replaying.
+* Restore narration audio and clickable markers on embedded HTML pages.
+* Show the fullscreen control only when a page explicitly sets `allowFullscreen="true"` in its XML.
+* Prefer YouTube's captions. Offer local English captions only when a local VTT file is available and YouTube reports no caption tracks after playback begins.
+* Prevent duplicate Brightcove captions and keep its playback reporting connected to the new player.
+* Preserve the intentional missing-image and missing-audio messages without opening a second player error dialog.
+* Improve saved volume, caption and playback-speed preferences, and release media and pending callbacks when navigating between slides.
+* Tidy the player styles and build setup, and remove temporary migration files and unused dependencies.
+
 ### 3.7.0 (02/23/2026)
 
 * Remove jQuery and refactor all jQuery code to native JavaScript.

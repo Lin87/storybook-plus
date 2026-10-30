@@ -3,8 +3,8 @@
  *
  * @author: Ethan Lin
  * @url: https://github.com/Lin87/storybook-plus
- * @version: 3.7.0
- * Released 02/23/2026
+ * @version: 3.8.0
+ * Released 10/29/2026
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
@@ -70,7 +70,7 @@ const SBPLUS = {
     kalturaLoaded: false,
     alreadyResized: false,
     playbackrate: 1,
-    version: '3.7.0',
+    version: '3.8.0',
     clickCount: 0,
     randomNum: Math.floor(Math.random() * 6 + 5),
     colorModeMediaQuery: null,
@@ -1381,7 +1381,7 @@ const SBPLUS = {
         const self = this;
 
         if (self.currentPage.mediaPlayer != null) {
-            if (!self.currentPage.mediaPlayer.paused()) {
+            if (!self.currentPage.mediaPlayer.paused) {
                 self.currentPage.mediaPlayer.pause();
             }
         }
@@ -1848,14 +1848,8 @@ const SBPLUS = {
                 pageData.useDefaultPlayer = 'true';
             }
 
-            // Fullscreen toggle applies only to player-backed media types.
-            if (pageData.type == 'brightcove' || pageData.type == 'kaltura' || pageData.type == 'video' || (pageData.type == 'youtube' && pageData.useDefaultPlayer == 'true')) {
-                if (target.getAttribute('disableFullscreen') != undefined) {
-                    pageData.disableFullscreen = getAttrTrim(target, 'disableFullscreen', 'false');
-                } else {
-                    pageData.disableFullscreen = 'false';
-                }
-            }
+            // Fullscreen is explicitly enabled per page; omission keeps it off.
+            pageData.allowFullscreen = getAttrTrim(target, 'allowFullscreen', 'false') === 'true';
 
             if (target.querySelectorAll('note').length) {
                 const noteNode = target.querySelector('note');
@@ -2007,11 +2001,11 @@ const SBPLUS = {
                         secControlExpandedBtn.classList.remove('expanded');
                     }
 
-                    if (self.currentPage.mediaPlayer && self.currentPage.mediaPlayer.hasClass('sbplus-vjs-expanded')) {
-                        self.currentPage.mediaPlayer.removeClass('sbplus-vjs-expanded');
+                    if (self.currentPage.mediaPlayer && self.currentPage.playerSession?.container.classList.contains('sbplus-media-expanded')) {
+                        self.currentPage.playerSession?.container.classList.remove('sbplus-media-expanded');
                     }
 
-                    document.querySelector(self.layout.sbplus).classList.remove('sbplus-vjs-expanded');
+                    document.querySelector(self.layout.sbplus).classList.remove('sbplus-media-expanded');
                 };
             }
 

@@ -18,7 +18,8 @@ module.exports = merge( common, {
               },
             }
           ),
-          new CssMinimizerPlugin(),
+          // Keep modern relative-color calculations intact for the browser.
+          new CssMinimizerPlugin({ minimizerOptions: { preset: ['default', { calc: false }] } }),
         ],
     },
     performance: {

@@ -1,6 +1,6 @@
 # Storybook Plus (SB+)  
 
-version 3.7.0
+version 3.8.0
 
 [![Build](https://github.com/Lin87/storybook-plus/actions/workflows/build-tag-release.yml/badge.svg)](https://github.com/Lin87/storybook-plus/actions/workflows/build-tag-release.yml)
 

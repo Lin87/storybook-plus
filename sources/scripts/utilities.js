@@ -47,8 +47,8 @@ export function loadScript(url) {
  * @returns {Promise<{url: string}>}
  * @throws {Error} Throws for non-2xx responses.
  */
-export async function headRequest(url) {
-  const response = await fetch(url, { method: "HEAD" });
+export async function headRequest(url, signal) {
+  const response = await fetch(url, { method: "HEAD", signal });
 
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -245,11 +245,12 @@ export function isUrl(s) {
  * @returns {boolean}
  */
 export function sendData(requestURL) {
-  const scriptElement = document.createElement("img");
-  scriptElement.setAttribute("src", requestURL);
-  scriptElement.setAttribute("alt", "");
-  scriptElement.setAttribute("aria-hidden", "true");
-  scriptElement.style.display = "none";
-  document.getElementsByTagName("body")[0].appendChild(scriptElement);
+  const beacon = document.createElement("img");
+  beacon.alt = "";
+  beacon.hidden = true;
+  beacon.setAttribute("aria-hidden", "true");
+  beacon.onload = beacon.onerror = () => beacon.remove();
+  document.body.appendChild(beacon);
+  beacon.src = requestURL;
   return true;
 }

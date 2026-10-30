@@ -2,8 +2,6 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const WebpackConcatPlugin = require('webpack-concat-files-plugin');
-const terser = require('terser');
 
 module.exports = {
     entry: {
@@ -14,8 +12,14 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         clean: true,
     },
+    resolve: {
+        extensions: ['.ts', '.js', '.mjs'],
+        alias: { '@': path.resolve(__dirname, 'sources') },
+    },
     module: {
         rules: [
+            { test: /\.ts$/, exclude: /node_modules/, use: 'ts-loader' },
+            { test: /\.html$/, include: path.resolve(__dirname, 'sources/components'), type: 'asset/source' },
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
@@ -55,8 +59,6 @@ module.exports = {
             links: [
                 'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap',
                 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=add_circle,check,chevron_backward,chevron_forward,close,close_fullscreen,cognition_2,content_copy,do_not_disturb_on,download,forward_10,info,list,more_horiz,notes,open_in_full,person,replay_10,settings,warning&display=swap',
-                'sources/scripts/libs/videojs/video-js.min.css',
-                'sources/scripts/libs/videojs/video.min.js'
             ],
         }),
         new CopyWebpackPlugin({
@@ -80,33 +82,10 @@ module.exports = {
                 {
                     from: 'sources/scripts/libs',
                     to: 'sources/scripts/libs',
-                    globOptions: {
-                        ignore: ['**/videojs/plugins/**'],
-                    },
                 },
                 {
                     from: 'sources/scripts/templates',
                     to: 'sources/scripts/templates',
-                },
-            ],
-        }),
-        new WebpackConcatPlugin({
-            bundles: [
-                {
-                    dest: './dist/sources/scripts/libs/videojs/video.min.js',
-                    src: [
-                        './sources/scripts/libs/videojs/video.min.js',
-                        './sources/scripts/libs/videojs/plugins/quality-selector/quality-selector.js',
-                        './sources/scripts/libs/videojs/plugins/cuepoint/videojs.cuepoints.js',
-                        './sources/scripts/libs/videojs/plugins/markers/videojs-markers.js',
-                        './sources/scripts/libs/videojs/plugins/youtube/youtube.js'
-                    ],
-                    transforms: {
-                        after: async (code) => {
-                            const minifiedCode = await terser.minify(code, { keep_fnames: true, keep_classnames: true });
-                            return minifiedCode.code;
-                        },
-                    },
                 },
             ],
         }),

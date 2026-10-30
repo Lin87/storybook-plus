@@ -1,0 +1,283 @@
+/* Default skin controls arranged like the Storybook presentation screen. */
+#mp {
+    display: contents;
+}
+#mp .media-container {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 150px;
+    aspect-ratio: 16 / 9;
+    background: transparent;
+    border-radius: 0;
+    --media-video-border-radius: 0;
+    --media-control-size: 33px;
+    --media-icon-size: 18px;
+    --media-font-family: 'Open Sans', system-ui, sans-serif;
+}
+#mp .sbplus-media-stage {
+    grid-area: 1 / 1;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: #000;
+}
+#mp .sbplus-media-stage > :is(video, hlsjs-video, youtube-video),
+#mp .sbplus-narration {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    --media-object-fit: contain;
+    --media-caption-track-y: -12px;
+}
+#mp .sbplus-narration {
+    object-fit: cover;
+    pointer-events: none;
+}
+#mp .sbplus-narration[hidden],
+#mp [hidden] {
+    display: none !important;
+}
+/* The bar occupies its own grid row, so it never covers the media. */
+#mp .video-controls-content {
+    grid-area: 2 / 1;
+    position: relative;
+    inset: auto;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    min-height: 33px;
+    padding: 0;
+    gap: 0;
+    border-radius: 0;
+    background: var(--sbplus-controls-background, #0c3b6b);
+    color: var(--sbplus-controls-color, white);
+    box-shadow: none;
+    backdrop-filter: none;
+    text-shadow: none;
+    z-index: 1;
+}
+#mp .video-controls-content::after,
+#mp .video-controls-primary::after,
+#mp .video-controls-secondary::after,
+#mp .video-controls-backdrop {
+    display: none;
+}
+#mp :is(.video-controls-primary, .video-controls-secondary) {
+    position: static;
+    inset: auto;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    gap: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    box-shadow: none;
+    backdrop-filter: none;
+}
+#mp .video-controls-primary {
+    flex: 1 1 280px;
+    min-width: 0;
+}
+#mp .video-controls-secondary {
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+}
+#mp .video-time-slider-group {
+    flex: 1;
+    min-width: 60px;
+    padding-inline: 5px;
+    gap: 6px;
+}
+#mp .video-time-value {
+    display: inline;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+}
+#mp .video-controls-content:has(:focus-visible) {
+    opacity: 1;
+    pointer-events: auto;
+    translate: none;
+    filter: none;
+}
+#mp .media-container {
+    cursor: auto;
+}
+#mp .sbplus-skip,
+#mp .sbplus-expand,
+#mp .sbplus-local-caption-toggle {
+    min-width: 33px;
+    min-height: 33px;
+    cursor: pointer;
+    font-size: 12px;
+}
+#mp .sbplus-control-icon {
+    font-family: 'Material Symbols Outlined';
+    font-size: 18px;
+    font-weight: 400;
+    font-style: normal;
+    font-feature-settings: 'liga';
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+}
+#mp .sbplus-expand .sbplus-control-icon {
+    font-size: 18px;
+}
+#mp .sbplus-contract-icon,
+#mp .sbplus-expand[aria-pressed='true'] .sbplus-expand-icon {
+    display: none;
+}
+#mp .sbplus-expand[aria-pressed='true'] .sbplus-contract-icon {
+    display: block;
+}
+@media (hover: hover) {
+    #mp .media-button:not([aria-disabled='true']):hover {
+        color: var(--sbplus-controls-color, white);
+        background-color: color-mix(in srgb, var(--sbplus-controls-color, white) 18%, transparent);
+    }
+}
+#mp .media-button:focus-visible {
+    color: var(--sbplus-controls-color, white);
+}
+/* Opaque surfaces keep popup text readable over white slides and busy video. */
+#mp .media-popup-surface {
+    background: #202124;
+    color: #fff;
+    border: 1px solid #5f6368;
+    box-shadow: 0 3px 12px #0006;
+    backdrop-filter: none;
+    --media-popover: #202124;
+    --media-popover-foreground: #fff;
+    --media-muted-foreground: #e0e0e0;
+}
+#mp .media-tooltip {
+    border-radius: 4px;
+}
+#mp .media-time-slider-preview-content {
+    color: #fff;
+    background: #202124;
+    border: 1px solid #5f6368;
+    border-radius: 4px;
+    padding: 4px 8px;
+    box-shadow: 0 3px 12px #0006;
+    white-space: nowrap;
+}
+#mp .media-tooltip-shortcut {
+    background: #444;
+    color: #fff;
+}
+#mp .media-menu-hint {
+    color: #e0e0e0;
+}
+#mp .sbplus-timeline {
+    position: relative;
+    flex: 1;
+    min-width: 30px;
+}
+#mp .sbplus-timeline .media-time-slider {
+    width: 100%;
+    height: 33px;
+}
+#mp .sbplus-timeline .media-slider-fill::before {
+    background-color: currentColor;
+}
+#mp .sbplus-timeline .media-slider-buffer::before {
+    background-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+#mp .sbplus-markers {
+    position: absolute;
+    inset: 50% 0 auto;
+    height: 24px;
+    transform: translateY(-50%);
+    z-index: 2;
+    pointer-events: none;
+}
+#mp .sbplus-marker {
+    position: absolute;
+    transform: translateX(-50%);
+    height: 24px;
+    width: 24px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+}
+#mp .sbplus-marker::after {
+    content: '';
+    display: block;
+    margin: auto;
+    width: 12px;
+    height: 12px;
+    background: var(--marker-color, var(--sbplus-marker-color, #ffd166));
+    border: 1px solid #111;
+    border-radius: 50%;
+}
+#mp :is(button, select):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+}
+#mp .sbplus-local-captions {
+    position: absolute;
+    inset: auto 5% 12px;
+    text-align: center;
+    pointer-events: none;
+    z-index: 8;
+    font-size: clamp(16px, 2vw, 28px);
+    white-space: pre-line;
+}
+#mp .sbplus-local-captions span {
+    color: white;
+    background: #000e;
+    padding: 2px 6px;
+    box-decoration-break: clone;
+}
+#mp .media-container:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    background: black;
+}
+#mp .media-container:fullscreen .sbplus-expand {
+    display: none;
+}
+.iframeEmbed.has-narration #mp .media-container {
+    position: absolute;
+    inset: auto 0 0;
+    height: auto;
+    min-height: 33px;
+    aspect-ratio: auto;
+    grid-template-rows: 0 auto;
+    z-index: 1;
+}
+.iframeEmbed.has-narration > iframe.html {
+    height: calc(100% - 33px) !important;
+    max-height: none !important;
+}
+#mp .sbplus-local-captions-on,
+#mp .sbplus-local-caption-toggle[aria-pressed='true'] .sbplus-local-captions-off {
+    display: none;
+}
+#mp .sbplus-local-caption-toggle[aria-pressed='true'] .sbplus-local-captions-on {
+    display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+    #mp *,
+    #mp *::before,
+    #mp *::after {
+        transition-duration: 0s !important;
+        animation-duration: 0s !important;
+    }
+}

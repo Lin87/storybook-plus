@@ -1,6 +1,6 @@
 {
     "name": "sbplus",
-    "version": "3.7.0",
+    "version": "3.8.0",
     "description": "Storybook Plus is a web application that uses HTML5, JavaScript, CSS3, and web storage to deliver multimedia presentations.",
     "private": true,
     "scripts": {
@@ -31,18 +31,22 @@
         "copy-webpack-plugin": "^14.0.0",
         "css-loader": "^7.1.5",
         "css-minimizer-webpack-plugin": "^8.0.0",
-        "cssnano": "^9.9.0",
         "html-webpack-plugin": "^5.6.8",
         "mini-css-extract-plugin": "^2.10.2",
         "postcss-loader": "^8.2.1",
         "sass": "^1.107.0",
         "sass-loader": "^17.1.0",
-        "terser": "^5.51.2",
         "terser-webpack-plugin": "^5.6.1",
+        "ts-loader": "^9.6.2",
+        "typescript": "^5.9.3",
         "webpack": "^5.112.2",
         "webpack-cli": "^7.2.3",
-        "webpack-concat-files-plugin": "^0.5.2",
         "webpack-dev-server": "^6.1.0",
         "webpack-merge": "^6.0.1"
+    },
+    "dependencies": {
+        "@videojs/hlsjs-video": "^10.2.0",
+        "@videojs/html": "^10.2.0",
+        "@videojs/youtube-video": "^10.2.0"
     }
 }

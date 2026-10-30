@@ -21,8 +21,7 @@
               <![CDATA[<h1>Heading Level 1 (and 2)</h1>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip <em>ex ea commodo consequat</em>. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<ol><li>Hello</li><li>World</li></ol><h3>Heading Level 3</h3><p><a href="#">Loremipsumdolorsitametconsectetuadipisicingelitseddoeiusmodtemporincididuntutlaboreetdoloremagnaaliqua.</a> Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><ul><li>Hello</li><li>World</li></ul><script>onclick();</script>]]>
             </note>
             <markers>
-                <marker timecode="00:10" color="">Marker 1</marker>
-                <marker timecode="00:20" color="">Marker 2</marker>
+                <marker timecode="00:01" color="">Halfway</marker>
             </markers>
         </page>
         
@@ -435,7 +434,7 @@
             
         </page>
 
-        <page type="html" src="https://www.google.com" title="HTML Page with Audio and Markers" embed="true">
+        <page type="html" src="https://faculty.excelsior.edu" title="HTML Page with Audio and Markers" embed="true">
             <audio src="slide02" />
             <note />
             <markers>
@@ -444,11 +443,11 @@
             </markers>
         </page>
         
-        <page type="html" src="https://lc.excelsior.edu" title="Open HTML page with full height" embed="true" fullHeight="true">
+        <page type="html" src="https://faculty.excelsior.edu" title="Open HTML page with full height" embed="true" fullHeight="true">
             <note />
         </page>
 
-        <page type="html" src="https://lc.excelsior.edu" title="Open HTML page in a new tab/window" embed="false">
+        <page type="html" src="https://faculty.excelsior.edu" title="Open HTML page in a new tab/window" embed="false">
             <note />
         </page>
         

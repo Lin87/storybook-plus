@@ -1,4 +1,6 @@
-import { headRequest, loadScript, onAnimationEnd, onDelegate, isVisible, toSeconds, isUrl, sendData } from './utilities';
+import { createPresentationPlayer } from './presentation-player';
+import { engagementRange } from './media-state.mjs';
+import { headRequest, loadScript, onAnimationEnd, onDelegate, toSeconds, isUrl, sendData } from './utilities';
 import { SBPLUS } from './sbplus-dev';
 import { Quiz } from './quiz';
 
@@ -8,7 +10,9 @@ import { Quiz } from './quiz';
  * @param {Array|NodeList|HTMLCollection|Element} data XML node context for the selected page.
  */
 let resizeObserver = null;
+let activePage = null;
 let Page = function (obj, data) {
+    this.requests = new AbortController();
     this.pageXML = obj.xml[0];
     this.pageData = data;
     this.title = obj.title;
@@ -19,7 +23,7 @@ let Page = function (obj, data) {
     if (obj.type !== 'quiz') {
         this.src = obj.src;
         this.preventAutoplay = obj.preventAutoplay;
-        this.disableFullscreen = obj.disableFullscreen;
+        this.allowFullscreen = obj.allowFullscreen;
         this.useDefaultPlayer = obj.useDefaultPlayer;
         this.notes = obj.notes;
         this.widget = obj.widget;
@@ -84,23 +88,12 @@ Page.prototype.getPageMedia = function () {
         resizeObserver = null;
     }
 
-    // Rebuilding media for each page can leak event handlers unless the previous
-    // player instance is fully disposed before replacing #mp.
-    if (typeof videojs === 'function') {
-        if (typeof videojs.getPlayer === 'function') {
-            const existingPlayer = videojs.getPlayer('mp');
-
-            if (existingPlayer) {
-                existingPlayer.dispose();
-            }
-        } else if (document.querySelector('#mp')) {
-            const existingPlayer = videojs('mp');
-
-            if (existingPlayer && typeof existingPlayer.dispose === 'function') {
-                existingPlayer.dispose();
-            }
-        }
-    }
+    activePage?.requests.abort();
+    window.clearTimeout(activePage?.delayStorage);
+    window.clearTimeout(activePage?.focusTimer);
+    activePage?.playerSession?.dispose();
+    activePage?.removeCopyBtn();
+    activePage = self;
 
     if (quizContainerEl) {
         quizContainerEl.classList.add('hidden');
@@ -109,7 +102,7 @@ Page.prototype.getPageMedia = function () {
 
     if (mediaContentEl) {
         mediaContentEl.style.backgroundImage = '';
-        mediaContentEl.classList.remove('compat-object-fit', 'show-vjs-poster', 'iframeEmbed');
+        mediaContentEl.classList.remove('iframeEmbed', 'has-narration', 'html');
         mediaContentEl.innerHTML = '';
     }
 
@@ -126,14 +119,13 @@ Page.prototype.getPageMedia = function () {
     }
 
     if (mediaWrapperEl) {
-        mediaWrapperEl.classList.remove('hidden');
+        mediaWrapperEl.classList.remove('hidden', 'iframeFullHeight');
     }
 
     if (widgetEl) {
         widgetEl.classList.remove('hidden');
     }
 
-    removeSecondaryControls();
     self.showCopyBtn();
 
     switch (self.type) {
@@ -146,8 +138,9 @@ Page.prototype.getPageMedia = function () {
                         .then(() => loadScript(self.root + 'scripts/libs/kaltura/kwidgetgetsources.js'))
                         .then(() => {
                             SBPLUS.kalturaLoaded = true;
-                            self.loadKalturaVideoData();
-                        });
+                            if (!self.requests.signal.aborted) self.loadKalturaVideoData();
+                        })
+                        .catch(() => self.showPageError('KAL_NOT_AVAILABLE'));
                 } else {
                     self.loadKalturaVideoData();
                 }
@@ -171,7 +164,7 @@ Page.prototype.getPageMedia = function () {
 
             const imageAudioUrl = SBPLUS.assetsPath + 'pages/' + self.src + '.' + self.imgType;
 
-            headRequest(imageAudioUrl)
+            headRequest(imageAudioUrl, self.requests.signal)
                 .then(() => {
                     self.hasImage = true;
                 })
@@ -180,9 +173,10 @@ Page.prototype.getPageMedia = function () {
                     self.missingImgUrl = imageAudioUrl;
                 })
                 .finally(() => {
+                    if (self.requests.signal.aborted) return;
                     const captionPath = SBPLUS.assetsPath + 'audio/' + self.src + '.vtt';
 
-                    headRequest(captionPath)
+                    headRequest(captionPath, self.requests.signal)
                         .then(() => {
                             self.captionUrl = captionPath;
                         })
@@ -190,15 +184,15 @@ Page.prototype.getPageMedia = function () {
                             self.captionUrl = '';
                         })
                         .finally(() => {
-                            const html = '<video id="mp" class="video-js vjs-default-skin"></video>';
+                    if (self.requests.signal.aborted) return;
+                            const html = '<video id="mp" class="sbplus-media-placeholder"></video>';
 
                             if (mediaContentEl) {
-                                mediaContentEl.classList.add('show-vjs-poster');
                                 mediaContentEl.innerHTML = html;
                             }
 
                             self.addMarkers();
-                            self.renderVideoJS();
+                            self.renderPlayer();
                             self.setWidgets();
 
                             if (!!self.description) {
@@ -249,7 +243,7 @@ Page.prototype.getPageMedia = function () {
         case 'video':
             const videoCaptionPath = SBPLUS.assetsPath + 'video/' + self.src + '.vtt';
 
-            headRequest(videoCaptionPath)
+            headRequest(videoCaptionPath, self.requests.signal)
                 .then(() => {
                     self.captionUrl = videoCaptionPath;
                 })
@@ -257,7 +251,8 @@ Page.prototype.getPageMedia = function () {
                     self.captionUrl = '';
                 })
                 .finally(() => {
-                    const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
+                    if (self.requests.signal.aborted) return;
+                    const html = '<video id="mp" class="sbplus-media-placeholder" crossorigin="anonymous" width="100%" height="100%"></video>';
 
                     if (mediaContentEl) {
                         mediaContentEl.innerHTML = html;
@@ -265,10 +260,10 @@ Page.prototype.getPageMedia = function () {
 
                     self.isVideo = true;
                     self.addMarkers();
-                    self.renderVideoJS();
+                    self.renderPlayer();
 
                     if (!!self.description) {
-                        const html5Api = document.querySelector('#mp_html5_api');
+                        const html5Api = document.querySelector('#mp_media');
 
                         if (html5Api) {
                             html5Api.setAttribute('aria-describedby', 'long-description');
@@ -287,21 +282,21 @@ Page.prototype.getPageMedia = function () {
 
             if (self.useDefaultPlayer === 'true' || self.useDefaultPlayer === 'yes') {
                 if (mediaContentEl) {
-                    mediaContentEl.innerHTML = '<video id="mp" class="video-js vjs-default-skin"></video>';
+                    mediaContentEl.innerHTML = '<video id="mp" class="sbplus-media-placeholder"></video>';
                 }
 
                 self.addMarkers();
-                self.renderVideoJS();
+                self.renderPlayer();
 
                 if (!!self.description) {
-                    document.querySelector('.video-js').setAttribute('aria-describedby', 'long-description');
+                    document.querySelector('media-container').setAttribute('aria-describedby', 'long-description');
                     self.insertDescription();
                 }
             } else {
-                const autoplay = self.preventAutoplay === 'false' || self.preventAutoplay === 'no' ? 1 : 0;
+                const autoplay = !SBPLUS.isMobileDevice() && SBPLUS.getStorageItem('sbplus-autoplay') !== '0' && (self.preventAutoplay === 'false' || self.preventAutoplay === 'no') ? 1 : 0;
 
                 if (mediaContentEl) {
-                    mediaContentEl.innerHTML = '<div class="yt-native"><iframe id="youtube-ui" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/' + self.src + '?autoplay=' + autoplay + '&playsinline=1&modestbranding=1&disablekb=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture, fullscreen"></iframe></div>';
+                    mediaContentEl.innerHTML = '<div class="yt-native"><iframe id="youtube-ui" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/' + self.src + '?autoplay=' + autoplay + '&playsinline=1&modestbranding=1&disablekb=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope' + (self.allowFullscreen ? '; fullscreen' : '') + '"></iframe></div>';
                 }
                 addSecondaryControls();
             }
@@ -320,7 +315,7 @@ Page.prototype.getPageMedia = function () {
 
             const bundleCaptionPath = SBPLUS.assetsPath + 'audio/' + self.src + '.vtt';
 
-            headRequest(bundleCaptionPath)
+            headRequest(bundleCaptionPath, self.requests.signal)
                 .then(() => {
                     self.captionUrl = bundleCaptionPath;
                 })
@@ -328,20 +323,20 @@ Page.prototype.getPageMedia = function () {
                     self.captionUrl = '';
                 })
                 .finally(() => {
-                    const html = '<video id="mp" class="video-js vjs-default-skin"></video>';
+                    if (self.requests.signal.aborted) return;
+                    const html = '<video id="mp" class="sbplus-media-placeholder"></video>';
 
                     if (mediaContentEl) {
-                        mediaContentEl.classList.add('show-vjs-poster');
                         mediaContentEl.innerHTML = html;
                     }
 
                     self.isBundle = true;
                     self.addMarkers();
-                    self.renderVideoJS();
+                    self.renderPlayer();
                     self.setWidgets();
 
                     if (!!self.description) {
-                        const html5Api = document.querySelector('#mp_html5_api');
+                        const html5Api = document.querySelector('#mp_media');
 
                         if (html5Api) {
                             html5Api.setAttribute('aria-describedby', 'long-description');
@@ -416,7 +411,7 @@ Page.prototype.getPageMedia = function () {
         case 'html':
             let embed = false;
             let useFullHeight = false;
-            let audioSrc = false;
+            let audioSrc = '';
             let path = self.src;
 
             if (!isUrl(path)) {
@@ -437,14 +432,14 @@ Page.prototype.getPageMedia = function () {
             const audioNode = self.pageXML.querySelector('audio');
 
             if (audioNode) {
-                audioSrc = (audioNode.getAttribute('src') || '').toLowerCase();
+                audioSrc = (audioNode.getAttribute('src') || '').trim();
             }
 
             if (embed === 'yes' || embed === 'true') {
-                let iframe = '<iframe class="html" src="' + path + '" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen"></iframe>';
+                let iframe = '<iframe class="html" src="' + path + '" allow="accelerometer; autoplay; encrypted-media; gyroscope' + (self.allowFullscreen ? '; fullscreen' : '') + '"></iframe>';
 
                 if (audioSrc.length) {
-                    let audio = '<video id="mp" class="video-js vjs-default-skin"></video>';
+                    let audio = '<video id="mp" class="sbplus-media-placeholder"></video>';
 
                     self.isAudio = true;
 
@@ -453,11 +448,12 @@ Page.prototype.getPageMedia = function () {
                     }
 
                     self.addMarkers();
-                    self.renderVideoJS(audioSrc);
+                    self.renderPlayer(audioSrc);
                 }
 
                 if (mediaContentEl) {
                     mediaContentEl.classList.add('iframeEmbed');
+                    mediaContentEl.classList.toggle('has-narration', Boolean(audioSrc));
                     mediaContentEl.insertAdjacentHTML('afterbegin', iframe);
                 }
             } else {
@@ -490,7 +486,7 @@ Page.prototype.getPageMedia = function () {
                 self.setWidgets();
             }
 
-            if (useFullHeight != 'true' ) {
+            if (useFullHeight !== 'true' && useFullHeight !== 'yes' && !audioSrc) {
                 addSecondaryControls(false);
             }
 
@@ -519,7 +515,8 @@ Page.prototype.getPageMedia = function () {
         }
     }
 
-    window.setTimeout(function () {
+    self.focusTimer = window.setTimeout(function () {
+        if (self.requests.signal.aborted) return;
         if (document.activeElement) {
             document.activeElement.blur();
         }
@@ -678,6 +675,7 @@ Page.prototype.loadKalturaVideoData = function () {
         partnerId: self.kaltura.id,
         entryId: self.src,
         callback: function (data) {
+            if (self.requests.signal.aborted) return;
             const captions = data.caption;
 
             self.isKaltura.status.entry = data.status;
@@ -717,17 +715,17 @@ Page.prototype.loadKalturaVideoData = function () {
                     });
                 }
 
-                const html = '<video id="mp" class="video-js vjs-default-skin" crossorigin="anonymous" width="100%" height="100%"></video>';
+                const html = '<video id="mp" class="sbplus-media-placeholder" crossorigin="anonymous" width="100%" height="100%"></video>';
                 const mediaContentEl = document.querySelector(self.mediaContent);
 
                 if (mediaContentEl) {
                     mediaContentEl.innerHTML = html;
                 }
 
-                self.renderVideoJS();
+                self.renderPlayer();
 
                 if (!!self.description) {
-                    const html5Api = document.querySelector('#mp_html5_api');
+                    const html5Api = document.querySelector('#mp_media');
 
                     if (html5Api) {
                         html5Api.setAttribute('aria-describedby', 'long-description');
@@ -754,7 +752,7 @@ Page.prototype.loadBrightcoveVideoData = function () {
         mediaContentEl.innerHTML = '<span class="loading-spinner"></span>';
     }
 
-    fetch('https://api.academics.excelsior.edu/brightcove?vid=' + self.src)
+    fetch('https://api.academics.excelsior.edu/brightcove?vid=' + self.src, { signal: self.requests.signal })
         .then((response) => {
             if (!response.ok) {
                 self.showPageError('BRIGHTCOVE_NOT_AVAILABLE');
@@ -764,6 +762,7 @@ Page.prototype.loadBrightcoveVideoData = function () {
             return response.json();
         })
         .then((data) => {
+            if (self.requests.signal.aborted) return;
             const now = new Date().toISOString();
             const rand = Math.random() * 1000000;
             const session = parseInt(rand).toString() + '_' + now;
@@ -795,17 +794,17 @@ Page.prototype.loadBrightcoveVideoData = function () {
                 });
             }
 
-            const html = '<video id="mp" class="video-js vjs-default-skin animated fadeIn" crossorigin="anonymous" width="100%" height="100%"></video>';
+            const html = '<video id="mp" class="sbplus-media-placeholder animated fadeIn" crossorigin="anonymous" width="100%" height="100%"></video>';
             const contentEl = document.querySelector(self.mediaContent);
 
             if (contentEl) {
                 contentEl.innerHTML = html;
             }
 
-            self.renderVideoJS();
+            self.renderPlayer();
 
             if (!!self.description) {
-                const html5Api = document.querySelector('#mp_html5_api');
+                const html5Api = document.querySelector('#mp_media');
 
                 if (html5Api) {
                     html5Api.setAttribute('aria-describedby', 'long-description');
@@ -815,6 +814,7 @@ Page.prototype.loadBrightcoveVideoData = function () {
             }
         })
         .catch((error) => {
+            if (self.requests.signal.aborted) return;
             self.showPageError('BRIGHTCOVE_NOT_AVAILABLE');
         });
 };
@@ -842,428 +842,10 @@ Page.prototype.addMarkers = function () {
  * @param {string=} src Optional direct media source URL override.
  * @returns {void}
  */
-Page.prototype.renderVideoJS = function (src) {
-    const self = this;
-
-    src = typeof src !== 'undefined' ? src : self.src;
-
-    let isAutoplay = true;
-
-    if (SBPLUS.getStorageItem('sbplus-autoplay') === '0') {
-        isAutoplay = false;
-    }
-
-    // XML-level preventAutoplay always wins over persisted player preference.
-    if (self.preventAutoplay === 'true') {
-        isAutoplay = false;
-
-        const wrapperEl = document.querySelector(SBPLUS.layout.wrapper);
-
-        if (wrapperEl) {
-            wrapperEl.classList.add('preventAutoplay');
-        }
-    } else {
-        const wrapperEl = document.querySelector(SBPLUS.layout.wrapper);
-
-        if (wrapperEl) {
-            wrapperEl.classList.remove('preventAutoplay');
-        }
-    }
-
-    const options = {
-        techOrder: ['html5'],
-        controls: true,
-        inactivityTimeout: 0,
-        autoplay: isAutoplay,
-        preload: 'auto',
-        playbackRates: [0.5, 1, 1.5, 2],
-        controlBar: {
-            fullscreenToggle: false,
-            pictureInPictureToggle: false,
-            liveDisplay: false,
-            seekToLive: false,
-            skipButtons: {
-                forward: 10,
-                backward: 10,
-            },
-        },
-        plugins: {
-            qualityMenu: {},
-        },
-    };
-
-    if (SBPLUS.isMobileDevice()) {
-        options.autoplay = false;
-        options.playsinline = true;
-        options.nativeControlsForTouch = false;
-    }
-
-    if (self.isYoutube) {
-        options.techOrder = ['youtube'];
-        options.sources = [{ type: 'video/youtube', src: 'https://www.youtube.com/watch?v=' + src }];
-        options.youtube = { iv_load_policy: 3, rel: 0 };
-        options.playbackRates = null;
-    }
-
-    if (self.isBrightcove) {
-        options.html5 = {
-            vhs: {
-                withCredentials: false,
-                overrideNative: true,
-            },
-        };
-    }
-
-    if (self.isKaltura || self.isBrightcove || self.isYoutube || self.isVideo) {
-        options.controlBar.fullscreenToggle = self.disableFullscreen === 'true' ? false : true;
-    }
-
-    self.mediaPlayer = videojs('mp', options, function onPlayerReady() {
-        const player = this;
-
-        if (self.isKaltura) {
-            if (isAutoplay === false) {
-                player.poster(self.isKaltura.poster + '/width/900/quality/100');
-            }
-
-            player.src(self.isKaltura.playerSrc.reverse());
-        }
-
-        if (self.isBrightcove) {
-            if (isAutoplay === false && self.isBrightcove.poster.length) {
-                player.poster(self.isBrightcove.poster[0].src);
-            }
-
-            let vidSources = [];
-
-            self.isBrightcove.sources.forEach((source) => {
-                // Brightcove can return HLS and MP4 renditions. We insert an explicit
-                // MP4 type for H264 entries so fallback playback remains available.
-                if (source.codec && source.codec == 'H264') {
-                    vidSources.push({ type: 'video/mp4', src: source.src });
-                }
-
-                vidSources.push({ type: source.type, src: source.src });
-            });
-
-            player.src(vidSources);
-
-            player.on('loadedmetadata', (evt) => {
-                Array.from(player.textTracks())
-                    .filter(({ kind }) => !['chapters', 'metadata'].includes(kind))
-                    .forEach((track) => (track.mode = 'disabled'));
-                self.isBrightcove.duration = player.duration();
-                self.sendBrightcoveAnalyticsEvent('video_impression', evt);
-            });
-
-            player.on('ready', function (evt) {
-                self.sendBrightcoveAnalyticsEvent('player_load', evt);
-            });
-
-            player.one('play', function () {
-                self.isBrightcove.firstPlayRequestTime = Date.now();
-            });
-
-            player.on('playing', function (evt) {
-                self.sendBrightcoveAnalyticsEvent('play_request', evt);
-                self.sendBrightcoveAnalyticsEvent('video_view', evt);
-            });
-
-            player.on('timeupdate', function (evt) {
-                self.onBrightcoveTimeUpdate(evt);
-            });
-
-            player.on('ended', function (evt) {
-                self.onBrightcoveTimeUpdate(evt);
-            });
-        }
-
-        if (self.isAudio || self.isBundle) {
-            if (self.isAudio && self.hasImage) {
-                player.poster(SBPLUS.assetsPath + 'pages/' + src + '.' + self.imgType);
-
-                const imgPath = `${SBPLUS.assetsPath}pages/${src}.${self.imgType}`;
-                const imgAlt = `Content about ${SBPLUS.escapeHTMLAttribute(self.title)}`;
-                const imgElement = `<img src="${imgPath}" alt="${imgAlt}"${self.description ? ' aria-describedby="long-description"' : ''} tabindex="0" />`;
-                const posterEl = document.querySelector('.vjs-poster');
-
-                if (posterEl) {
-                    posterEl.innerHTML = imgElement;
-                }
-            }
-
-            if (self.isBundle) {
-                let srcDuration = 0;
-                const pageImage = new Image();
-
-                player.on('loadedmetadata', function () {
-                    srcDuration = Math.floor(player.duration());
-                });
-
-                player.cuepoints();
-                player.addCuepoint({
-                    namespace: src + '-1',
-                    start: 0,
-                    end: self.cuepoints[0],
-                    onStart: function () {
-                        pageImage.src = SBPLUS.assetsPath + 'pages/' + src + '-1.' + self.imgType;
-                        
-                        const posterEl = document.querySelector('.vjs-poster');
-
-                        if (posterEl) {
-                            posterEl.innerHTML = '<img src=' + pageImage.src + ' />';
-                        }
-
-                        player.poster(pageImage.src);
-                    },
-                    onEnd: function () {},
-                    params: '',
-                });
-
-                self.cuepoints.forEach(function (_cuepoint, i) {
-                    let endCue;
-
-                    // Last cuepoint runs until media duration; others end at the next cuepoint.
-                    if (self.cuepoints[i + 1] === undefined) {
-                        endCue = srcDuration;
-                    } else {
-                        endCue = self.cuepoints[i + 1];
-                    }
-
-                    player.addCuepoint({
-                        namespace: src + '-' + (i + 2),
-                        start: self.cuepoints[i],
-                        end: endCue,
-                        onStart: function () {
-                            pageImage.src = SBPLUS.assetsPath + 'pages/' + src + '-' + (i + 2) + '.' + self.imgType;
-
-                            pageImage.onerror = function () {
-                                self.showPageError('NO_IMG', pageImage.src);
-                            };
-
-                            const imageEl = document.querySelector('.vjs-poster');
-                            const img = document.createElement('img');
-
-                            img.src = pageImage.src;
-
-                            if (imageEl) {
-                                imageEl.appendChild(img);
-                            }
-
-                            img.style.display = 'none';
-
-                            window.setTimeout(() => {
-                                img.style.display = '';
-                            }, 250);
-
-                            player.poster(pageImage.src);
-                        },
-                    });
-                });
-
-                player.on('seeking', function () {
-                    const posterEl = document.querySelector('.vjs-poster');
-
-                    if (posterEl) {
-                        posterEl.innerHTML = '';
-                    }
-
-                    if (player.currentTime() <= self.cuepoints[0]) {
-                        player.poster(SBPLUS.assetsPath + 'pages/' + src + '-1.' + self.imgType);
-                    }
-                });
-            }
-
-            player.src({ type: 'audio/mp3', src: SBPLUS.assetsPath + 'audio/' + src + '.mp3' });
-        }
-
-        if (self.isVideo) {
-            player.src({ type: 'video/mp4', src: SBPLUS.assetsPath + 'video/' + src + '.mp4' });
-        }
-
-        if (self.isKaltura || self.isBrightcove) {
-            if (self.captionUrl.length && player.currentSource().src.includes('.mp4')) {
-                self.captionUrl.forEach((caption) => {
-                    player.addRemoteTextTrack(
-                        {
-                            kind: caption.kind,
-                            language: caption.language,
-                            label: caption.label,
-                            src: caption.url,
-                        },
-                        true,
-                    );
-                });
-            }
-        } else {
-            if (self.captionUrl) {
-                player.addRemoteTextTrack(
-                    {
-                        kind: 'captions',
-                        language: 'en',
-                        label: 'English',
-                        src: self.captionUrl,
-                    },
-                    true,
-                );
-            }
-        }
-
-        if (self.isYoutube && self.useDefaultPlayer) {
-            const ytCaptionPath = SBPLUS.assetsPath + 'video/yt-' + src + '.vtt';
-            headRequest(ytCaptionPath)
-                .then(function () {
-                    player.addRemoteTextTrack(
-                        {
-                            kind: 'captions',
-                            language: 'en',
-                            label: 'English',
-                            src: ytCaptionPath,
-                        },
-                        true,
-                    );
-                })
-                .catch(function () {
-                });
-        }
-
-        if (options.playbackRates !== null) {
-            player.playbackRate(SBPLUS.playbackrate);
-        }
-
-        player.on(['waiting', 'pause'], function () {
-            self.isPlaying = false;
-        });
-
-        player.on('play', function () {
-            const mediaMsgEl = document.querySelector(SBPLUS.layout.mediaMsg);
-            if (isVisible(mediaMsgEl)) {
-                mediaMsgEl.classList.add('hide');
-                mediaMsgEl.innerHTML = '';
-            }
-        });
-
-        player.on('playing', function () {
-            self.isPlaying = true;
-        });
-
-        player.on('ended', function () {
-            self.isPlaying = false;
-        });
-
-        player.on('error', function () {
-            self.showPageError('NO_MEDIA', player.src());
-        });
-
-        player.on('resolutionchange', function () {
-            player.playbackRate(SBPLUS.playbackrate);
-        });
-
-        player.on('fullscreenchange', () => {
-            if (player.isFullscreen()) {
-                player.options({ inactivityTimeout: 2000 });
-            } else {
-                player.options({ inactivityTimeout: 0 });
-
-                const defaultSkinEl = document.querySelector('.video-js.vjs-default-skin');
-
-                if (defaultSkinEl) {
-                    defaultSkinEl.classList.remove('vjs-user-inactive');
-                }
-            }
-        });
-
-        player.on('ratechange', function () {
-            const rate = this.playbackRate();
-
-            if (SBPLUS.playbackrate !== rate) {
-                SBPLUS.playbackrate = rate;
-                this.playbackRate(rate);
-            }
-        });
-
-        if (SBPLUS.hasStorageItem('sbplus-' + SBPLUS.presentationId + '-volume-temp', true)) {
-            player.volume(Number(SBPLUS.getStorageItem('sbplus-' + SBPLUS.presentationId + '-volume-temp', true)));
-        } else {
-            player.volume(Number(SBPLUS.getStorageItem('sbplus-volume')));
-        }
-
-        player.on('volumechange', function () {
-            SBPLUS.setStorageItem('sbplus-' + SBPLUS.presentationId + '-volume-temp', this.volume(), true);
-        });
-
-        if (self.isYoutube === false && player.textTracks().tracks_.length >= 1) {
-            if (SBPLUS.hasStorageItem('sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true)) {
-                if (SBPLUS.getStorageItem('sbplus-' + SBPLUS.presentationId + '-subtitle-temp', true) === '1') {
-                    player.textTracks().tracks_[0].mode = 'showing';
-                } else {
-                    player.textTracks().tracks_[0].mode = 'disabled';
-                }
-            } else {
-                if (SBPLUS.getStorageItem('sbplus-subtitle') === '1') {
-                    player.textTracks().tracks_[0].mode = 'showing';
-                } else {
-                    player.textTracks().tracks_[0].mode = 'disabled';
-                }
-            }
-
-            player.textTracks().addEventListener('change', function () {
-                const tracks = this.tracks_;
-
-                Array.from(tracks).forEach(function (track) {
-                    if (track.mode === 'showing') {
-                        SBPLUS.setStorageItem('sbplus-' + SBPLUS.presentationId + '-subtitle-temp', 1, true);
-                    } else {
-                        SBPLUS.setStorageItem('sbplus-' + SBPLUS.presentationId + '-subtitle-temp', 0, true);
-                    }
-                });
-            });
-        }
-
-        addExpandContractButton(player);
-
-        if (Array.isArray(self.markers) && self.markers.length > 0) {
-            setupMarkers(player, self.markers);
-        }
-    });
-
-    const transitionClass = typeof self.transition === 'string' ? self.transition.trim() : '';
-    const mpHtml5Api = document.querySelector('#mp_html5_api');
-
-    if (mpHtml5Api) {
-        mpHtml5Api.classList.add('animated');
-
-        if (transitionClass) {
-            mpHtml5Api.classList.add(transitionClass);
-        }
-
-        onAnimationEnd(mpHtml5Api, function () {
-            mpHtml5Api.classList.remove('animated');
-            if (transitionClass) {
-                mpHtml5Api.classList.remove(transitionClass);
-            }
-        });
-    }
-
-    const mpYoutubeApi = document.querySelector('#mp_Youtube_api');
-
-    if (mpYoutubeApi && mpYoutubeApi.parentElement) {
-        const parent = mpYoutubeApi.parentElement;
-
-        parent.classList.add('animated');
-
-        if (transitionClass) {
-            parent.classList.add(transitionClass);
-        }
-
-        onAnimationEnd(parent, function () {
-            parent.classList.remove('animated');
-
-            if (transitionClass) {
-                parent.classList.remove(transitionClass);
-            }
-        });
-    }
+Page.prototype.renderPlayer = function (src = this.src) {
+    if (this.requests.signal.aborted) return;
+    this.playerSession?.dispose();
+    this.playerSession = createPresentationPlayer(this, src, SBPLUS);
 };
 
 /**
@@ -1272,6 +854,7 @@ Page.prototype.renderVideoJS = function (src) {
  */
 Page.prototype.setWidgets = function () {
     const self = this;
+    if (self.requests.signal.aborted) return;
 
     SBPLUS.clearWidgetSegment();
 
@@ -1408,6 +991,7 @@ Page.prototype.showPageError = function (type, src) {
             break;
     }
 
+    if (self.requests.signal.aborted) return;
     const mediaErrorEl = document.querySelector(self.mediaError);
 
     if (mediaErrorEl) {
@@ -1446,7 +1030,7 @@ Page.prototype.sendBrightcoveAnalyticsEvent = function (eventType, evt) {
     }
 
     if (eventType === 'video_engagement') {
-        const currentSource = self.mediaPlayer.currentSource();
+        const currentSource = self.playerSession.source;
         urlStr += '&range=' + evt.range + '&rendition_url=' + encodeURI(currentSource.src.split('?')[0]) + '&rendition_mime_type=' + encodeURI(currentSource.type);
     }
 
@@ -1463,33 +1047,11 @@ Page.prototype.sendBrightcoveAnalyticsEvent = function (eventType, evt) {
  */
 Page.prototype.onBrightcoveTimeUpdate = function (evt) {
     const self = this;
-    const currentTime = self.mediaPlayer.currentTime();
-    const engagementThreshold = 10; // Brightcove engagement events are emitted in 10-second buckets.
-    // Collapse frequent timeupdate events into deterministic 10-second buckets.
-    const currentSegment = Math.floor(currentTime / engagementThreshold) * engagementThreshold;
-    let range = '';
-
-    if (currentSegment > self.isBrightcove.lastEngagedTime) {
-        let endRange = Math.floor(currentTime) + engagementThreshold;
-
-        if (endRange >= self.isBrightcove.duration) {
-            endRange = Math.floor(self.isBrightcove.duration);
-        }
-
-        range = (Math.floor(currentTime) + '..' + endRange).toString();
-        evt.range = range;
-        self.sendBrightcoveAnalyticsEvent('video_engagement', evt);
-        self.isBrightcove.lastEngagedTime = currentSegment;
-    }
-
-    if (evt.type === 'ended') {
-        const duration = Math.floor(self.isBrightcove.duration);
-
-        range = (duration + '..' + duration).toString();
-        evt.range = range;
-
-        self.sendBrightcoveAnalyticsEvent('video_engagement', evt);
-        self.isBrightcove.lastEngagedTime = -1;
+    const result = engagementRange(self.mediaPlayer.currentTime, self.isBrightcove.duration,
+        self.isBrightcove.lastEngagedTime, evt.type === 'ended');
+    if (result) {
+        self.sendBrightcoveAnalyticsEvent('video_engagement', { range: result.range });
+        self.isBrightcove.lastEngagedTime = result.bucket;
     }
 };
 
@@ -1536,42 +1098,6 @@ function getEntryKalturaStatus(code) {
 }
 
 /**
- * Adds the expand/contract toggle to the Video.js control bar.
- * @param {Object} vjs Video.js player instance.
- * @returns {void}
- */
-function addExpandContractButton(vjs) {
-    class ExpandContractButton extends videojs.getComponent('Button') {
-        constructor(player, options) {
-            super(player, options);
-            this.el().setAttribute('aria-label', 'Expand/Contract');
-            this.controlText('Expand/Contract');
-
-            if (document.querySelector(SBPLUS.layout.sbplus).classList.contains('sbplus-vjs-expanded')) {
-                vjs.addClass('sbplus-vjs-expanded');
-            }
-        }
-
-        handleClick() {
-            if (vjs.hasClass('sbplus-vjs-expanded')) {
-                vjs.removeClass('sbplus-vjs-expanded');
-                document.querySelector(SBPLUS.layout.sbplus).classList.remove('sbplus-vjs-expanded');
-            } else {
-                vjs.addClass('sbplus-vjs-expanded');
-                document.querySelector(SBPLUS.layout.sbplus).classList.add('sbplus-vjs-expanded');
-            }
-        }
-
-        buildCSSClass() {
-            return 'vjs-expand-contract-button vjs-control vjs-button';
-        }
-    }
-
-    videojs.registerComponent('ExpandContractButton', ExpandContractButton);
-    vjs.getChild('controlBar').addChild('ExpandContractButton', {}, 15);
-}
-
-/**
  * Toggles expanded media layout mode for the active page.
  * @param {Event} evt Click event from the expand/contract control.
  * @returns {void}
@@ -1579,12 +1105,14 @@ function addExpandContractButton(vjs) {
 function toggleExpandContractView(evt) {
     const layout = document.querySelector(SBPLUS.layout.sbplus);
 
-    if (layout.classList.contains('sbplus-vjs-expanded')) {
-        evt.target.classList.remove('expanded');
-        layout.classList.remove('sbplus-vjs-expanded');
+    if (layout.classList.contains('sbplus-media-expanded')) {
+        evt.currentTarget.classList.remove('expanded');
+        evt.currentTarget.setAttribute('aria-pressed', 'false');
+        layout.classList.remove('sbplus-media-expanded');
     } else {
-        evt.target.classList.add('expanded');
-        layout.classList.add('sbplus-vjs-expanded');
+        evt.currentTarget.classList.add('expanded');
+        evt.currentTarget.setAttribute('aria-pressed', 'true');
+        layout.classList.add('sbplus-media-expanded');
     }
 }
 
@@ -1612,47 +1140,16 @@ function addSecondaryControls(noAudio = false) {
     expandContractBtn.setAttribute('aria-label', 'Expand/Contract');
 
     secondaryControlDiv.appendChild(expandContractBtn);
-    secondaryControlDiv.addEventListener('click', toggleExpandContractView);
+    const expanded = document.querySelector(SBPLUS.layout.sbplus).classList.contains('sbplus-media-expanded');
+    expandContractBtn.classList.toggle('expanded', expanded);
+    expandContractBtn.setAttribute('aria-pressed', String(expanded));
+    expandContractBtn.addEventListener('click', toggleExpandContractView);
 
     const mediaContentEl = document.querySelector(SBPLUS.layout.mediaContent);
 
     if (mediaContentEl) {
         mediaContentEl.appendChild(secondaryControlDiv);
     }
-}
-
-/**
- * Removes secondary controls previously inserted for a page.
- * @returns {void}
- */
-function removeSecondaryControls() {
-    const secondaryControlsDiv = document.querySelector('.sbplus_secondary_controls');
-
-    if (secondaryControlsDiv) {
-        const expandBtn = document.querySelector('#expand_contract_btn');
-        expandBtn.removeEventListener('click', toggleExpandContractView);
-    }
-}
-
-/**
- * Configures marker plugin data for the active Video.js player.
- * @param {Object} player Video.js player instance.
- * @param {Array<Object>} markers Marker definitions with time and label data.
- * @returns {void}
- */
-function setupMarkers(player, markers) {
-    if (!Array.isArray(markers) || markers.length === 0) {
-        return;
-    }
-
-    if (typeof player.markers !== 'function') {
-        console.warn('Video.js markers plugin is not loaded; skipping marker setup.');
-        return;
-    }
-
-    player.markers({
-        markers: markers,
-    });
 }
 
 /**

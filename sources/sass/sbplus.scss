@@ -3,8 +3,8 @@
  *
  * @author: Ethan Lin
  * @url: https://github.com/Lin87/storybook-plus
- * @version: 3.7.0
- * Released 02/23/2026
+ * @version: 3.8.0
+ * Released 10/29/2026
  *
  * @license: GNU GENERAL PUBLIC LICENSE v3
  *
@@ -53,16 +53,16 @@ $font-size: 16px;
 }
 
 @mixin aspect-ratio( $width, $height ) {
-    
+
     position: relative;
-    
+
     &:before {
         display: block;
         content: "";
         width: 100%;
         padding-top: ( math.div($height, $width) ) * 100%;
     }
-    
+
 }
 
 @mixin font-size( $px, $base: $font-size-base ) {
@@ -141,26 +141,28 @@ body {
 /* sbplus */
 
 .sbplus_wrapper {
-    
+
     position: relative;
     height: 100%;
-    
-    * {
+
+    // The editable Video.js skin owns its reset inside the player. Unlayered
+    // application rules otherwise override the skin's layered styles.
+    *:not(:where(.media-skin, .media-skin *)) {
         margin: 0;
         padding: 0;
         border: 0;
         box-sizing: border-box;
     }
-    
-    *:not(.vjs-slider):focus-visible { 
+
+    *:focus-visible {
         /* inner indicator */
         outline: 2px #F9F9F9 solid;
-        outline-offset: 0;  
+        outline-offset: 0;
         /* outer indicator */
         box-shadow: 0 0 0 4px $default-accent-hover;
-        z-index: 11; 
+        z-index: 11;
     }
-    
+
     #sbplus_loading_screen {
 
         display: flex;
@@ -197,8 +199,8 @@ body {
         border-radius: 0 0 3px 3px;
         box-shadow: 0 4px 8px #333;
     }
-    
-    button {
+
+    button:not(:where(.media-skin *)) {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -214,73 +216,73 @@ body {
         padding: 0;
         cursor: pointer;
     }
-    
-    button:hover {
+
+    button:not(:where(.media-skin *)):hover {
         color: $default-accent-hover;
     }
-    
+
     #sbplus_error_screen {
-        
+
         display: none;
         position: absolute;
         z-index: 999;
         width: 100%;
         height: 100vh;
         background-color: #ac3030;
-        
+
         align-items: center;
         justify-content: center;
-        
+
         #sbplus_error_info {
-            
+
             min-width: 33%;
             max-width: 50%;
             color: #fff;
             font-weight: normal;
             line-height: 1.2;
-            
+
             .center_icon {
                 text-align: center;
                 font-size: 1000%;
             }
-            
+
             h1 {
                 font-size: 150%;
                 font-weight: bold;
                 margin: $gutter 0;
             }
-            
+
             p {
                 margin: $gutter 0;
             }
-            
+
             ul {
                 list-style: disc outside;
                 margin-left: 25px;
             }
-            
+
             a {
                 color: #CCD8FF;
                 text-decoration: none
             }
-            
+
             a:hover {
                 text-decoration: underline;
             }
-            
+
         }
-        
+
     }
-    
+
     .sbplus-core-error {
         padding-top: 20px;
         text-align: center;
         align-items: center;
         color: #f00;
     }
-    
+
     #sbplus {
-        
+
         display: flex;
         flex-flow: column nowrap;
         position: relative;
@@ -291,15 +293,15 @@ body {
             width: 100%;
             height: 100%;
             position: relative;
-           
+
             &.hide {
                 display: none;
             }
 
         }
-        
+
         #sbplus_splash_screen {
-            
+
             display: flex;
             flex-flow: column;
             position: absolute;
@@ -308,9 +310,9 @@ body {
             z-index: 9;
             background-color: $body-bg-color;
             animation-duration: 0.5s;
-            
+
             #sbplus_presentation_info {
-                
+
                 display: none;
                 width: 90%;
                 margin: ($gutter * 4) auto 0;
@@ -319,12 +321,12 @@ body {
                 background-color: rgba( 255, 255, 255, 0.75 );
                 border-radius: 8px;
                 backdrop-filter: blur( 6px );
-    
+
                 .sb_title {
                     font-size: 180%;
                     font-weight: bold;
                 }
-                
+
                 .sb_subtitle {
                     font-size: 160%;
                     font-weight: normal;
@@ -362,11 +364,11 @@ body {
                             text-transform: capitalize;
                             background-color: $default-accent;
                         }
-                        
+
                         button:hover {
                             background-color: $default-accent-hover;
                         }
-                        
+
                     }
 
                     .sb_downloads {
@@ -379,7 +381,7 @@ body {
                         font-size: 140%;
                         text-align: center;
                         margin-top: $gutter * 2;
-                        
+
                         a {
                             display: flex;
                             flex-flow: row nowrap;
@@ -393,18 +395,18 @@ body {
                             border-radius: 0.5rem;
                             background-color: rgba(255, 255, 255, 0.35);
                         }
-                        
+
                         a:hover {
                             text-decoration: none;
                             background-color: rgba(255, 255, 255, 0.6);
                         }
-                        
+
                     }
 
                 }
 
             }
-            
+
             #sb_splash_logo {
 
                 width: 100%;
@@ -435,11 +437,11 @@ body {
                 animation-duration: 1.5s;
                 z-index: -1;
             }
-            
+
         }
-        
+
         #sbplus_banner_bar {
-            
+
             display: flex;
             flex-flow: row nowrap;
             justify-content: center;
@@ -449,7 +451,7 @@ body {
             background-color: $default-accent;
             font-size: 120%;
             font-weight: bold;
-            
+
             #sbplus_lesson_title {
                 padding: math.div($gutter, 3) $gutter 0;
                 flex: 1;
@@ -459,21 +461,21 @@ body {
                 text-overflow: ellipsis;
                 font-size: clamp(11px, 3.2vw, 100%);
             }
-            
+
             #sbplus_menu_area {
-        
+
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                
+
                 #sbplus_author_name {
                     display: none;
                     flex-grow: 1;
                     color: inherit;
                 }
-                
+
                 #sbplus_menu_btn_wrapper {
-                    
+
                     position: relative;
                     height: 100%;
 
@@ -491,13 +493,13 @@ body {
                         }
 
                     }
-                    
+
                     #sbplus_menu_list {
-                        
+
                         display: none;
 
                         &.menu {
-                            
+
                             position: absolute;
                             width: 260px;
                             right: 0;
@@ -510,11 +512,11 @@ body {
                             background-color: #444;
                             box-shadow: -4px 4px 4px #8d8d8d;
                             z-index: 11;
-                            
+
                             .menu-item {
-                                
-                                button { 
-                                    
+
+                                button {
+
                                     display: flex;
                                     flex-flow: row nowrap;
                                     align-items: center;
@@ -527,56 +529,56 @@ body {
                                     color: #fff;
                                     text-decoration: none;
                                     cursor: pointer;
-                                    
+
                                     span {
                                         display: inline-block;
                                         margin-right: 5px;
                                     }
-                                    
+
                                 }
-                                
+
                             }
-                            
+
                             .menu-item:hover {
-                                
+
                                 background-color: $default-accent-hover;
-                                
+
                                 a {
                                     color: #fff;
                                 }
-                                
+
                             }
-                            
+
                             .menu-item:focus {
-                                
+
                                 background-color: $default-accent;
-                                
+
                                 a {
                                     color: #fff;
                                 }
-                                
+
                             }
-                                                                
+
                         }
-                        
+
                         &.active {
                             display: block;
                         }
-                        
+
                     }
-                    
+
                     ul[aria-hidden="true"] {
                         display: none;
                     }
-                    
+
                 }
-                
+
             }
-            
+
         }
-        
+
         #sbplus_content_wrapper {
-            
+
             display: flex;
             flex-flow: column nowrap;
             flex: 2 0 auto;
@@ -664,7 +666,7 @@ body {
                     }
 
                     .sbplus_media_error {
-                        
+
                         display: none;
                         position: absolute;
                         width: 100%;
@@ -675,31 +677,31 @@ body {
                         background-color: rgba( 0,0,0, 0.5 );
                         top: 0;
                         left: 0;
-                        
+
                         p {
                             margin-bottom: 10px;
                         }
-                        
+
                         ol, ul {
-                            
+
                             margin-bottom: 10px;
                             padding-left: 20px;
                             list-style-position: inside;
-                            
+
                             li {
-                                margin-bottom: 6px;                                
+                                margin-bottom: 6px;
                             }
-                            
+
                         }
-                        
+
                         a {
                             color: #50dcff;
                         }
 
                     }
-                    
+
                     .sbplus_media_msg {
-                        
+
                         position: absolute;
                         display: flex;
                         align-items: center;
@@ -714,20 +716,20 @@ body {
                         @include calc( left, '50% - ' + 176px );
                         border-radius: 5px;
                         overflow: hidden;
-                        
+
                     }
-                    
+
                     .sbplus_media_msg.hide {
                         display: none;
                     }
-                    
+
                     .sbplus_media_content {
-                        
+
                         width: 100%;
                         height: auto;
                         color: #fff;
                         animation-duration: 0.5s;
-                        
+
                         .animated {
                             width: 100%;
                             height: 100%;
@@ -747,7 +749,7 @@ body {
                             transform: translate(-50%, -50%);
                             box-sizing: border-box;
                             animation: rotation 1.5s linear infinite, center 0.1s linear forwards;
-                            
+
                             @keyframes rotation {
                                 0% {
                                     transform: rotate(0deg);
@@ -762,7 +764,7 @@ body {
                             }
 
                         }
-                        
+
                         // html/iframe
                         .html {
                             display: block;
@@ -775,34 +777,34 @@ body {
                             width: 100%;
                             height: 100%;
                         }
-                        
+
                         // external link
                         .exLink {
-                            
+
                             display: flex;
                             flex-flow: column nowrap;
                             align-items: center;
                             justify-content: center;
                             padding: $gutter;
-                            
+
                             a {
                                 display: block;
                                 @include font-size( 18px );
                                 text-decoration: none;
                             }
-                            
+
                             a:hover {
                                 text-decoration: underline;
                             }
-                            
+
                             small {
                                 display: block;
                                 color: #ccc;
                                 @include font-size( 12px );
                             }
-                            
+
                         }
-                        
+
                         // Image
                         .img_only {
                             display: block;
@@ -810,20 +812,7 @@ body {
                             height: auto;
                             object-fit: contain;
                         }
-                        
-                        // VideoJS
-                        
-                        #mp_html5_api {
-                            @include calc(height, '100% - ' + 33px );
-                            position: relative;
-                            animation-duration: 0.75s;
-                        }
-                        
-                        #mp_youtube_api {
-                            animation-duration: 0.75s;
-                            @include calc(height, '100% - ' + 33px );
-                            position: relative;
-                        }
+
 
                         .yt-native {
                             @include aspect-ratio( 16, 9 );
@@ -835,324 +824,20 @@ body {
                             left: 0;
                         }
 
-                        .video-js.vjs-youtube {
-                            @include aspect-ratio( 16, 9 );
-                        }
 
-                        .video-js.vjs-has-started .vjs-tech {
-                            pointer-events: none;
-                        }
-                        
-                        .video-js.vjs-default-skin {
-                        
-                            width: 100%;
-                            height: 100%;
-                            font-size: 11px;
-                            color: #fff;
 
-                            button:hover {
-                                color: #fff;
-                            }
-                            
-                            .vjs-poster {
-                                
-                                background-position: 50% 0;
 
-                                img {
-                                    position: absolute;
-                                    width: 100%;
-                                    height: 100%;
-                                    object-fit: contain;
-                                }
-                                
-                            }
-                            
-                            .vjs-control-bar {
-                                
-                                display: flex;
-                                position: absolute;
-                                bottom: 0;
-                                background-color: $default-accent;
-                                z-index: 3;
-                                
-                                button {
-                                    display: inherit;
-                                    min-width: inherit;
-                                }
-                                
-                                .vjs-skip-forward-10 {
 
-                                    .vjs-icon-placeholder:before {
-                                        font-family: 'Material Symbols Outlined';
-                                        content: '\e056';
-                                    }
-                                    
-                                }
-                                
-                                .vjs-skip-backward-10 {
 
-                                    .vjs-icon-placeholder:before {
-                                        font-family: 'Material Symbols Outlined';
-                                        content: '\e059';
-                                    }
-                                    
-                                }
 
-                                .vjs-expand-contract-button {
+                        // Media controls are styled by the editable Video.js skin.
 
-                                    display: none;
 
-                                    .vjs-icon-placeholder:before {
-                                        font-family: 'Material Symbols Outlined';
-                                        content: '\f1ce';
-                                    }
-                                    
-                                }
 
-                                .vjs-progress-control {
 
-                                    .vjs-play-progress::before {
-                                        z-index: 2;
-                                    }
 
-                                    &:hover {
-    
-                                        .vjs-marker {
-                                            top: -2px;
-                                        }
-                                        
-                                    }
-                                               
-                                    .vjs-marker {
-                                        position: absolute;
-                                        top: -3px;
-                                        left: 0;
-                                        bottom: 0em;
-                                        opacity: 1;
-                                        height: 10px;
-                                        width: 10px;
-                                        margin-left: -5px;
-                                        border-radius: 50%;
-                                        background-color: rgb(166, 231, 141);
-                                        transition: opacity 0.2s ease;
-                                        z-index: 1;
-                                    }
-                                    
-                                    .vjs-marker:hover {
-                                        cursor: pointer;
-                                        transform: scale( 1.7 );
-                                    }
-                                    
-                                    .vjs-tip {
-                                        visibility: hidden;
-                                        display: block;
-                                        opacity: 0.8;
-                                        padding: 5px;
-                                        font-size: 14px;
-                                        position: absolute;
-                                        bottom: 14px;
-                                        z-index: 100000;
-                                    }
-                                    
-                                    .vjs-tip .vjs-tip-arrow {
-                                        background: url(data:image/gif;base64,R0lGODlhCQAJAIABAAAAAAAAACH5BAEAAAEALAAAAAAJAAkAAAIRjAOnwIrcDJxvwkplPtchVQAAOw==) no-repeat top left;
-                                        bottom: 0;
-                                        left: 50%;
-                                        margin-left: -4px;
-                                        background-position: bottom left;
-                                        position: absolute;
-                                        width: 9px;
-                                        height: 5px;
-                                    }
-                                    
-                                    .vjs-tip .vjs-tip-inner {
-                                        border-radius: rem( 3px );
-                                        padding: 5px 8px 4px 8px;
-                                        background-color: #000;
-                                        color: #fff;
-                                        max-width: 200px;
-                                        text-align: center;
-                                    }
-                                    
-                                    .vjs-break-overlay {
-                                        visibility: hidden;
-                                        position: absolute;
-                                        z-index: 100000;
-                                        top: 0;
-                                    }
-                                    
-                                    .vjs-break-overlay .vjs-break-overlay-text {
-                                        padding: 9px;
-                                        text-align: center;
-                                    }
 
-                                }
-                                
-                            }
-                            
-                            .sbplus-vjs-poster {
-                                display: inline-block;
-                                vertical-align: middle;
-                                background-repeat: no-repeat;
-                                background-position: center center;
-                                background-size: contain;
-                                background-color: #000;
-                                cursor: pointer;
-                                margin: 0;
-                                padding: 0;
-                                position: absolute;
-                                top: 0;
-                                right: 0;
-                                bottom: 0;
-                                left: 0;
-                                height: 100%;
-                                z-index: 0;
-                            }
-                            
-                            .vjs-error-display {
-                                display: none;
-                            }
-                            
-                            .vjs-text-track-display {
-                                z-index: 1;
-                                
-                                .vjs-text-track-cue {
-                                    inset: 300px 0px 0px !important;
-                                }
 
-                            }
-                            
-                            .vjs-tech {
-                                z-index: 1;
-                            }
-                            
-                            .vjs-control:focus,
-                            .vjs-control:focus:before,
-                            .vjs-control:hover:before {
-                                text-shadow: none;
-                            }
-                            
-                            .vjs-big-play-button {
-                                font-size: 3em;
-                                line-height: 1.5em;
-                                height: 1.5em;
-                                min-height: 1.5em;
-                                width: 3em;
-                                border: 0.06666em solid #fff;
-                                border-radius: 0.3em;
-                                left: 50%;
-                                top: 50%;
-                                margin-left: -1.5em;
-                                margin-top: -0.75em;
-                                z-index: 1;
-                            }
-                            
-                            .vjs-menu {
-                                
-                                font-family: $default-font-family;
-                                color: #fff !important;
-                                
-                                .vjs-menu-content {
-                                    
-                                    .vjs-menu-item.vjs-selected {
-                                        position: relative;
-                                        color: #fff;
-                                        background-color: rgba( 255, 255, 255, 0.25);
-                                    }
-                                    
-                                    .vjs-menu-item.vjs-selected:before {
-                                        position: absolute;
-                                        top: 3px;
-                                        top: rem( 3px );
-                                        left: 4px;
-                                        left: rem( 4px );
-                                        width: 10px;
-                                        width: rem( 10px );
-                                        height: 10px;
-                                        height: rem( 10px );
-                                        font-family: "Material Symbols Outlined";
-                                        content: '\f46a';
-                                        font-size: 10px;
-                                        font-size: rem( 10px );
-                                    }
-                                    
-                                }
-                                
-                            }
-                            
-                            // last menu button popup in the control bar
-                            .vjs-menu-button-popup {
-
-                                &:not(.vjs-hidden) {
-
-                                    &:last-of-type {
-                                        
-                                        .vjs-menu {
-                                            left: -6em;
-                                        }
-
-                                    }
-
-                                }
-
-                            }
-
-                            // caption setting modal dialog
-                            .vjs-modal-dialog {
-
-                                height: 100%;
-                                padding: 20px;
-                                //background-color: rgba( 255, 255, 255, 0.75 );
-                                z-index: 999;
-
-                                .vjs-modal-dialog-content {
-                                    .vjs-track-settings-controls {
-                                        button {
-                                            display: initial;
-                                            width: 100px;
-                                            height: initial;
-                                            min-width: unset;
-                                            min-height: unset;
-                                        }
-                                    }
-                                }
-
-                            }
-
-                        }
-
-                        // vjs-quality-menu
-                        .video-js.vjs-quality-menu{display:block}.video-js.vjs-quality-menu .vjs-quality-menu-button:before{font-family:VideoJS;font-weight:normal;font-style:normal;content:""}.video-js.vjs-quality-menu.vjs-v8 .vjs-quality-menu-button,.video-js.vjs-quality-menu.vjs-v7 .vjs-quality-menu-button,.video-js.vjs-quality-menu.vjs-v6 .vjs-quality-menu-button{position:initial}.video-js.vjs-quality-menu.vjs-v8 .vjs-quality-menu-button:before,.video-js.vjs-quality-menu.vjs-v7 .vjs-quality-menu-button:before,.video-js.vjs-quality-menu.vjs-v6 .vjs-quality-menu-button:before{content:none}.video-js.vjs-quality-menu.vjs-v8 .vjs-quality-menu-button .vjs-icon-placeholder,.video-js.vjs-quality-menu.vjs-v7 .vjs-quality-menu-button .vjs-icon-placeholder,.video-js.vjs-quality-menu.vjs-v6 .vjs-quality-menu-button .vjs-icon-placeholder{font-family:VideoJS;font-weight:normal;font-style:normal}.video-js.vjs-quality-menu.vjs-v8 .vjs-quality-menu-button .vjs-icon-placeholder:before,.video-js.vjs-quality-menu.vjs-v7 .vjs-quality-menu-button .vjs-icon-placeholder:before,.video-js.vjs-quality-menu.vjs-v6 .vjs-quality-menu-button .vjs-icon-placeholder:before{content:""}.video-js.vjs-quality-menu .vjs-quality-menu-button{position:relative}.video-js.vjs-quality-menu .vjs-quality-menu-button li{text-transform:none}.video-js.vjs-quality-menu .vjs-quality-menu-button.vjs-menu-button-popup .vjs-menu .vjs-menu-content{max-height:25em;width:10em;left:0}.video-js.vjs-quality-menu .vjs-menu-item .vjs-control-text{position:absolute}.video-js.vjs-quality-menu .vjs-quality-menu-wrapper{position:relative}.video-js.vjs-quality-menu .vjs-quality-menu-wrapper li{text-transform:none}.video-js.vjs-quality-menu .vjs-quality-menu-wrapper.vjs-menu-wrapper-popup .vjs-menu .vjs-menu-content{max-height:25em;width:10em;left:0}.video-js.vjs-quality-menu .vjs-quality-menu-item-sub-label{font-size:75%;font-weight:bold;position:absolute;right:0;text-align:center;width:4em}.video-js.vjs-quality-menu .vjs-quality-menu-button-use-resolution .vjs-quality-menu-item-sub-label{position:absolute;right:0;text-align:center;width:4em}.video-js.vjs-quality-menu .vjs-quality-menu-button-4K-flag:after,.video-js.vjs-quality-menu .vjs-quality-menu-button-HD-flag:after{background-color:#2b333f;color:inherit;content:"";font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:.7em;font-weight:300;height:2.2em;line-height:2.2em;padding:0;position:absolute;right:0;text-align:center;top:.5em;width:2.2em;border-radius:2em;letter-spacing:.1em}.video-js.vjs-quality-menu .vjs-quality-menu-button-HD-flag:after{content:"HD"}.video-js.vjs-quality-menu .vjs-quality-menu-button-4K-flag:after{content:"4K"}.video-js.vjs-quality-menu .vjs-quality-menu-button-waiting:before{-webkit-animation:vjs-spinner-spin 1.1s cubic-bezier(0.6, 0.2, 0, 0.8) infinite;animation:vjs-spinner-spin 1.1s cubic-bezier(0.6, 0.2, 0, 0.8) infinite}
-
-                        .vjs-controls-disabled .vjs-control-bar {
-                            display: flex !important;
-                        }
-
-                        .video-js.vjs-default-skin.vjs-fullscreen {
-
-                            #mp_html5_api {
-                                height: initial !important;
-                            }
-
-                            .vjs-control-bar {
-                                .vjs-expand-contract-button {
-                                    display: none;
-                                }
-                            }
-                            
-                        }
-
-                        .video-js.vjs-default-skin.sbplus-vjs-expanded {
-
-                            .vjs-expand-contract-button {
-
-                                .vjs-icon-placeholder:before {
-                                    content: '\f1cf';
-                                }
-                                
-                            }
-
-                        }
 
                         .sbplus_secondary_controls {
 
@@ -1206,34 +891,13 @@ body {
                             }
 
                         }
-                        
+
                     }
 
-                    .show-vjs-poster {
-                        
-                        .vjs-has-started {
-                            
-                            .vjs-poster {
 
-                                @include calc( height, '100% - ' + 33px );
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                z-index: 1;
-                                cursor: default;
 
-                                img {
-                                    object-fit: cover !important;
-                                }
-
-                            }
-                            
-                        }
-                        
-                    }
-                    
                 }
-                
+
                 // audio in iframe/html page type
                 .iframeEmbed {
 
@@ -1242,15 +906,13 @@ body {
                     width: 100%;
                     height: 360px;
                     padding-top: 56.25%;
-                    
-                    #mp_html5_api {
-                        display: none;
-                    }
-                    
+
+
+
                 }
-                
+
                 #sbplus_quiz_wrapper {
-                    
+
                     position: relative;
                     top: 0;
                     left: 0;
@@ -1261,11 +923,11 @@ body {
                     z-index: 10;
                     overflow-x: hidden;
                     overflow-y: auto;
-                    
+
                     &.hidden {
                         display: none;
                     }
-                    
+
                     .sbplus_quiz_header {
 
                         display: flex;
@@ -1283,7 +945,7 @@ body {
                         }
 
                     }
-                    
+
                     .quiz_error {
                         display: flex;
                         align-items: center;
@@ -1294,7 +956,7 @@ body {
                         font-weight: bold;
                         text-align: center;
                     }
-                    
+
                     .quiz_correct {
                         display: flex;
                         align-items: center;
@@ -1305,7 +967,7 @@ body {
                         font-weight: bold;
                         text-align: center;
                     }
-                    
+
                     .quiz_incorrect {
                         display: flex;
                         align-items: center;
@@ -1316,74 +978,74 @@ body {
                         font-weight: bold;
                         text-align: center;
                     }
-                    
+
                     .sbplus_quiz_question {
-                        
+
                         padding: 10px;
                         font-size: 16px;
                         line-height: 16px;
-                        
+
                         p {
                             margin-bottom: 10px;
                         }
-                        
+
                         small {
                             font-size: 14px;
                             line-height: 14px;
                         }
-                        
+
                         audio {
                             width: 100%;
                         }
-                        
+
                         img {
                             max-width: 100%;
                         }
-                        
+
                         ol, ul {
-                            
+
                             list-style-position: outside;
                             margin-left: 35px;
-                            
+
                             li {
                                 margin-top: 10px;
                             }
-                            
+
                         }
-                        
+
                     }
-                    
+
                     .sbplus_quiz_result {
-                        
+
                         padding: 10px;
                         font-size: 14px;
                         line-height: 18px;
-                        
+
                         p, ul, ol {
                             margin-bottom: 10px;
                         }
-                        
+
                         ul, ol {
-                            
+
                             list-style-position: outside;
                             padding-left: 25px;
-                            
+
                             li {
                                 margin-bottom: 5px;
                             }
-                            
+
                         }
 
                         button {
                             margin-left: 0;
                         }
-                        
+
                     }
-                    
+
                     .sbplus_quiz_input {
-                        
+
                         padding: 0 10px 5px;
-                        
+
                         label, legend {
 
                             display: block;
@@ -1404,40 +1066,40 @@ body {
                             font-size: 90%;
                             font-style: italic;
                         }
-                        
+
                         .img_val {
-                            
+
                             display: inline-block;
                             position: relative;
                             margin-right: 10px;
-                            
+
                             input[type=checkbox],
                             input[type=radio] {
                                 position: absolute;
                                 top: 5px;
                                 left: 10px;
                             }
-                            
+
                         }
-                        
+
                         .au_val {
-                            
+
                             position: relative;
-                            
+
                             audio {
                                 width: 95%;
                                 display: inline-block;
                                 margin-left: 5px;
                             }
-                            
+
                             input[type=checkbox],
                             input[type=radio] {
                                 position: relative;
                                 bottom: 12px;
                             }
-                            
+
                         }
-                        
+
                         textarea {
                             width: 100%;
                             height: 200px;
@@ -1449,7 +1111,7 @@ body {
                             margin-bottom: 0;
                             border: 1px solid $border-color;
                         }
-                        
+
                         input[type=text] {
                             display: block;
                             width: 100%;
@@ -1461,9 +1123,9 @@ body {
                             margin-bottom: 0;
                             border: 1px solid $border-color;
                         }
-                        
+
                     }
-                    
+
                     .sbplus_quiz_submit_btn,
                     .sbplus_quiz_tryagain_btn  {
                         width: 100px;
@@ -1477,11 +1139,11 @@ body {
                         font-weight: bold;
                         font-size: 16px;
                     }
-                    
+
                 }
-                
+
                 #sbplus_widget {
-                    
+
                     display: flex;
                     flex-flow: column nowrap;
                     width: 100%;
@@ -1492,25 +1154,25 @@ body {
                     &.hidden {
                         display: none;
                     }
-                    
+
                     .widget_controls_bar {
-                        
+
                         width: 100%;
                         height: 25px;
                         border-bottom: 1px solid $border-color;
                         background-color: $control-bg-color;
                         -webkit-backdrop-filter: blur( 8px );
                         backdrop-filter: blur( 8px );
-                        
+
                         .tab_segment {
-                        
+
                             display: flex;
                             flex-flow: row nowrap;
                             justify-content: flex-start;
                             width: 100%;
                             height: 100%;
                             padding: 0;
-                            
+
                             button {
                                 width: auto;
                                 min-width: 90px;
@@ -1521,13 +1183,13 @@ body {
                                 border-right: 1px solid $border-color;
                                 color: #333;
                             }
-                            
+
                             .active {
                                 position: relative;
                                 color: #000;
                                 background-color: #fff;
                             }
-                            
+
                             .active::after {
                                 position: absolute;
                                 width: 100%;
@@ -1538,13 +1200,13 @@ body {
                                 content: '';
                                 z-index: 1;
                             }
-                            
+
                         }
-                        
+
                     }
-                    
+
                     .segment_content {
-                        
+
                         flex: 1;
                         padding: 10px;
                         width: 100%;
@@ -1553,62 +1215,62 @@ body {
                         background-image: none;
                         word-break: break-word;
                         animation-duration: 0.5s;
-                        
+
                         h1, h2, h3, h4, h5, h6, p, blockquote {
                             margin: 6px 0;
                             line-height: 1.5;
                         }
-                        
+
                         ol, ul {
-                            
+
                             list-style-position: outside;
                             margin-left: 25px;
-                            
+
                             li {
                                 margin: 6px 0;
                                 line-height: 1.5;
                             }
-                            
+
                         }
-                        
+
                         pre, code {
                             white-space: pre-wrap;
                         }
-                        
+
                         .lt-wrapper {
-                            
+
                             margin: 6px 0;
                             color: #595959;
-                            
+
                             .lt-line {
                                 cursor: pointer;
                             }
-                            
+
                             .lt-line:hover {
                                 text-decoration: underline;
                                 color: #00f;
                             }
-                            
+
                             .current {
                                 color: #00f;
                             }
-                            
+
                         }
-                        
+
                     }
-                    
+
                 }
-                
+
                 #sbplus_widget.noSegments {
-                    
+
                     background-color: #ececed;
-                    
+
                     .widget_controls_bar {
                         display: none;
                     }
-                    
+
                     .segment_content {
-                        
+
                         margin: 0;
                         background-image: url( '../images/default_logo.svg' );
                         background-position: center center;
@@ -1616,11 +1278,11 @@ body {
                         background-size: 25%;
                         padding: 0;
                         filter: invert(0.5) opacity(25%);
-                        
+
                     }
-                    
+
                 }
-                
+
             }
 
             #sbplus_side_content_col {
@@ -1633,7 +1295,7 @@ body {
                     height: 20px;
                     background-color: $control-bg-color;
                     border-bottom: 2px solid $border-color;
-                    
+
                     .title {
                         display: flex;
                         align-items: center;
@@ -1643,26 +1305,26 @@ body {
                         line-height: normal;
                         height: 100%;
                     }
-                    
+
                 }
-                
+
                 .list {
-                        
+
                     animation-duration: 0.5s;
-                    
+
                     .item {
                         min-height: 35px;
                         padding: 5px ($gutter + 5);
                         border-bottom: 1px solid #e8e8e8;
                     }
-                    
+
                     .item:hover {
                         button {
                             color: #fff;
                             background-color: $default-accent-hover;
                         }
                     }
-                    
+
                     .sb_selected {
                         button {
                             color: #fff;
@@ -1672,26 +1334,26 @@ body {
                             }
                         }
                     }
-                    
+
                 }
-                
+
                 #sbplus_table_of_contents_wrapper {
-                    
+
                     display: none;
                     height: calc( 100% - 86px );
                     // @include calc( height, '100% - ' + 86px );
                     overflow-y: auto;
                     background-color: #fff;
-                    
+
                     .section {
-                        
+
                         .header {
-                            
+
                             height: 40px;
                             background-color: #ececed;
                             border-top: 1px solid $border-color;
                             cursor: pointer;
-                            
+
                             .title {
                                 width: 100%;
                                 display: flex;
@@ -1710,27 +1372,27 @@ body {
                                 outline: 2px dashed $default-accent-hover;
                                 box-shadow: 0 0 6px #fff;
                             }
-                            
+
                         }
-                        
+
                         .current {
-                            
+
                             border-left: 5px solid $default-accent;
-                            
+
                             .title {
                                 padding-left: 5px;
                             }
-                            
+
                         }
-                        
+
                         .list {
-                            
+
                             .item {
-                                
+
                                 position: relative;
                                 display: block;
                                 padding: 0;
-                                
+
                                 button {
 
                                     display: flex;
@@ -1764,45 +1426,45 @@ body {
                                 }
 
                             }
-                            
+
                             .item:first-child {
                                 border-top: 1px solid $border-color;
                             }
-                            
+
                             .item:last-child {
                                 border-bottom: none;
                             }
-                            
+
                         }
-                        
+
                     }
-                    
+
                     .section:first-child {
-                        
+
                         .header {
                             border-top: none;
                         }
-                        
+
                     }
-                    
+
                     .section:last-child {
-                        
+
                         .header {
                             border-bottom: 1px solid $border-color;
                         }
-                        
+
                         .list {
-                            
+
                             .item:first-child {
                                 border-top: none;
                             }
-                            
+
                             .item:last-child {
                                 border-bottom: 1px solid #e8e8e8;
                             }
-                            
+
                         }
-                        
+
                     }
 
                     &.popout {
@@ -1813,20 +1475,20 @@ body {
                         box-shadow: 0 -6px 10px #888;
                         z-index: 10;
                     }
-                    
+
                 }
-                
+
             }
-            
+
         }
-        
+
         #sbplus_control_bar {
-            
+
             display: flex;
             flex-flow: column nowrap;
             font-size: 120%;
             background-color: $control-bg-color;
-            
+
             #sbplus_view_note_btn {
 
                 display: none;
@@ -1876,7 +1538,7 @@ body {
                     border-right: 1px solid $border-color;
                     @extend .button-commons;
                 }
-                
+
                 #sbplus_next_btn {
                     border-right: 1px solid $border-color;
                     @extend .button-commons;
@@ -1886,23 +1548,23 @@ body {
                     border-right: 1px solid $border-color;
                     @extend .button-commons;
                 }
-                
+
                 #sbplus_download_btn_wrapper {
-                    
+
                     position: relative;
                     z-index: 10;
                     @extend .button-commons;
-                    
+
                     #sbplus_download_btn {
 
                         &.active {
                             color: $default-accent-hover;
                         }
-                        
+
                     }
-                    
+
                     .menu {
-                        
+
                         display: none;
                         position: absolute;
                         width: 150px;
@@ -1916,15 +1578,15 @@ body {
                         background-color: $control-bg-color;
                         overflow: hidden;
                         box-shadow: 0 -3px 6px $border-color;
-                        
+
                         .menu-item {
-                            
+
                             display: flex;
                             flex-flow: column nowrap;
                             align-items: center;
                             justify-content: center;
                             height: 30px;
-                            
+
                             a {
                                 display: flex;
                                 font-size: 14px;
@@ -1935,39 +1597,39 @@ body {
                                 align-items: center;
                                 justify-content: center;
                             }
-                            
+
                         }
-                        
+
                         .menu-item:hover {
-                            
+
                             background-color: $default-accent;
-                            
+
                             a {
                                 color: #fff;
                             }
-                            
+
                         }
-                        
+
                         .menu-item:focus {
-                            
+
                             background-color: $default-accent;
-                            
+
                             a {
                                 color: #fff;
                             }
-                            
+
                         }
-                                                            
+
                     }
-                                            
+
                 }
 
             }
-            
+
         }
-        
+
         #menu_item_content {
-            
+
             display: none;
             position: absolute;
             width: 100%;
@@ -1988,9 +1650,9 @@ body {
                 color: #707070;
                 margin-top: 10px;
             }
-            
+
             .sbplus_menu_title_bar {
-                
+
                 display: flex;
                 flex-flow: row nowrap;
                 order: 1;
@@ -2001,7 +1663,7 @@ body {
                 background-color: #333;
                 font-size: 145%;
                 font-weight: bold;
-                
+
                 .title {
                     display: flex;
                     flex-flow: row nowrap;
@@ -2010,7 +1672,7 @@ body {
                     padding: 0 $gutter;
                     line-height: 1.25;
                 }
-                
+
                 #sbplus_menu_close_btn {
                     width: 100px;
                     height: 30px;
@@ -2021,67 +1683,67 @@ body {
                     font-size: 75%;
                     text-transform: uppercase;
                 }
-                
+
             }
-            
+
             .container {
-                
+
                 display: flex;
                 flex-flow: row wrap;
                 width: 100%;
                 @include calc( height, '100% - ' + 30px );
                 overflow: hidden;
-                
+
                 .content {
 
                     flex: 1;
                     overflow: auto;
                     padding: $gutter;
                     height: 100%;
-                    
+
                     div, h1, h2, h3, h4, h5, h6, p, blockquote {
                         margin: $gutter 0;
                     }
-                    
+
                     ol, ul {
-                        
+
                         margin: $gutter 0;
                         padding-left: $gutter * 3;
-                        
+
                         li {
                             margin: math.div($gutter, 2) 0;
                         }
-                        
+
                     }
-                    
+
                     .name {
                         margin-top: 0;
                         font-weight: bold;
                         font-size: 150%
                     }
-                    
+
                     .profileImg {
-                        
+
                         display: block;
                         width: 250px;
                         margin: 0;
                         height: auto;
                         margin-left: $gutter * 1.5;
                         float: right;
-                        
+
                         img {
                             width: 100%;
                             height: auto;
                         }
-                        
+
                     }
-                    
+
                 }
-                
+
                 .settings {
-                    
+
                     position: relative;
-                    
+
                     .name {
                         margin-bottom: 0;
                     }
@@ -2096,58 +1758,58 @@ body {
                         }
 
                     }
-                    
+
                     .grid {
-                        
+
                         display: flex;
                         flex-flow: column nowrap;
                         margin: 0;
-                        
+
                         .row {
-                            
+
                              display: flex;
                              flex-flow: row nowrap;
                              align-items: center;
                              margin: 0;
                              padding: 5px 0;
-                             
+
                              .label {
-                                 
+
                                  flex: 2 0 80%;
                                  margin: 0;
                                  padding: 0 8px;
-                                 
+
                                  .error {
                                      flex: 1 0 20%;
                                      color: #f00;
                                      margin: 0;
                                      font-size: 12px;
                                  }
-                                 
+
                              }
-                             
+
                              .control {
 
                                  flex: 1 0 20%;
                                  margin: 0;
                                  padding: 0 5px;
-                                 
+
                                  select,
                                  input[type=number] {
                                      width: 100%;
                                      padding: 3px 2px;
                                  }
-                                 
+
                              }
-                            
+
                         }
-                        
+
                         .row:nth-child(even) {
                              background-color: #dfdfdf;
                         }
-                        
+
                     }
-                    
+
                     #save_settings {
                         display: none;
                         position: absolute;
@@ -2159,26 +1821,26 @@ body {
                         top: -20px;
                         z-index: 1;
                     }
-                    
+
                 }
-                
+
                 .side_menu {
-                    
+
                     width: 260px;
                     height: 100%;
-                    
+
                     .menu {
-                        
+
                         height: 100%;
                         list-style: none;
                         margin: 0;
                         padding: 0;
                         background-color: #444;
-                        
+
                         .menu-item {
-                            
-                            button { 
-                                
+
+                            button {
+
                                 display: flex;
                                 flex-flow: row nowrap;
                                 align-items: center;
@@ -2190,36 +1852,36 @@ body {
                                 font-weight: normal;
                                 color: #fff;
                                 text-decoration: none;
-                                
+
                                 span {
                                     display: inline-block;
                                     margin-right: 5px;
                                 }
-                                
+
                             }
-                            
+
                         }
-                        
+
                         .menu-item:hover {
-                            
+
                             background-color: $default-accent-hover;
-                            
+
                             a {
                                 color: #fff;
                             }
-                            
+
                         }
-                        
+
                         .menu-item:focus {
-                            
+
                             background-color: $default-accent;
-                            
+
                             a {
                                 color: #fff;
                             }
-                            
+
                         }
-                        
+
                         .active {
                             background-color: $default-accent-hover;
                         }
@@ -2229,26 +1891,26 @@ body {
                             color: rgba( 255, 255, 255, 0.5 );
                             font-size: rem(10px);
                         }
-                                                            
+
                     }
-                    
+
                 }
-                
+
             }
-            
+
         }
-        
+
         .sb_disabled {
             color: #7f7f7f;
             cursor: default;
         }
-        
+
         .sb_disabled::before {
             display: none;
         }
-        
+
     }
-    
+
     #copyright-footer {
         display: none;
     }
@@ -2293,7 +1955,7 @@ body {
             }
         }
     }
-    
+
 } // end main wrapper
 
 // dark mode
@@ -2328,11 +1990,11 @@ body {
 
                         background-color: rgba(43, 48, 53, 0.75);
                         color: #fff;
-            
+
                         .sb_context {
-            
+
                             .sb_downloads {
-            
+
                                 a {
                                     color: #fff;
                                     background-color: rgba(0, 0, 0, 0.35);
@@ -2341,11 +2003,11 @@ body {
                                         background-color: rgba(0, 0, 0, 0.5);
                                     }
                                 }
-            
+
                             }
-            
+
                         }
-            
+
                     }
 
                 }
@@ -2411,11 +2073,11 @@ body {
 
                                             color: #fff;
                                             background-color: #1b1f22;
-    
+
                                             &:after {
                                                 background-color: #1b1f22;
                                             }
-                                            
+
                                         }
 
                                     }
@@ -2518,7 +2180,7 @@ body {
                         }
 
                     }
-                    
+
                 }
 
                 #menu_item_content {
@@ -2578,12 +2240,12 @@ body {
 
                     }
 
-                    &.sbplus-vjs-expanded {
+                    &.sbplus-media-expanded {
 
                         #sbplus_content_wrapper {
 
                             #sbplus_main_content_col {
-                                
+
                                 #sbplus_quiz_wrapper {
                                     position: absolute;
                                     border: solid 1px rgb(73, 80, 87);
@@ -2603,13 +2265,13 @@ body {
                                         background-color: #343a40;
                                         border-color: rgb(73, 80, 87);
                                     }
-        
+
                                 }
 
                             }
 
                         }
-                        
+
                     }
 
                 }
@@ -2617,24 +2279,24 @@ body {
                 #copyright-footer {
 
                     color: rgba(222, 226, 230, 0.75);
-        
+
                     a {
                         color: rgb(110, 168, 254);
                     }
-        
+
                 }
 
             }
-            
+
         }
-        
+
     //}
 
 }
 
 // larger screen (over 900px)
 @media only screen and ( min-device-width: 768px ) and ( min-width: 900px ) {
-    
+
     html {
 
         height: unset;
@@ -2655,16 +2317,16 @@ body {
         #sbplus_error_screen {
             height: 100%;
         }
-        
+
         #sbplus {
-            
+
             display: block;
             flex-flow: unset;
             width: 100%;
             height: 100%;
 
             #sbplus_splash_screen {
-                
+
                 #sbplus_presentation_info {
 
                     .sb_context {
@@ -2680,7 +2342,7 @@ body {
                         }
 
                         .sb_cta {
-                        
+
                             flex: 1;
                             padding: 0 ($gutter * 4);
                             border-left: 1px solid $border-color;
@@ -2690,7 +2352,7 @@ body {
                             &.no_downloads {
                                 border-right: none;
                             }
-                            
+
                         }
 
                         .sb_downloads {
@@ -2707,7 +2369,7 @@ body {
                         }
 
                     }
-                    
+
                 }
 
                 #sb_splash_logo {
@@ -2718,11 +2380,11 @@ body {
             }
 
             #sbplus_banner_bar {
-                
+
                 #sbplus_menu_area {
-                    
+
                     width: 258px;
-                    
+
                     #sbplus_author_name {
                         display: flex;
                         flex: 2 1 auto;
@@ -2738,27 +2400,27 @@ body {
                         overflow: hidden;
                         background-color: transparent;
                     }
-                    
+
                     #sbplus_author_name:disabled {
                         cursor: default;
                     }
 
                 }
-                
+
             }
 
             #sbplus_content_wrapper {
-                
+
                 flex-flow: row nowrap;
                 @include calc( height, '100% - ' + $titleBarHeight );
                 border: 1px solid $border-color;
                 border-top: none;
-                
+
                 #sbplus_main_content_col {
-                
+
                     width: 640px;
                     flex: unset;
-                    
+
                     #sbplus_media_wrapper {
 
                         .sbplus_media_content {
@@ -2769,43 +2431,7 @@ body {
                                 display: flex;
                             }
 
-                            .video-js.vjs-default-skin {
 
-                                .vjs-control-bar {
-
-                                    .vjs-expand-contract-button {
-                                        display: block;
-                                    }
-
-                                    .vjs-menu-button-popup {
-
-                                        &:not(.vjs-hidden) {
-        
-                                            &:last-of-type {
-                                                
-                                                .vjs-menu {
-                                                    left: -3em;
-                                                }
-        
-                                            }
-        
-                                        }
-        
-                                    }
-
-                                }
-
-                                &.vjs-fullscreen {
-
-                                    .vjs-control-bar {
-                                        .vjs-expand-contract-button {
-                                            display: none;
-                                        }
-                                    }
-                                    
-                                }
-
-                            }
 
                             .html {
                                 height: calc(100% - 33px);
@@ -2848,9 +2474,9 @@ body {
                         // }
 
                     }
-                    
+
                 }
-                
+
                 #sbplus_side_content_col {
 
                     width: 258px;
@@ -2866,21 +2492,21 @@ body {
                     }
 
                 }
-                
+
             }
-            
+
             #menu_item_content {
-                
+
                 .sbplus_menu_title_bar {
                     height: $titleBarHeight;
                 }
-                
+
             }
-            
+
             #sbplus_control_bar {
-                
+
                 font-size: 100%;
-                
+
                 #sbplus_page_status {
                     @include font-size( 12px );
                     height: 20px;
@@ -2888,19 +2514,19 @@ body {
                 }
 
                 .controls {
-                    
+
                     #mobile_toc_toggle_btn {
                         display: none;
-                    } 
-                    
+                    }
+
                 }
-                
+
             }
 
-            &.sbplus-vjs-expanded {
+            &.sbplus-media-expanded {
 
                 #sbplus_content_wrapper {
-    
+
                     #sbplus_main_content_col {
 
                         position: absolute;
@@ -2909,7 +2535,7 @@ body {
                         top: 0px;
                         left: 0;
                         z-index: 999;
-                        
+
                         #sbplus_media_wrapper {
 
                             .sbplus_media_content {
@@ -2928,15 +2554,15 @@ body {
                                     }
 
                                 }
-                                
+
                             }
 
                         }
-        
+
                         #sbplus_widget {
                             display: none;
                         }
-        
+
                     }
 
                     #sbplus_main_content_col {
@@ -2988,13 +2614,13 @@ body {
                         }
 
                     }
-    
+
                 }
-    
+
             }
-            
+
         }
-        
+
         #copyright-footer {
             display: block;
             text-align: center;
@@ -3002,63 +2628,45 @@ body {
             @include font-size( 12px );
             color: #636266;
         }
-        
+
     }
-    
+
     .sbplus_autoplay_on {
-    
+
         #sbplus_media_wrapper {
-            
+
             .sbplus_media_content {
-                
-                .video-js.vjs-default-skin {
-                    
-                    .vjs-big-play-button {
-                        display: none;
-                   }
-                   
-                }
+
+
             }
-            
+
         }
-        
+
     }
-    
+
     .sbplus_autoplay_on.preventAutoplay {
         #sbplus_media_wrapper {
-            
+
             .sbplus_media_content {
-                
-                .video-js.vjs-default-skin {
-                    
-                    .vjs-big-play-button {
-                        display: block;
-                    }
-                   
-                }
-                
-                .video-js.vjs-default-skin.vjs-has-started {
-                    
-                    .vjs-big-play-button {
-                        display: none;
-                    }
-                   
-                }
+
+
+
+
             }
-            
+
         }
     }
-    
+
 }
 
 .loaded-in-iframe {
-    
+
     margin: 0;
 
     #copyright-footer {
         display: none;
     }
-    
+
 }
 
 .material-symbols-outlined {
